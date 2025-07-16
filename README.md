@@ -54,8 +54,8 @@ A web-based platform that empowers Moringa School students to showcase, monetize
 | Name                | Role                    | Contact / Profile                                        |  
 |---------------------|-------------------------|---------------------------------------------------------|  
 | **Derick Sheldrick**| Frontend Developer      | [GitHub](https://github.com/dericksheldrick)          |  
-| **Monica Wanjiru**  | Frontend Developer      | [LinkedIn](https://linkedin.com/in/bobj)               |  
-| **Fredrick Okoth**  | Frontend Developer      | [GitHub](https://github.com/carol)                     |  
+| **Monica Wanjiru**  | Frontend Developer      | [LinkedIn](https://github.com/monicah-monic)               |  
+| **Fredrick Okoth**  | Frontend Developer      | [GitHub](https://github.com/jakendu)                     |  
 | **Enock Tangus**    | Backend Developer       | [GitHub](https://github.com/Tan-dev202)                |  
 | **Elizabeth Njuguna**| Backend Developer     | [GitHub](https://github.com/Tan-dev202)                |  
 | **Isaac Gikaru**     | DevOps / Deployment     | [GitHub](https://github.com/I-GIKARU)                  |  
