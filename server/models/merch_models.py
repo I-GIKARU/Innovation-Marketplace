@@ -51,3 +51,34 @@ class User(db.Model, SerializerMixin):
     merchandise = db.relationship('Merchandise', back_populates='order_items')
     
     serialize_rules = ('-order.items', '-merchandise.order_items',)
+
+
+    class Order(db.Model, SerializerMixin):
+    __tablename__ = 'orders'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    date = db.Column(db.Date, default=datetime.utcnow)
+    status = db.Column(db.String(50))
+    amount = db.Column(db.Integer)
+    
+    client = db.relationship('Client', back_populates='orders')
+    items = db.relationship('OrderItem', back_populates='order')
+    payment = db.relationship('Payment', back_populates='order', uselist=False)
+    
+    serialize_rules = ('-client.orders', '-items.order', '-payment.order',)
+
+
+    class Payment(db.Model, SerializerMixin):
+    __tablename__ = 'payments'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'))
+    method = db.Column(db.String(50))
+    amount = db.Column(db.Integer)
+    status = db.Column(db.String(50))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    order = db.relationship('Order', back_populates='payment')
+    
+    serialize_rules = ('-order.payment',)
