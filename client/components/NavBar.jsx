@@ -27,7 +27,7 @@ const NavBar = () => {
         </li>
         <li>
           <Link href="/explore" className="font-semibold">
-            Explore Projects
+            portal
           </Link>
         </li>
       </ul>
