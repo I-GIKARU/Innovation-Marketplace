@@ -14,10 +14,40 @@ class User(db.Model, SerializerMixin):
     phone = db.Column(db.String(20))
     password_hash = db.Column(db.String(128))
     
-    serialize_rules = ('-password_hash',)  # Exclude password from serialization
+    serialize_rules = ('-password_hash',)  # exclude password from serialization
     
     def set_password(self, password):
         self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
         
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password_hash, password)
+
+
+    class Merchandise(db.Model, SerializerMixin):
+    __tablename__ = 'merchandise'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text)
+    price = db.Column(db.Integer)
+    image_url = db.Column(db.String(255))
+    is_in_stock = db.Column(db.Boolean, default=True)
+    
+    order_items = db.relationship('OrderItem', back_populates='merchandise')
+    
+    serialize_rules = ('-order_items.merchandise',)
+
+
+    class OrderItem(db.Model, SerializerMixin):
+    __tablename__ = 'order_item'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'))
+    merchandise_id = db.Column(db.Integer, db.ForeignKey('merchandise.id'))
+    quantity = db.Column(db.Integer)
+    price = db.Column(db.Integer)
+    
+    order = db.relationship('Order', back_populates='items')
+    merchandise = db.relationship('Merchandise', back_populates='order_items')
+    
+    serialize_rules = ('-order.items', '-merchandise.order_items',)
