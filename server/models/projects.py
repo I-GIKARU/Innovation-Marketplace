@@ -113,7 +113,21 @@ class Project(db.Model, SerializerMixin):
         '-client_interests.project'
     )
 
-
+class ClientInterest(db.Model, SerializerMixin):
+    __tablename__ = 'client_interest'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
+    client_id = db.Column(db.Integer, db.ForeignKey('clients.id'))
+    interested_in = db.Column(db.String(50), default="buying,hiring")
+    message = db.Column(db.Text)
+    date = db.Column(db.Date, default=datetime.utcnow)
+    
+    project = db.relationship('Project', back_populates='client_interests')
+    client = db.relationship('Client', back_populates='interests')
+    
+    serialize_rules = ('-project.client_interests', '-client.interests',)
+    
 class Review(db.Model, SerializerMixin):
     __tablename__ = 'reviews'
     
