@@ -68,7 +68,17 @@ class Client(db.Model, SerializerMixin):
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password_hash, password)
 
-
+class Category(db.Model, SerializerMixin):
+    __tablename__ = 'categories'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text)
+    
+    projects = db.relationship('Project', back_populates='category')
+    
+    serialize_rules = ('-projects.category',)
+    
 class Project(db.Model, SerializerMixin):
     __tablename__ = 'projects'
     
