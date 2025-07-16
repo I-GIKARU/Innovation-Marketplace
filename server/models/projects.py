@@ -112,7 +112,18 @@ class Project(db.Model, SerializerMixin):
         '-reviews.project',
         '-client_interests.project'
     )
-
+class ProjectStudent(db.Model, SerializerMixin):
+    __tablename__ = 'project_student'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('students.id'))
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
+    
+    student = db.relationship('Student', back_populates='projects')
+    project = db.relationship('Project', back_populates='students')
+    
+    serialize_rules = ('-student.projects', '-project.students',)
+    
 class ClientInterest(db.Model, SerializerMixin):
     __tablename__ = 'client_interest'
     
@@ -127,7 +138,7 @@ class ClientInterest(db.Model, SerializerMixin):
     client = db.relationship('Client', back_populates='interests')
     
     serialize_rules = ('-project.client_interests', '-client.interests',)
-    
+
 class Review(db.Model, SerializerMixin):
     __tablename__ = 'reviews'
     
