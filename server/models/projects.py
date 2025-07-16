@@ -78,7 +78,7 @@ class Category(db.Model, SerializerMixin):
     projects = db.relationship('Project', back_populates='category')
     
     serialize_rules = ('-projects.category',)
-    
+
 class Project(db.Model, SerializerMixin):
     __tablename__ = 'projects'
     
@@ -112,3 +112,17 @@ class Project(db.Model, SerializerMixin):
         '-reviews.project',
         '-client_interests.project'
     )
+
+
+class Review(db.Model, SerializerMixin):
+    __tablename__ = 'reviews'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
+    rating = db.Column(db.Integer)
+    comment = db.Column(db.Text)
+    date = db.Column(db.Date, default=datetime.utcnow)
+    
+    project = db.relationship('Project', back_populates='reviews')
+    
+    serialize_rules = ('-project.reviews',)
