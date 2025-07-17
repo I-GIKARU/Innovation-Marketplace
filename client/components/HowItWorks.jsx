@@ -22,7 +22,7 @@ const steps = [
 
 const HowItWorks = () => {
   return (
-    <section className="bg-gradient-to-b from-gray-50 to-gray-100 py-20 px-4">
+    <section className="bg-gradient-to-b from-gray-50 to-gray-100 py-20 px-6">
       <div className="max-w-6xl mx-auto text-center">
         <h2 className="text-4xl md:text-5xl font-extrabold mb-4 text-gray-800">How It Works</h2>
         <p className="text-gray-500 mb-16 text-lg">Simple. Fast. Impactful.</p>

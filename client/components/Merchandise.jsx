@@ -25,10 +25,10 @@ const products = [
 
 const Merchandise = () => {
   return (
-    <section className="bg-white py-20 px-4">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center md:items-start gap-12">
+    <section className="bg-white py-20 px-6">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center md:items-start gap-8">
         
-        {/* Text section */}
+        
         <div className="md:w-1/2 space-y-6 text-center md:text-left">
           <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">
             Merch for Devs, by Devs.
@@ -44,7 +44,7 @@ const Merchandise = () => {
           </button>
         </div>
 
-        {/* Images grid */}
+      
         <div className="md:w-1/2 grid grid-cols-2 gap-4">
           {products.map(product => (
             <div key={product.id} className="overflow-hidden rounded-xl group">
