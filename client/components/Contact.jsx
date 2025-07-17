@@ -63,7 +63,7 @@ const Contact = () => {
                 Send Message →
             </button>
           </form>
-          <div className="flex items-center gap-6 mb-2">
+          <div className="flex items-center gap-15 mb-2">
             <img className="h-auto max-w-xl rounded-lg shadow-xl dark:shadow-gray-800" 
             src="/images/contact_image.png" alt="image of people on telephone"/>
           </div>
