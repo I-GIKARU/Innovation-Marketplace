@@ -6,6 +6,7 @@ from flask_restful import Api
 from config import Config
 from models import db, bcrypt
 
+
 jwt = JWTManager()
 migrate = Migrate()
 
@@ -23,6 +24,13 @@ def create_app():
 
     api = Api(app)
 
+    from models.merchandise import Merchandise
+    from models.projects import Project
+    
+    with app.app_context():
+        db.create_all()
+        print("Database tables created!")
+    return app
 if __name__ == '__main__':
     app = create_app()
     app.run(debug=True)

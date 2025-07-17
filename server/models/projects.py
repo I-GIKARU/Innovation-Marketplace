@@ -1,10 +1,9 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin
-from flask_bcrypt import Bcrypt
+from . import db,bcrypt
 
-db = SQLAlchemy()
-bcrypt = Bcrypt()
+
 
 class Student(db.Model, SerializerMixin):
     __tablename__ = 'students'

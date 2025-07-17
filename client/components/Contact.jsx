@@ -7,7 +7,7 @@ const Contact = () => {
         id="contact"
         className="relative bg-white text-black py-15 px-6 overflow-hidden"
       >
-        <div className="relative max-w-7xl mx-auto grid md:grid-cols-2 gap-15 items-start">
+        <div className="relative max-w-7xl mx-auto grid md:grid-cols-2 gap-8 items-start">
           <h2 className="text-4xl font-bold mb-4">
             Let’s talk <span className="text-orange-500">with us!</span>
           </h2>
@@ -63,7 +63,7 @@ const Contact = () => {
                 Send Message →
             </button>
           </form>
-          <div className="flex items-center gap-6 mb-2">
+          <div className="flex items-center gap-15 mb-2">
             <img className="h-auto max-w-xl rounded-lg shadow-xl dark:shadow-gray-800" 
             src="/images/contact_image.png" alt="image of people on telephone"/>
           </div>
