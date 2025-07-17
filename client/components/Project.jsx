@@ -18,7 +18,7 @@ const Projects = () => {
   </div>
 
 
-   <div className="flex flex-col items-center bg-[#001f3f] border rounded-lg shadow-lg p-4 max-w-sm mx-auto">
+   <div className="flex flex-col items-center bg-orange-300 border rounded-lg shadow-lg p-4 max-w-sm mx-auto">
   <Image src="/images/ecommerce.jpg"alt="tours van" width={400} height={200}className="rounded-lg shadow-md"/>
   <p className="text-white text-sm text-center mt-4">
     Moringa students create brilliant software projects — built with real problems in mind.
@@ -26,7 +26,7 @@ const Projects = () => {
   </p>
   </div>
 
-    <div className="flex flex-col items-center bg-[#001f3f] border rounded-lg shadow-lg p-4 max-w-sm mx-auto">
+    <div className="flex flex-col items-center bg-rose-300 border rounded-lg shadow-lg p-4 max-w-sm mx-auto">
   <Image src="/images/healthhub.jpg"alt="tours van" width={400} height={200}className="rounded-lg shadow-md"/>
   <p className="text-white text-sm text-center mt-4">
     Moringa students create brilliant software projects — built with real problems in mind.
@@ -34,7 +34,7 @@ const Projects = () => {
   </p>
   </div>
 
-    <div className="flex flex-col items-center bg-[#001f3f] border rounded-lg shadow-lg p-4 max-w-sm mx-auto">
+    <div className="flex flex-col items-center bg-gray-700 border rounded-lg shadow-lg p-4 max-w-sm mx-auto">
   <Image src="/images/foodcourt.jpg"alt="tours van" width={400} height={200}className="rounded-lg shadow-md"/>
   <p className="text-white text-sm text-center mt-4">
     Moringa students create brilliant software projects — built with real problems in mind.
