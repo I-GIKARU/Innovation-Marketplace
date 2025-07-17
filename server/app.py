@@ -24,12 +24,12 @@ def create_app():
 
     api = Api(app)
 
-    from models.merchandise import Merchandise
-    from models.projects import Project
+    from resources import auth, merchandise, orders
     
-    with app.app_context():
-        db.create_all()
-        print("Database tables created!")
+    auth.setup_routes(api)
+    merchandise.setup_routes(api)
+    orders.setup_routes(api)
+    
     return app
 if __name__ == '__main__':
     app = create_app()
