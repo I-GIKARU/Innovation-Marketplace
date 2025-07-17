@@ -7,7 +7,7 @@ const Contact = () => {
         id="contact"
         className="relative bg-white text-black py-15 px-6 overflow-hidden"
       >
-        <div className="relative max-w-7xl mx-auto grid md:grid-cols-2 gap-15 items-start">
+        <div className="relative max-w-7xl mx-auto grid md:grid-cols-2 gap-8 items-start">
           <h2 className="text-4xl font-bold mb-4">
             Let’s talk <span className="text-orange-500">with us!</span>
           </h2>
