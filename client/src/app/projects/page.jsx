@@ -1,10 +1,10 @@
-// project/page.jsx
+// projects/page.jsx
 import React from 'react';
 import Projects from "@/components/Project";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 
-const ProjectPage = () => {
+const ProjectsPage = () => {
     return (
         <main>
             <NavBar />
@@ -14,4 +14,4 @@ const ProjectPage = () => {
     );
 };
 
-export default ProjectPage;
+export default ProjectsPage;
