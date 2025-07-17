@@ -6,18 +6,31 @@ import Image from "next/image";
 import { HiMenu, HiX } from "react-icons/hi";
 import { usePathname } from "next/navigation";
 import Register from "@/components/Register_login"
+import Portallogin from "@/components/Portallogin"
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname(); 
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
   const toggleDropdown = ()=>{
     setIsDropdownOpen(prev => !prev);
   };
   const closeDropdown=()=>{
     setIsDropdownOpen(false)
   }
+  const [isPortalDropdownOpen, setIsPortalDropdownOpen]= useState(false)
+  const portalDropdownRef = useRef(null)
+
+  const togglePortalDropdown = () => {
+  setIsPortalDropdownOpen(prev => !prev);
+  };
+
+  const closePortalDropdown = () => {
+  setIsPortalDropdownOpen(false);
+  };
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -26,10 +39,8 @@ const NavBar = () => {
     { href: "/projects", label: "Projects" },
     { href: "/merchandise", label: "Merchandise" },
     { href: "/contact", label: "Contact" },
-    { href: "/explore", label: "Portal" },
   ];
 
-  const dropdownRef = useRef(null);
 
   useEffect(()=>{
     const handleClickOutside=(event)=>{
@@ -41,6 +52,21 @@ const NavBar = () => {
     return() =>{
       document.removeEventListener("mousedown", handleClickOutside)
     };
+  }, []);
+
+  useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      closeDropdown();
+    }
+    if (portalDropdownRef.current && !portalDropdownRef.current.contains(event.target)) {
+      closePortalDropdown();
+    }
+  };
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
   }, []);
 
   return (
@@ -83,6 +109,19 @@ const NavBar = () => {
               </Link>
             </li>
           ))}
+            <li className="relative" ref={portalDropdownRef}>
+              <button
+                onClick={togglePortalDropdown}
+                className="pb-1 border-b-2 border-transparent hover:border-orange-300"
+              >
+                Portal
+              </button>
+              {isPortalDropdownOpen && (
+                <div className="absolute right-0 mt-2">
+                  <Portallogin closeParentDropdown={closePortalDropdown} />
+                </div>
+              )}
+            </li>
             <li className="relative" ref={dropdownRef}>
               <button
               onClick={toggleDropdown}
@@ -116,6 +155,20 @@ const NavBar = () => {
               </Link>
             </li>
           ))}
+            <li className="relative" ref={portalDropdownRef}>
+              <button
+                onClick={togglePortalDropdown}
+                className="text-white px-4 py-2 rounded hover:bg-orange-500 transition"
+              >
+                Portal
+              </button>
+
+              {isPortalDropdownOpen && (
+                <div className="mt-2">
+                  <Portallogin closeParentDropdown={closePortalDropdown} />
+                </div>
+              )}
+            </li>
             <li className="relative" ref={dropdownRef}>
               <button
                 onClick={toggleDropdown}
