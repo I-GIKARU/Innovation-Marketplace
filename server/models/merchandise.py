@@ -15,7 +15,7 @@ class User(db.Model, SerializerMixin):
 
     orders = db.relationship('Order', back_populates='buyer')
     
-    serialize_rules = ('-orders.users''-password_hash',)  
+    serialize_rules = ('-orders.users', '-password_hash',)  
     
     def set_password(self, password):
         self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
