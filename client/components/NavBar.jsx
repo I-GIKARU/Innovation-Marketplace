@@ -1,14 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { HiMenu, HiX } from "react-icons/hi";
 import { usePathname } from "next/navigation";
+import Register from "@/components/Register_login"
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname(); 
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const toggleDropdown = ()=>{
+    setIsDropdownOpen(prev => !prev);
+  };
+  const closeDropdown=()=>{
+    setIsDropdownOpen(false)
+  }
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -17,9 +26,23 @@ const NavBar = () => {
     { href: "/projects", label: "Projects" },
     { href: "/merchandise", label: "Merchandise" },
     { href: "/contact", label: "Contact" },
-    { href: "/login", label: "Log in" },
+    // { href: "/login", label: "Log in" },
     { href: "/explore", label: "Portal" },
   ];
+
+  const dropdownRef = useRef(null);
+
+  useEffect(()=>{
+    const handleClickOutside=(event)=>{
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)){
+        closeDropdown()
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return() =>{
+      document.removeEventListener("mousedown", handleClickOutside)
+    };
+  }, []);
 
   return (
     <nav className="bg-white shadow-md px-6 md:px-10 py-4">
@@ -61,6 +84,19 @@ const NavBar = () => {
               </Link>
             </li>
           ))}
+            <li className="relative" ref={dropdownRef}>
+              <button
+              onClick={toggleDropdown}
+              className=" text-gray-800 hover:underline hover:decoration-orange-300 "
+              >
+                Login
+              </button>
+              {isDropdownOpen &&(
+                <div className="absolute right-0 mt-2">
+                  <Register closeParentDropdown={closeDropdown} />
+                </div>
+              )}
+            </li>
         </ul>
       </div>
 
@@ -81,6 +117,20 @@ const NavBar = () => {
               </Link>
             </li>
           ))}
+            <li className="relative" ref={dropdownRef}>
+              <button
+                onClick={toggleDropdown}
+                className="text-white px-4 py-2 rounded hover:bg-orange-500 transition"
+              >
+                Login
+              </button>
+
+              {isDropdownOpen && (
+                <div className="mt-2">
+                  <Register closeParentDropdown={closeDropdown} />
+                </div>
+              )}
+            </li>
         </ul>
       )}
     </nav>
