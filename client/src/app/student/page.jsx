@@ -3,6 +3,7 @@ import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 import ProjectCard from "@/components/ProjectCard";
 import SkillsPanel from "@/components/SkillsPanel";
+import NavBar from "@/components/NavBar";
 
 const projectData = [
   {
@@ -36,6 +37,7 @@ export default function Home() {
     <div className="flex">
       <Sidebar />
       <div className="flex-1 p-4">
+        <NavBar/>
         <Topbar />
         <div className="flex gap-4 mt-6">
           <div className="grid grid-cols-2 gap-4 flex-1">

@@ -26,7 +26,6 @@ const NavBar = () => {
     { href: "/projects", label: "Projects" },
     { href: "/merchandise", label: "Merchandise" },
     { href: "/contact", label: "Contact" },
-    // { href: "/login", label: "Log in" },
     { href: "/explore", label: "Portal" },
   ];
 
