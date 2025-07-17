@@ -1,0 +1,17 @@
+Flask
+Flask-SQLAlchemy
+Flask-JWT-Extended
+Flask-Bcrypt
+Flask-CORS
+Flask-Mail
+Flask-Migrate
+Flask-RESTful
+faker
+SQLAlchemy-serializer
+psycopg2-binary
+python-dotenv
+Werkzeug
+requests
+cloudinary
+gunicorn
+
