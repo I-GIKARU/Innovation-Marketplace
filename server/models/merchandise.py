@@ -12,8 +12,10 @@ class User(db.Model, SerializerMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     phone = db.Column(db.String(20))
     password_hash = db.Column(db.String(128))
+
+    orders = db.relationship('Order', back_populates='buyer')
     
-    serialize_rules = ('-password_hash',)  
+    serialize_rules = ('-orders.users''-password_hash',)  
     
     def set_password(self, password):
         self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
@@ -61,11 +63,11 @@ class Order(db.Model, SerializerMixin):
     status = db.Column(db.String(50))
     amount = db.Column(db.Integer)
 
-    client = db.relationship('Client', back_populates='orders')
+    buyer = db.relationship('User', back_populates='orders')
     items = db.relationship('OrderItem', back_populates='order')
     payment = db.relationship('Payment', back_populates='order', uselist=False)
 
-    serialize_rules = ('-client.orders', '-items.order', '-payment.order',)
+    serialize_rules = ('-buyer.orders', '-items.order', '-payment.order',)
 
 
 class Payment(db.Model, SerializerMixin):

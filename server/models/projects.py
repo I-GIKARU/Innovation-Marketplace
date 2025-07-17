@@ -57,9 +57,9 @@ class Client(db.Model, SerializerMixin):
     phone = db.Column(db.String(20))
     
     interests = db.relationship('ClientInterest', back_populates='client')
-    orders = db.relationship('Order', back_populates='client')
+   
     
-    serialize_rules = ('-password_hash', '-interests.client', '-orders.client',)
+    serialize_rules = ('-password_hash', '-interests.client',)
     
     def set_password(self, password):
         self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
