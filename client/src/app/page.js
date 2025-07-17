@@ -5,6 +5,7 @@ import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import HowItWorks from "@/components/HowItWorks";
 import Explore from "@/components/Explore";
+import Projects from "@/components/Project";
 // import HowItWorks from "@/components/HowItWorks"
 import Merchandise from "@/components/Merchandise"
 
@@ -14,6 +15,7 @@ export default function Home() {
       <NavBar />
       <Hero />
       <Explore />
+      <Projects/>
       <Merchandise />
       <HowItWorks />
       <Contact />
