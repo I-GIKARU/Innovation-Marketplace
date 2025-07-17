@@ -1,0 +1,103 @@
+### Register Student
+POST http://localhost:5000/api/register
+Content-Type: application/json
+
+{
+  "email": "kb.lee@student.moringaschool.com",
+  "password": "StrongPass123!",
+  "role": "student",
+  "name": "Student Name"
+}
+
+### Register Client
+POST http://localhost:5000/api/register
+Content-Type: application/json
+
+{
+  "email": "clienta@example.com",
+  "password": "StrongPass123!",
+  "role": "client",
+  "name": "Client Name"
+}
+
+### Register User
+POST http://localhost:5000/api/register
+Content-Type: application/json
+
+{
+  "email": "usera@example.com",
+  "password": "StrongPass123!",
+  "role": "user"
+}
+
+### Register Admin (must be logged in as admin first!)
+POST http://localhost:5000/api/register
+Content-Type: application/json
+Cookie: access_token_cookie=your_token_here
+
+{
+  "email": "admin2@example.com",
+  "password": "StrongPass123!",
+  "role": "admin",
+  "name": "New Admin"
+}
+
+### Login (Student)
+POST http://localhost:5000/api/login
+Content-Type: application/json
+
+{
+  "email": "kb.lee@student.moringaschool.com",
+  "password": "StrongPass123!",
+  "role": "student"
+}
+
+### Login (Admin)
+POST http://localhost:5000/api/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "StrongPass123!",
+  "role": "admin"
+}
+
+### Get Current User
+GET http://localhost:5000/api/me
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1Mjc4MjE4MSwianRpIjoiZjJhNjI2MGEtNGNjZS00ODQxLWFjOGYtNjA0MzI3NDgxZDY4IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NTI3ODIxODEsImNzcmYiOiJhN2YwMDY0Zi01ODY2LTRkODctOTUwOS1lZTVhMmVlODAxZmYiLCJleHAiOjE3NTI4Njg1ODEsImVtYWlsIjoia2IubGVlQHN0dWRlbnQubW9yaW5nYXNjaG9vbC5jb20iLCJyb2xlIjoic3R1ZGVudCJ9.v1mKAf2BX6oZo8nycPOTIG7SIhuo5DIJW-nhOsrzeJc
+
+### Get Profile
+GET http://localhost:5000/api/profile
+Cookie: access_token_cookie=your_token_here
+
+### Update Profile (Student)
+PUT http://localhost:5000/api/profile
+Content-Type: application/json
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1Mjc4MjE4MSwianRpIjoiZjJhNjI2MGEtNGNjZS00ODQxLWFjOGYtNjA0MzI3NDgxZDY4IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NTI3ODIxODEsImNzcmYiOiJhN2YwMDY0Zi01ODY2LTRkODctOTUwOS1lZTVhMmVlODAxZmYiLCJleHAiOjE3NTI4Njg1ODEsImVtYWlsIjoia2IubGVlQHN0dWRlbnQubW9yaW5nYXNjaG9vbC5jb20iLCJyb2xlIjoic3R1ZGVudCJ9.v1mKAf2BX6oZo8nycPOTIG7SIhuo5DIJW-nhOsrzeJc
+
+{
+  "name": "Updated Student",
+  "skills": "Python, Flask",
+  "bio": "Updated Bio",
+  "password": "NewStrongPass123!"
+}
+
+### Logout
+POST http://localhost:5000/api/logout
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1Mjc4MjE4MSwianRpIjoiZjJhNjI2MGEtNGNjZS00ODQxLWFjOGYtNjA0MzI3NDgxZDY4IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NTI3ODIxODEsImNzcmYiOiJhN2YwMDY0Zi01ODY2LTRkODctOTUwOS1lZTVhMmVlODAxZmYiLCJleHAiOjE3NTI4Njg1ODEsImVtYWlsIjoia2IubGVlQHN0dWRlbnQubW9yaW5nYXNjaG9vbC5jb20iLCJyb2xlIjoic3R1ZGVudCJ9.v1mKAf2BX6oZo8nycPOTIG7SIhuo5DIJW-nhOsrzeJc
+
+### Student Dashboard
+GET http://localhost:5000/api/dashboard/student
+Cookie: access_token_cookie=your_token_here
+
+### Client Dashboard
+GET http://localhost:5000/api/dashboard/client
+Cookie: access_token_cookie=your_token_here
+
+### User Dashboard
+GET http://localhost:5000/api/dashboard/user
+Cookie: access_token_cookie=your_token_here
+
+### Admin Dashboard
+GET http://localhost:5000/api/dashboard/admin
+Cookie: access_token_cookie=your_token_here

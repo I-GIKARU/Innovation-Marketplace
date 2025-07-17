@@ -1,5 +1,4 @@
-from datetime import datetime
-from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime, timezone
 from sqlalchemy_serializer import SerializerMixin
 from . import db,bcrypt
 
@@ -59,7 +58,8 @@ class Order(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    date = db.Column(db.Date, default=datetime.utcnow)
+    email = db.Column(db.String(120), nullable=True)
+    date = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     status = db.Column(db.String(50))
     amount = db.Column(db.Integer)
 
@@ -68,6 +68,19 @@ class Order(db.Model, SerializerMixin):
     payment = db.relationship('Payment', back_populates='order', uselist=False)
 
     serialize_rules = ('-buyer.orders', '-items.order', '-payment.order',)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "email": self.email if self.user_id is None else None,
+            "buyer": self.buyer.to_dict() if self.buyer else None,
+            "amount": self.amount,
+            "status": self.status,
+            "date": self.date.isoformat(),
+            "items": [item.to_dict() for item in self.items],
+            "payment": self.payment.to_dict() if self.payment else None
+        }
 
 
 class Payment(db.Model, SerializerMixin):
@@ -78,7 +91,7 @@ class Payment(db.Model, SerializerMixin):
     method = db.Column(db.String(50))
     amount = db.Column(db.Integer)
     status = db.Column(db.String(50))
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     order = db.relationship('Order', back_populates='payment')
 

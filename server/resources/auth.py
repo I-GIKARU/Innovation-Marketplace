@@ -7,6 +7,7 @@ from flask_jwt_extended import (
     verify_jwt_in_request,
     set_access_cookies,
     unset_jwt_cookies,
+    get_jwt,
 )
 from functools import wraps
 from models import (
@@ -35,15 +36,12 @@ def role_required(role):
         @wraps(fn)
         def decorator(*args, **kwargs):
             verify_jwt_in_request()
-            identity = get_jwt_identity()
-            if not isinstance(identity, dict) or identity.get("role") != role:
+            claims = get_jwt()
+            if claims.get("role") != role:
                 return {"message": f"{role.capitalize()} role required!"}, 403
             return fn(*args, **kwargs)
-
         return decorator
-
     return wrapper
-
 
 # Admin or specific role required decorator
 def admin_or_role_required(allowed_roles):
@@ -51,16 +49,12 @@ def admin_or_role_required(allowed_roles):
         @wraps(fn)
         def decorator(*args, **kwargs):
             verify_jwt_in_request()
-            identity = get_jwt_identity()
-            if not isinstance(identity, dict):
-                return {"error": "Invalid identity format"}, 400
-            user_role = identity.get("role")
-            if user_role not in allowed_roles and user_role != "admin":
+            claims = get_jwt()
+            role = claims.get("role")
+            if role not in allowed_roles and role != "admin":
                 return {"message": "Insufficient permissions"}, 403
             return fn(*args, **kwargs)
-
         return decorator
-
     return wrapper
 
 
@@ -97,7 +91,6 @@ class UserRegistration(Resource):
             return {"error": str(exc)}, 500
 
     def _register_student(self, data):
-
         is_valid_email, email_message = validate_student_email(data["email"])
         if not is_valid_email:
             return {"error": email_message}, 400
@@ -124,16 +117,15 @@ class UserRegistration(Resource):
         db.session.add(student)
         db.session.commit()
 
-        identity = {"id": student.id, "email": student.email, "role": "student"}
-        access_token = create_access_token(
-            identity=identity, expires_delta=timedelta(hours=24)
-        )
+        identity = str(student.id)
+        claims = {"email": student.email, "role": "student"}
+        access_token = create_access_token(identity=identity, additional_claims=claims)
 
         response = make_response(
             jsonify(
                 {
                     "message": "Student registered successfully",
-                    "user": identity,
+                    "user": {"id": student.id, **claims},
                     "student": student.to_dict(),
                 }
             ),
@@ -143,7 +135,6 @@ class UserRegistration(Resource):
         return response
 
     def _register_client(self, data):
-
         is_valid_email, email_message = validate_email_format(data["email"])
         if not is_valid_email:
             return {"error": email_message}, 400
@@ -167,16 +158,15 @@ class UserRegistration(Resource):
         db.session.add(client)
         db.session.commit()
 
-        identity = {"id": client.id, "email": client.email, "role": "client"}
-        access_token = create_access_token(
-            identity=identity, expires_delta=timedelta(hours=24)
-        )
+        identity = str(client.id)
+        claims = {"email": client.email, "role": "client"}
+        access_token = create_access_token(identity=identity, additional_claims=claims)
 
         response = make_response(
             jsonify(
                 {
                     "message": "Client registered successfully",
-                    "user": identity,
+                    "user": {"id": client.id, **claims},
                     "client": client.to_dict(),
                 }
             ),
@@ -186,7 +176,6 @@ class UserRegistration(Resource):
         return response
 
     def _register_user(self, data):
-
         is_valid_email, email_message = validate_email_format(data["email"])
         if not is_valid_email:
             return {"error": email_message}, 400
@@ -200,16 +189,15 @@ class UserRegistration(Resource):
         db.session.add(user)
         db.session.commit()
 
-        identity = {"id": user.id, "email": user.email, "role": "user"}
-        access_token = create_access_token(
-            identity=identity, expires_delta=timedelta(hours=24)
-        )
+        identity = str(user.id)
+        claims = {"email": user.email, "role": "user"}
+        access_token = create_access_token(identity=identity, additional_claims=claims)
 
         response = make_response(
             jsonify(
                 {
                     "message": "User registered successfully",
-                    "user": identity,
+                    "user": {"id": user.id, **claims},
                     "user_data": user.to_dict(),
                 }
             ),
@@ -219,11 +207,12 @@ class UserRegistration(Resource):
         return response
 
     def _register_admin(self, data):
-
         try:
             verify_jwt_in_request()
             current_user = get_jwt_identity()
-            if not current_user or current_user.get("role") != "admin":
+            from flask_jwt_extended import get_jwt
+            claims = get_jwt()
+            if not current_user or claims.get("role") != "admin":
                 return {"error": "Only admins can create admin accounts"}, 403
         except:
             return {"error": "Admin authentication required"}, 403
@@ -275,15 +264,18 @@ class UserLogin(Resource):
             if not user or not user.check_password(password):
                 return {"message": "Invalid credentials"}, 401
 
-            identity = {"id": user.id, "email": user.email, "role": role}
-
-            access_token = create_access_token(
-                identity=identity, expires_delta=timedelta(hours=24)
-            )
+            identity = str(user.id)
+            claims = {"email": user.email, "role": role}
+            access_token = create_access_token(identity=identity, additional_claims=claims)
 
             response = make_response(
-                jsonify({"user": identity, "message": "Login successful"}), 200
+                jsonify({
+                    "user": {"id": user.id, **claims},
+                    "access_token": access_token,  # 👈 add this line
+                    "message": "Login successful"
+                }), 200
             )
+
             set_access_cookies(response, access_token)
             return response
 
@@ -296,12 +288,19 @@ class CurrentUser(Resource):
         try:
             verify_jwt_in_request(optional=True)
             identity = get_jwt_identity()
-            if identity:
-                return jsonify({"user": identity})
-            return jsonify({"user": None})
-        except:
-            return {"message": "Error verifying user"}, 500
+            claims = get_jwt()
 
+            if identity:
+                return jsonify({
+                    "user": {
+                        "id": identity,
+                        "email": claims.get("email"),
+                        "role": claims.get("role")
+                    }
+                })
+            return jsonify({"user": None})
+        except Exception as e:
+            return {"message": f"Error verifying user: {str(e)}"}, 500
 
 class UserLogout(Resource):
     def post(self):
@@ -313,9 +312,9 @@ class UserLogout(Resource):
 class UserProfile(Resource):
     @jwt_required()
     def get(self):
-        current_user = get_jwt_identity()
-        user_id = current_user["id"]
-        role = current_user["role"]
+        user_id = get_jwt_identity()  # string user id
+        claims = get_jwt()
+        role = claims.get("role")
 
         user = None
         if role == "student":
@@ -360,9 +359,9 @@ class UserProfile(Resource):
 
     @jwt_required()
     def put(self):
-        current_user = get_jwt_identity()
-        user_id = current_user["id"]
-        role = current_user["role"]
+        user_id = get_jwt_identity()
+        claims = get_jwt()
+        role = claims.get("role")
         data = request.get_json()
 
         user = None
@@ -434,43 +433,40 @@ class UserProfile(Resource):
             db.session.rollback()
             return {"error": str(exc)}, 500
 
-
 # Dashboard Resources
 class StudentDashboard(Resource):
     @jwt_required()
     @role_required("student")
     def get(self):
-        current_user = get_jwt_identity()
-        student = Student.query.get(current_user["id"])
+        student_id = get_jwt_identity()  # returns string like "3"
+        student = Student.query.get(student_id)
 
         if not student:
             return {"error": "Student profile not found"}, 404
 
-        project_associations = ProjectStudent.query.filter_by(
-            student_id=student.id
-        ).all()
+        # Get associated projects
+        project_associations = ProjectStudent.query.filter_by(student_id=student.id).all()
         projects = [Project.query.get(pa.project_id) for pa in project_associations]
 
+        # Get client interests for each project
         interests = []
         for project in projects:
-            project_interests = ClientInterest.query.filter_by(
-                project_id=project.id
-            ).all()
-            interests.extend(project_interests)
+            if project:  # prevent None
+                project_interests = ClientInterest.query.filter_by(project_id=project.id).all()
+                interests.extend(project_interests)
 
         return {
             "student": student.to_dict(),
-            "projects": [project.to_dict() for project in projects if project],
-            "client_interests": [interest.to_dict() for interest in interests],
+            "projects": [p.to_dict() for p in projects if p],
+            "client_interests": [i.to_dict() for i in interests],
         }, 200
-
 
 class ClientDashboard(Resource):
     @jwt_required()
     @role_required("client")
     def get(self):
-        current_user = get_jwt_identity()
-        client = Client.query.get(current_user["id"])
+        client_id = get_jwt_identity()
+        client = Client.query.get(client_id)
 
         if not client:
             return {"error": "Client profile not found"}, 404
@@ -482,13 +478,12 @@ class ClientDashboard(Resource):
             "interests": [interest.to_dict() for interest in interests],
         }, 200
 
-
 class UserDashboard(Resource):
     @jwt_required()
     @role_required("user")
     def get(self):
-        current_user = get_jwt_identity()
-        user = User.query.get(current_user["id"])
+        user_id = get_jwt_identity()  # it's a string like "6"
+        user = User.query.get(user_id)
 
         if not user:
             return {"error": "User profile not found"}, 404
@@ -499,7 +494,6 @@ class UserDashboard(Resource):
             "user": user.to_dict(),
             "orders": [order.to_dict() for order in orders],
         }, 200
-
 
 class AdminDashboard(Resource):
     @jwt_required()
