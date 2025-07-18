@@ -3,6 +3,18 @@ from sqlalchemy_serializer import SerializerMixin
 from . import db,bcrypt
 
 
+class Role(db.Model, SerializerMixin):
+    __tablename__ = 'roles'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    desc = db.Column(db.String(255))
+    
+    # Relationships
+    users = db.relationship('User', backref='role', lazy=True)
+    
+    # Serialization rules
+    serialize_rules = ('-users.role',)
 
 class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
@@ -10,16 +22,29 @@ class User(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     phone = db.Column(db.String(20))
-    password_hash = db.Column(db.String(128))
-
-    orders = db.relationship('Order', back_populates='buyer')
+    password_hash = db.Column(db.String(255), nullable=False)
+    bio = db.Column(db.Text)
+    socials = db.Column(db.String(255))
+    company = db.Column(db.String(100))
+    past_projects = db.Column(db.Text)
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable=False)
     
-    serialize_rules = ('-orders.users', '-password_hash',)  
+    # Relationships
+    orders = db.relationship('Order', backref='user', lazy=True)
+    user_projects = db.relationship('UserProject', backref='user', lazy=True)
     
-    def set_password(self, password):
+    # Serialization rules
+    serialize_rules = ('-password_hash', '-role.users', '-orders.user', '-user_projects.user')
+    
+    @property
+    def password(self):
+        raise AttributeError('password is not a readable attribute')
+    
+    @password.setter
+    def password(self, password):
         self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
-        
-    def check_password(self, password):
+    
+    def verify_password(self, password):
         return bcrypt.check_password_hash(self.password_hash, password)
 
 
