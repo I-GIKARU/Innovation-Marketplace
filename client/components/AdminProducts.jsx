@@ -7,7 +7,7 @@ const Products = () => {
   return (
     <section className="bg-white p-6 rounded shadow-md">
       <h2 className="text-xl font-bold mb-2">Products</h2>
-      <p className="text-gray-600">Browse merchandise available in our store.</p>
+      <p className="text-gray-600">Merchandise available at our store</p>
       <button onClick={() => setShowDetails(!showDetails)}  
       className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"  >
         View Details

@@ -20,6 +20,7 @@ function Sidebar({ onSelect }) {
           </button>
         ))}
       </nav>
+      
     </aside>
   );
 }

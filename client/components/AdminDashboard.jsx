@@ -15,7 +15,7 @@ const Dashboard = () => {
     switch (activePage) {
       case 'dashboard':
         return (
-          <div className="p-6 m-6">
+          <div className="p-6 m-5">
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-green-100 rounded-lg p-6 shadow-md">

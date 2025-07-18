@@ -20,8 +20,8 @@ const ProjectsTable = () => {
           </tr>
         </thead>
         <tbody>
-          {projectData.map((item, idx) => (
-            <tr key={idx} className="border-t">
+          {projectData.map((item, index) => (
+            <tr key={index} className="border-t">
               <td className="px-4 py-2">{item.name}</td>
               <td className="px-4 py-2">{item.project}</td>
               <td
