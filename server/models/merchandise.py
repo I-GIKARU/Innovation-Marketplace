@@ -2,10 +2,6 @@ from datetime import datetime, timezone
 from sqlalchemy_serializer import SerializerMixin
 from . import db,bcrypt
 
-
-
-
-
 class Merchandise(db.Model, SerializerMixin):
     __tablename__ = 'merchandise'
 
