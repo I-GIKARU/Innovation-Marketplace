@@ -44,28 +44,31 @@ class Project(db.Model, SerializerMixin):
     
     
   
-class ProjectStudent(db.Model, SerializerMixin):
-    __tablename__ = 'project_student'
+class UserProject(db.Model, SerializerMixin):
+    __tablename__ = 'users_projects'
     
     id = db.Column(db.Integer, primary_key=True)
-    student_id = db.Column(db.Integer, db.ForeignKey('students.id'))
-    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
+    interested_in = db.Column(db.String(255))
+    date = db.Column(db.Date)
+    message = db.Column(db.Text)
     
-    student = db.relationship('Student', back_populates='projects')
-    project = db.relationship('Project', back_populates='students')
+    # Relationships
+    reviews = db.relationship('Review', backref='user_project', lazy=True)
     
-    serialize_rules = ('-student.projects', '-project.students',)
+    # Serialization rules
+    serialize_rules = ('-user.user_projects', '-project.user_projects', '-reviews.user_project')
     
 
 class Review(db.Model, SerializerMixin):
     __tablename__ = 'reviews'
     
     id = db.Column(db.Integer, primary_key=True)
-    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
+    user_project_id = db.Column(db.Integer, db.ForeignKey('users_projects.id'), nullable=False)
     rating = db.Column(db.Integer)
     comment = db.Column(db.Text)
-    date = db.Column(db.Date, default=datetime.utcnow)
+    date = db.Column(db.Date)
     
-    project = db.relationship('Project', back_populates='reviews')
-    
-    serialize_rules = ('-project.reviews',)
+    # Serialization rules
+    serialize_rules = ('-user_project.reviews',)
