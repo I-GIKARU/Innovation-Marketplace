@@ -11,8 +11,8 @@ class Role(db.Model, SerializerMixin):
     desc = db.Column(db.String(255))
     
     # Relationships
-    users = db.relationship('User', backref='role', lazy=True)
-    
+    users = db.relationship('User', back_populates='role', lazy=True)
+
     # Serialization rules
     serialize_rules = ('-users.role',)
 
@@ -30,9 +30,10 @@ class User(db.Model, SerializerMixin):
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable=False)
     
     # Relationships
-    orders = db.relationship('Order', backref='user', lazy=True)
-    user_projects = db.relationship('UserProject', backref='user', lazy=True)
-    
+    orders = db.relationship('Order', back_populates='user', lazy=True)
+    user_projects = db.relationship('UserProject', back_populates='user', lazy=True)
+    role = db.relationship('Role', back_populates='users')
+
     # Serialization rules
     serialize_rules = ('-password_hash', '-role.users', '-orders.user', '-user_projects.user')
     
@@ -74,12 +75,13 @@ class Project(db.Model, SerializerMixin):
     status = db.Column(db.String(50))
     featured = db.Column(db.Boolean, default=False)
     technical_mentor = db.Column(db.String(100))
-    views = db.Column(db.Integer, default=0)
+    views = db.Column( db.Integer, default=0)
     clicks = db.Column(db.Integer, default=0)
     downloads = db.Column(db.Integer, default=0)
     
     # Relationships
-    user_projects = db.relationship('UserProject', backref='project', lazy=True)
+    category = db.relationship('Category', back_populates='projects')
+    user_projects = db.relationship('UserProject', back_populates='project', lazy=True)
     
     # Serialization rules
     serialize_rules = ('-category.projects', '-user_projects.project')
@@ -97,8 +99,11 @@ class UserProject(db.Model, SerializerMixin):
     message = db.Column(db.Text)
     
     # Relationships
-    reviews = db.relationship('Review', backref='user_project', lazy=True)
+    user = db.relationship('User', back_populates='user_projects')
+    project = db.relationship('Project', back_populates='user_projects')
     
+    reviews = db.relationship('Review', back_populates='user_project', lazy=True)
+
     # Serialization rules
     serialize_rules = ('-user.user_projects', '-project.user_projects', '-reviews.user_project')
     
@@ -112,5 +117,8 @@ class Review(db.Model, SerializerMixin):
     comment = db.Column(db.Text)
     date = db.Column(db.Date)
     
+    # Relationships
+    user_project = db.relationship('UserProject', back_populates='reviews')
+
     # Serialization rules
     serialize_rules = ('-user_project.reviews',)

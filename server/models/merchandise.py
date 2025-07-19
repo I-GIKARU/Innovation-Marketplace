@@ -42,18 +42,18 @@ class Order(db.Model, SerializerMixin):
     status = db.Column(db.String(50))
     amount = db.Column(db.Integer)
 
-    buyer = db.relationship('User', back_populates='orders')
+    user = db.relationship('User', back_populates='orders')
     items = db.relationship('OrderItem', back_populates='order')
     payment = db.relationship('Payment', back_populates='order', uselist=False)
 
-    serialize_rules = ('-buyer.orders', '-items.order', '-payment.order',)
+    serialize_rules = ('-user.orders', '-items.order', '-payment.order',)
 
     def to_dict(self):
         return {
             "id": self.id,
             "user_id": self.user_id,
             "email": self.email if self.user_id is None else None,
-            "buyer": self.buyer.to_dict() if self.buyer else None,
+            "user": self.user.to_dict() if self.user else None,
             "amount": self.amount,
             "status": self.status,
             "date": self.date.isoformat(),
