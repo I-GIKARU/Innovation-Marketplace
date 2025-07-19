@@ -30,10 +30,19 @@ def create_app():
 
     api = Api(app)
 
-    # from resources import auth, merchandise, orders
-    # auth.setup_routes(api)
-    # merchandise.setup_routes(api)
-    # orders.setup_routes(api)
+    from resources.auth import setup_routes as auth_setup_routes
+    from resources.projects import setup_routes as projects_setup_routes
+    from resources.admin import setup_routes as admin_setup_routes
+    from resources.merch import setup_routes as merchandise_setup_routes
+    from resources.orders import setup_routes as orders_setup_routes
+    from resources.user_projects import setup_routes as user_projects_setup_routes
+    
+    auth_setup_routes(api)
+    projects_setup_routes(api)
+    admin_setup_routes(api)
+    merchandise_setup_routes(api)
+    orders_setup_routes(api)
+    user_projects_setup_routes(api)
 
     # # ✅ Create default admin immediately in app context
     # with app.app_context():
