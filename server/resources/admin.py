@@ -1,19 +1,13 @@
 from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import db, Project, Admin, Category, Merchandise
-
-def admin_required(fn):
-    def decorator(*args, **kwargs):
-        current_user = get_jwt_identity()
-        if current_user['role'] != 'admin':
-            return {'error': 'Admin access required'}, 403
-        return fn(*args, **kwargs)
-    return decorator
+from models import db, Project, User, Category, Merchandise, Order, OrderItem, Role
+from resources.auth.decorators import role_required
+from sqlalchemy import func
 
 class PendingProjects(Resource):
     @jwt_required()
-    @admin_required
+    @role_required('admin')
     def get(self):
         try:
             page = request.args.get('page', 1, type=int)
@@ -37,15 +31,12 @@ class PendingProjects(Resource):
 
 class ApproveProject(Resource):
     @jwt_required()
-    @admin_required
+    @role_required('admin')
     def post(self, id):
         try:
-            current_user = get_jwt_identity()
             project = Project.query.get_or_404(id)
             
             project.status = 'approved'
-            project.is_approved = True
-            project.reviewed_by = current_user['id']
             
             db.session.commit()
             
@@ -60,16 +51,15 @@ class ApproveProject(Resource):
 
 class RejectProject(Resource):
     @jwt_required()
-    @admin_required
+    @role_required('admin')
     def post(self, id):
         try:
-            current_user = get_jwt_identity()
             data = request.get_json()
             project = Project.query.get_or_404(id)
             
+            reason = data.get('reason', 'Project rejected')
+            
             project.status = 'rejected'
-            project.is_approved = False
-            project.reviewed_by = current_user['id']
             
             db.session.commit()
             
@@ -84,20 +74,18 @@ class RejectProject(Resource):
 
 class FeatureProject(Resource):
     @jwt_required()
-    @admin_required
+    @role_required('admin')
     def post(self, id):
         try:
-            current_user = get_jwt_identity()
             project = Project.query.get_or_404(id)
             
             project.featured = not project.featured
-            project.reviewed_by = current_user['id']
+            action = 'feature' if project.featured else 'unfeature'
             
             db.session.commit()
             
-            action = 'featured' if project.featured else 'not-featured'
             return {
-                'message': f'Project {action} successfully',
+                'message': f'Project {action}d successfully',
                 'project': project.to_dict()
             }, 200
             
@@ -107,7 +95,7 @@ class FeatureProject(Resource):
 
 class AdminCategories(Resource):
     @jwt_required()
-    @admin_required
+    @role_required('admin')
     def post(self):
         try:
             data = request.get_json()
@@ -138,7 +126,7 @@ class AdminCategories(Resource):
 
 class AdminCategoryDetail(Resource):
     @jwt_required()
-    @admin_required
+    @role_required('admin')
     def put(self, id):
         try:
             category = Category.query.get_or_404(id)
@@ -147,8 +135,12 @@ class AdminCategoryDetail(Resource):
             if not data.get('name'):
                 return {'error': 'Category name is required'}, 400
             
+            # Check for duplicate name if changed
+            if data['name'] != category.name and Category.query.filter_by(name=data['name']).first():
+                return {'error': 'Category name already exists'}, 400
+
             category.name = data['name']
-            category.description = data.get('description', '')
+            category.description = data.get('description', category.description) # Use existing if not provided
             
             db.session.commit()
             
@@ -162,7 +154,7 @@ class AdminCategoryDetail(Resource):
             return {'error': str(exc)}, 500
     
     @jwt_required()
-    @admin_required
+    @role_required('admin')
     def delete(self, id):
         try:
             category = Category.query.get_or_404(id)
@@ -178,7 +170,7 @@ class AdminCategoryDetail(Resource):
 
 class AdminMerchandise(Resource):
     @jwt_required()
-    @admin_required
+    @role_required('admin')
     def post(self):
         try:
             data = request.get_json()
@@ -188,6 +180,10 @@ class AdminMerchandise(Resource):
                 if field not in data or data[field] is None:
                     return {'error': f'{field} is required'}, 400
             
+            # Check if merchandise name already exists
+            if Merchandise.query.filter_by(name=data['name']).first():
+                return {'error': 'Merchandise with this name already exists'}, 400
+
             merchandise = Merchandise(
                 name=data['name'],
                 description=data.get('description', ''),
@@ -210,13 +206,17 @@ class AdminMerchandise(Resource):
 
 class AdminMerchandiseDetail(Resource):
     @jwt_required()
-    @admin_required
+    @role_required('admin')
     def put(self, id):
         try:
             merchandise = Merchandise.query.get_or_404(id)
             data = request.get_json()
             
-            if 'name' in data: merchandise.name = data['name']
+            if 'name' in data and data['name'] != merchandise.name:
+                if Merchandise.query.filter_by(name=data['name']).first():
+                    return {'error': 'Merchandise name already exists'}, 400
+                merchandise.name = data['name']
+            
             if 'description' in data: merchandise.description = data['description']
             if 'price' in data: merchandise.price = data['price']
             if 'image_url' in data: merchandise.image_url = data['image_url']
@@ -234,7 +234,7 @@ class AdminMerchandiseDetail(Resource):
             return {'error': str(exc)}, 500
     
     @jwt_required()
-    @admin_required
+    @role_required('admin')
     def delete(self, id):
         try:
             merchandise = Merchandise.query.get_or_404(id)
@@ -250,45 +250,42 @@ class AdminMerchandiseDetail(Resource):
 
 class AdminStats(Resource):
     @jwt_required()
-    @admin_required
+    @role_required('admin')
     def get(self):
         try:
+            # User stats
+            total_users = User.query.count()
+            total_students = User.query.join(Role).filter(Role.name == 'student').count()
+            total_clients = User.query.join(Role).filter(Role.name == 'client').count()
             
             # Project stats
             total_projects = Project.query.count()
-            approved_projects = Project.query.filter_by(is_approved=True).count()
+            approved_projects = Project.query.filter_by(status='approved').count()
             pending_projects = Project.query.filter_by(status='pending').count()
             featured_projects = Project.query.filter_by(featured=True).count()
-            
-            # User stats
-            from models import Student, Client, User
-            total_students = Student.query.count()
-            total_clients = Client.query.count()
-            total_users = User.query.count()
             
             # Merchandise stats
             total_merchandise = Merchandise.query.count()
             in_stock_merchandise = Merchandise.query.filter_by(is_in_stock=True).count()
             
             # Order stats
-            from models import Order
             total_orders = Order.query.count()
             completed_orders = Order.query.filter_by(status='completed').count()
             
             # Top viewed projects
-            top_projects = Project.query.filter_by(is_approved=True).order_by(Project.views.desc()).limit(5).all()
+            top_projects = Project.query.filter_by(status='approved').order_by(Project.views.desc()).limit(5).all()
             
             return {
+                'user_stats': {
+                    'total': total_users,
+                    'students': total_students,
+                    'clients': total_clients
+                },
                 'project_stats': {
                     'total': total_projects,
                     'approved': approved_projects,
                     'pending': pending_projects,
                     'featured': featured_projects
-                },
-                'user_stats': {
-                    'students': total_students,
-                    'clients': total_clients,
-                    'users': total_users
                 },
                 'merchandise_stats': {
                     'total': total_merchandise,
@@ -303,6 +300,30 @@ class AdminStats(Resource):
             
         except Exception as exc:
             return {'error': str(exc)}, 500
+        
+class AdminAllOrders(Resource):
+    @jwt_required()
+    @role_required('admin')
+    def get(self):
+        try:
+
+            page = request.args.get("page", 1, type=int)
+            per_page = request.args.get("per_page", 20, type=int)
+
+            orders = (
+                Order.query.order_by(Order.date.desc())
+                .paginate(page=page, per_page=per_page, error_out=False)
+            )
+
+            return {
+                "orders": [order.to_dict() for order in orders.items],
+                "total": orders.total,
+                "pages": orders.pages,
+                "current_page": page,
+            }, 200
+
+        except Exception as exc:
+            return {"error": str(exc)}, 500
 
 def setup_routes(api):
     api.add_resource(PendingProjects, '/api/admin/projects/pending')
@@ -314,4 +335,4 @@ def setup_routes(api):
     api.add_resource(AdminMerchandise, '/api/admin/merchandise')
     api.add_resource(AdminMerchandiseDetail, '/api/admin/merchandise/<int:id>')
     api.add_resource(AdminStats, '/api/admin/stats')
-    
+    api.add_resource(AdminAllOrders, "/api/admin/orders")
