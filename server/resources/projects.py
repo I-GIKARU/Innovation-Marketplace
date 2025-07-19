@@ -1,27 +1,32 @@
 from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import db, Project, Student, Category, ProjectStudent
+from models import db, Project, Category, UserProject
 from sqlalchemy import or_
+from resources.auth.decorators import role_required, admin_or_role_required
 
 class ProjectList(Resource):
     def get(self):
         try:
+            # Get query parameters
             page = request.args.get('page', 1, type=int)
             per_page = request.args.get('per_page', 10, type=int)
             search = request.args.get('search', '')
-            category = request.args.get('category', '')
+            category_name = request.args.get('category', '')
             featured_only = request.args.get('featured', False, type=bool)
             approved_only = request.args.get('approved', True, type=bool)
             
             query = Project.query
-
+            
+            # Filter by approval status
             if approved_only:
-                query = query.filter(Project.is_approved == True)
-
+                query = query.filter(Project.status == 'approved')
+            
+            # Filter by featured
             if featured_only:
                 query = query.filter(Project.featured == True)
-
+            
+            # Search filter
             if search:
                 query = query.filter(
                     or_(
@@ -30,10 +35,19 @@ class ProjectList(Resource):
                         Project.tech_stack.ilike(f'%{search}%')
                     )
                 )
-
-            if category:
-                query = query.join(Project.category).filter(Category.name.ilike(f'%{category}%'))
-
+            
+            # Category filter
+            if category_name:
+                category = Category.query.filter_by(name=category_name).first()
+                if category:
+                    query = query.filter(Project.category_id == category.id)
+                else:
+                    return {'error': 'Category not found'}, 404
+            
+            # Order by creation date (newest first)
+            query = query.order_by(Project.created_at.desc())
+            
+            # Paginate
             projects = query.paginate(
                 page=page, 
                 per_page=per_page, 
@@ -52,45 +66,54 @@ class ProjectList(Resource):
             return {'error': str(exc)}, 500
     
     @jwt_required()
+    @role_required('student') # Only students can create projects
     def post(self):
         try:
             current_user = get_jwt_identity()
-            
-            if current_user['role'] != 'student':
-                return {'error': 'Only students can create projects'}, 403
+            user_id = current_user['id']
             
             data = request.get_json()
             
-            required_fields = ['title', 'description']
+            # Validate required fields
+            required_fields = ['title', 'description', 'category_id']
             for field in required_fields:
                 if field not in data or not data[field]:
                     return {'error': f'{field} is required'}, 400
             
+            # Check if category exists
+            category = Category.query.get(data['category_id'])
+            if not category:
+                return {'error': 'Category not found'}, 404
+            
+            # Create new project
             project = Project(
                 title=data['title'],
                 description=data['description'],
+                category_id=data['category_id'],
                 tech_stack=data.get('tech_stack', ''),
                 github_link=data.get('github_link', ''),
                 demo_link=data.get('demo_link', ''),
                 is_for_sale=data.get('is_for_sale', False),
-                price=data.get('price', 0) if data.get('is_for_sale') else None,
-                category_id=data.get('category_id'),
-                status='pending'
+                status='pending', # New projects are pending by default
+                featured=False,
+                technical_mentor=data.get('technical_mentor', '')
             )
             
             db.session.add(project)
-            db.session.flush()
+            db.session.flush()  # Get the project ID
             
-            project_student = ProjectStudent(
-                student_id=current_user['id'],
-                project_id=project.id
+            # Link student to project via UserProject
+            user_project = UserProject(
+                user_id=user_id,
+                project_id=project.id,
+                interested_in='contributor' # Default for student creating project
             )
-            db.session.add(project_student)
+            db.session.add(user_project)
             
             db.session.commit()
             
             return {
-                'message': 'Project created successfully',
+                'message': 'Project created successfully and submitted for review',
                 'project': project.to_dict()
             }, 201
             
@@ -103,6 +126,7 @@ class ProjectDetail(Resource):
         try:
             project = Project.query.get_or_404(id)
             
+            # Increment view count
             project.views += 1
             db.session.commit()
             
@@ -112,35 +136,45 @@ class ProjectDetail(Resource):
             return {'error': str(exc)}, 500
     
     @jwt_required()
+    @admin_or_role_required(['student']) # Students can update their own, admins can update any
     def put(self, id):
         try:
             current_user = get_jwt_identity()
+            user_id = current_user['id']
+            role_name = current_user['role']
             project = Project.query.get_or_404(id)
             
-            if current_user['role'] == 'student':
-                project_student = ProjectStudent.query.filter_by(
-                    student_id=current_user['id'],
+            # Check if user is the project owner or admin
+            if role_name == 'student':
+                user_project = UserProject.query.filter_by(
+                    user_id=user_id,
                     project_id=id
                 ).first()
-                if not project_student:
+                if not user_project:
                     return {'error': 'You can only update your own projects'}, 403
-            elif current_user['role'] != 'admin':
+            elif role_name != 'admin':
                 return {'error': 'Unauthorized'}, 403
             
             data = request.get_json()
             
+            # Update project fields
             if 'title' in data: project.title = data['title']
             if 'description' in data: project.description = data['description']
             if 'tech_stack' in data: project.tech_stack = data['tech_stack']
             if 'github_link' in data: project.github_link = data['github_link']
             if 'demo_link' in data: project.demo_link = data['demo_link']
             if 'is_for_sale' in data: project.is_for_sale = data['is_for_sale']
-            if 'category_id' in data: project.category_id = data['category_id']
+            if 'category_id' in data: 
+                category = Category.query.get(data['category_id'])
+                if not category:
+                    return {'error': 'Category not found'}, 404
+                project.category_id = data['category_id']
+            if 'technical_mentor' in data: project.technical_mentor = data['technical_mentor']
             
-            if data.get('is_for_sale') and 'price' in data:
-                project.price = data['price']
-            elif not data.get('is_for_sale'):
-                project.price = None
+            # Admin-only fields
+            if role_name == 'admin':
+                if 'status' in data: project.status = data['status']
+                if 'featured' in data: project.featured = data['featured']
             
             db.session.commit()
             
@@ -154,19 +188,23 @@ class ProjectDetail(Resource):
             return {'error': str(exc)}, 500
     
     @jwt_required()
-    def delete(self, id):
+    @admin_or_role_required(['student']) # Students can delete their own, admins can delete any
+    def delete(self, project_id):
         try:
             current_user = get_jwt_identity()
-            project = Project.query.get_or_404(id)
+            user_id = current_user['id']
+            role_name = current_user['role']
+            project = Project.query.get_or_404(project_id)
             
-            if current_user['role'] == 'student':
-                project_student = ProjectStudent.query.filter_by(
-                    student_id=current_user['id'],
-                    project_id=id
+            # Check if user is the project owner or admin
+            if role_name == 'student':
+                user_project = UserProject.query.filter_by(
+                    user_id=user_id,
+                    project_id=project_id
                 ).first()
-                if not project_student:
+                if not user_project:
                     return {'error': 'You can only delete your own projects'}, 403
-            elif current_user['role'] != 'admin':
+            elif role_name != 'admin':
                 return {'error': 'Unauthorized'}, 403
             
             db.session.delete(project)
