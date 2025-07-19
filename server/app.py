@@ -6,7 +6,7 @@ from flask_migrate import Migrate
 from flask_restful import Api
 from dotenv import load_dotenv
 from config import Config
-from models import db, bcrypt, Admin
+from models import db, bcrypt
 
 load_dotenv()
 
@@ -30,35 +30,35 @@ def create_app():
 
     api = Api(app)
 
-    from resources import auth, merchandise, orders
-    auth.setup_routes(api)
-    merchandise.setup_routes(api)
-    orders.setup_routes(api)
+    # from resources import auth, merchandise, orders
+    # auth.setup_routes(api)
+    # merchandise.setup_routes(api)
+    # orders.setup_routes(api)
 
-    # ✅ Create default admin immediately in app context
-    with app.app_context():
-        try:
-            # Check if tables exist before querying
-            from sqlalchemy import inspect
-            inspector = inspect(db.engine)
-            if 'admins' in inspector.get_table_names():
-                if not Admin.query.first():
-                    admin_email = os.getenv("DEFAULT_ADMIN_EMAIL", "admin@example.com")
-                    admin_password = os.getenv("DEFAULT_ADMIN_PASSWORD", "StrongPass123!")
-                    admin_name = os.getenv("DEFAULT_ADMIN_NAME", "Super Admin")
+    # # ✅ Create default admin immediately in app context
+    # with app.app_context():
+    #     try:
+    #         # Check if tables exist before querying
+    #         from sqlalchemy import inspect
+    #         inspector = inspect(db.engine)
+    #         if 'admins' in inspector.get_table_names():
+    #             if not Admin.query.first():
+    #                 admin_email = os.getenv("DEFAULT_ADMIN_EMAIL", "admin@example.com")
+    #                 admin_password = os.getenv("DEFAULT_ADMIN_PASSWORD", "StrongPass123!")
+    #                 admin_name = os.getenv("DEFAULT_ADMIN_NAME", "Super Admin")
 
-                    print("⚠️ No admin found — creating default admin...")
-                    admin = Admin(name=admin_name, email=admin_email)
-                    admin.set_password(admin_password)
-                    db.session.add(admin)
-                    db.session.commit()
-                    print(f"✅ Admin created: {admin_email}")
-            else:
-                print("⚠️ Database tables don't exist yet.")
-                print("Run 'flask db init', 'flask db migrate', and 'flask db upgrade' to set up the database.")
-        except Exception as e:
-            print(f"⚠️ Database not ready: {e}")
-            print("Run 'flask db init', 'flask db migrate', and 'flask db upgrade' to set up the database.")
+    #                 print("⚠️ No admin found — creating default admin...")
+    #                 admin = Admin(name=admin_name, email=admin_email)
+    #                 admin.set_password(admin_password)
+    #                 db.session.add(admin)
+    #                 db.session.commit()
+    #                 print(f"✅ Admin created: {admin_email}")
+    #         else:
+    #             print("⚠️ Database tables don't exist yet.")
+    #             print("Run 'flask db init', 'flask db migrate', and 'flask db upgrade' to set up the database.")
+    #     except Exception as e:
+    #         print(f"⚠️ Database not ready: {e}")
+    #         print("Run 'flask db init', 'flask db migrate', and 'flask db upgrade' to set up the database.")
 
     return app
 

@@ -6,12 +6,20 @@ db = SQLAlchemy()
 bcrypt = Bcrypt()
 
 
-from .merchandise import User, Merchandise, OrderItem, Order, Payment
-from .projects import Student, Admin, Client, Category, Project, ProjectStudent, ClientInterest, Review
 
+from .projects import Role, User, Category, Project, UserProject, Review
+from .merchandise import  Merchandise, OrderItem, Order, Payment
 __all__ = [
-    'db', 'bcrypt',
-    'User', 'Merchandise', 'OrderItem', 'Order', 'Payment',
-    'Student', 'Admin', 'Client', 'Category', 'Project', 
-    'ProjectStudent', 'ClientInterest', 'Review'
+    'db',
+    'bcrypt',
+    'Role',
+    'User',
+    'Category',
+    'Project',
+    'UserProject',
+    'Review',
+    'Merchandise',
+    'Order',
+    'OrderItem',
+    'Payment'
 ]
