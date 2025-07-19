@@ -55,52 +55,54 @@ export default function Sidebar() {
     }, []);
 
     return (
-        <aside
-            ref={sidebarRef}
-            className={`fixed z-40 top-0 left-0 h-screen bg-white border-r transition-all duration-300 ease-in-out shadow-lg
+      <aside
+        ref={sidebarRef}
+        className={`fixed z-40 top-0 left-0 h-screen bg-white border-r transition-all duration-300 ease-in-out shadow-lg
         ${isOpen ? "w-64 px-4" : "w-16"}
         md:static md:translate-x-0 flex flex-col justify-between`}
-        >
-            <div>
-                <button
-                    onClick={toggleSidebar}
-                    className="mt-4 text-gray-500 hover:text-gray-800 transition"
-                >
-                    {isOpen ? <ChevronLeft /> : <ChevronRight />}
-                </button>
+      >
+        <div>
+          <button
+            onClick={toggleSidebar}
+            className="mt-4 text-gray-500 hover:text-gray-800 transition"
+          >
+            {isOpen ? <ChevronLeft /> : <ChevronRight />}
+          </button>
 
-                <div className="mt-6 flex flex-col gap-6">
-                    <Link href="/" className="flex items-center gap-3">
-                        <Home className="text-orange-500" />
-                        {isOpen && <span className="text-sm">Home</span>}
-                    </Link>
+          <div className="mt-6 flex flex-col gap-6">
+            <Link href="/" className="flex items-center gap-3">
+              <Home className="text-orange-500" />
+              {isOpen && <span className="text-sm">Home</span>}
+            </Link>
 
-                    <div className="flex items-center gap-3">
-                        <Layers />
-                        {isOpen && <span className="text-sm">Projects</span>}
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        <Briefcase />
-                        {isOpen && <span className="text-sm">Work</span>}
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        <RefreshCcw />
-                        {isOpen && <span className="text-sm">Sync</span>}
-                    </div>
-                </div>
+            <div className="flex items-center gap-3">
+              <Link href="/merchandise" className="flex items-center gap-3">
+                <Layers />
+              </Link>
+              {isOpen && <span className="text-sm">Projects</span>}
             </div>
 
-            <div className="mb-6">
-                <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-3 text-red-500 hover:text-red-700"
-                >
-                    <LogOut />
-                    {isOpen && <span className="text-sm">Logout</span>}
-                </button>
+            <div className="flex items-center gap-3">
+              <Briefcase />
+              {isOpen && <span className="text-sm">Work</span>}
             </div>
-        </aside>
+
+            <div className="flex items-center gap-3">
+              <RefreshCcw />
+              {isOpen && <span className="text-sm">Sync</span>}
+            </div>
+          </div>
+        </div>clie
+
+        <div className="mb-6">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 text-red-500 hover:text-red-700"
+          >
+            <LogOut />
+            {isOpen && <span className="text-sm">Logout</span>}
+          </button>
+        </div>
+      </aside>
     );
 }
