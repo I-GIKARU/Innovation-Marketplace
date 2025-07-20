@@ -27,7 +27,7 @@ class UserLogin(Resource):
             }
             
             access_token = create_access_token(
-                identity=identity,
+                identity=str(user.id),  # Convert to string for JWT compliance
                 expires_delta=timedelta(hours=24)
             )
             

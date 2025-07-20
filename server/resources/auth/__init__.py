@@ -4,11 +4,11 @@ from .profile import UserProfile
 from .dashboard import StudentDashboard, ClientDashboard, AdminDashboard
 
 def setup_routes(api):
-    api.add_resource(UserRegistration, '/apiregister')
-    api.add_resource(UserLogin, '/api/login')
-    api.add_resource(CurrentUser, '/api/me')
-    api.add_resource(UserLogout, '/api/logout')
-    api.add_resource(UserProfile, '/api/profile')
+    api.add_resource(UserRegistration, '/api/auth/register')
+    api.add_resource(UserLogin, '/api/auth/login')
+    api.add_resource(CurrentUser, '/api/auth/me')
+    api.add_resource(UserLogout, '/api/auth/logout')
+    api.add_resource(UserProfile, '/api/auth/profile')
     
     # Dashboard routes
     api.add_resource(StudentDashboard, '/api/dashboard/student')

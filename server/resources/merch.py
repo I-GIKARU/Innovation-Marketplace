@@ -7,11 +7,12 @@ class MerchandiseList(Resource):
         try:
             page = request.args.get('page', 1, type=int)
             per_page = request.args.get('per_page', 10, type=int)
-            in_stock = request.args.get('in_stock', True, type=bool)
+            in_stock_param = request.args.get('in_stock', 'true').lower()
             
             query = Merchandise.query
             
-            if in_stock:
+            # Only filter by in_stock if parameter is explicitly 'true' (default behavior)
+            if in_stock_param == 'true':
                 query = query.filter(Merchandise.is_in_stock == True)
             
             merchandise = query.paginate(

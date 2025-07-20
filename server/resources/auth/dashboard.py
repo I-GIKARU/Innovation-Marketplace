@@ -1,14 +1,13 @@
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import User, Project, UserProject, Order, Merchandise, Role
-from resources.auth.decorators import role_required
+from resources.auth.decorators import role_required, get_current_user
 
 class StudentDashboard(Resource):
     @jwt_required()
     @role_required('student')
     def get(self):
-        current_user = get_jwt_identity()
-        user = User.query.get(current_user['id'])
+        user = get_current_user()
         
         if not user:
             return {'error': 'User profile not found'}, 404
@@ -33,8 +32,7 @@ class ClientDashboard(Resource):
     @jwt_required()
     @role_required('client')
     def get(self):
-        current_user = get_jwt_identity()
-        user = User.query.get(current_user['id'])
+        user = get_current_user()
         
         if not user:
             return {'error': 'User profile not found'}, 404
@@ -64,7 +62,7 @@ class AdminDashboard(Resource):
         }
         
         # Recent projects for review
-        recent_projects = Project.query.filter_by(status='pending').order_by(Project.created_at.desc()).limit(5).all()
+        recent_projects = Project.query.filter_by(status='pending').order_by(Project.id.desc()).limit(5).all()
         
         return {
             'stats': stats,

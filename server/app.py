@@ -6,7 +6,7 @@ from flask_migrate import Migrate
 from flask_restful import Api
 from dotenv import load_dotenv
 from config import Config
-from models import db, bcrypt
+from models import db, bcrypt, User, Role
 
 load_dotenv()
 
@@ -35,7 +35,8 @@ def create_app():
     from resources.admin import setup_routes as admin_setup_routes
     from resources.merch import setup_routes as merchandise_setup_routes
     from resources.orders import setup_routes as orders_setup_routes
-    from resources.user_projects import setup_routes as user_projects_setup_routes
+    from resources.user_projects import setuser_project_routes as user_projects_setup_routes
+
     
     auth_setup_routes(api)
     projects_setup_routes(api)
@@ -44,30 +45,36 @@ def create_app():
     orders_setup_routes(api)
     user_projects_setup_routes(api)
 
-    # # ✅ Create default admin immediately in app context
-    # with app.app_context():
-    #     try:
-    #         # Check if tables exist before querying
-    #         from sqlalchemy import inspect
-    #         inspector = inspect(db.engine)
-    #         if 'admins' in inspector.get_table_names():
-    #             if not Admin.query.first():
-    #                 admin_email = os.getenv("DEFAULT_ADMIN_EMAIL", "admin@example.com")
-    #                 admin_password = os.getenv("DEFAULT_ADMIN_PASSWORD", "StrongPass123!")
-    #                 admin_name = os.getenv("DEFAULT_ADMIN_NAME", "Super Admin")
+    # ✅ Create default admin immediately in app context
+    with app.app_context():
+        try:
+            # Check if tables exist before querying
+            from sqlalchemy import inspect
+            inspector = inspect(db.engine)
+            if 'roles' in inspector.get_table_names() and 'users' in inspector.get_table_names():
+                if not User.query.join(Role).filter(Role.name == 'admin').first():
+                    admin_email = os.getenv("DEFAULT_ADMIN_EMAIL", "admin@example.com")
+                    admin_password = os.getenv("DEFAULT_ADMIN_PASSWORD", "StrongPass123!")
 
-    #                 print("⚠️ No admin found — creating default admin...")
-    #                 admin = Admin(name=admin_name, email=admin_email)
-    #                 admin.set_password(admin_password)
-    #                 db.session.add(admin)
-    #                 db.session.commit()
-    #                 print(f"✅ Admin created: {admin_email}")
-    #         else:
-    #             print("⚠️ Database tables don't exist yet.")
-    #             print("Run 'flask db init', 'flask db migrate', and 'flask db upgrade' to set up the database.")
-    #     except Exception as e:
-    #         print(f"⚠️ Database not ready: {e}")
-    #         print("Run 'flask db init', 'flask db migrate', and 'flask db upgrade' to set up the database.")
+                    print("⚠️ No admin found — creating default admin...")
+                    # Fetch or create 'admin' role
+                    admin_role = Role.query.filter_by(name='admin').first()
+                    if not admin_role:
+                        admin_role = Role(name='admin', desc='Administrator role')
+                        db.session.add(admin_role)
+                        db.session.flush()  # To get admin_role.id
+
+                    admin = User(email=admin_email, role_id=admin_role.id)
+                    admin.password = admin_password
+                    db.session.add(admin)
+                    db.session.commit()
+                    print(f"✅ Admin created: {admin_email}")
+            else:
+                print("⚠️ Database tables don't exist yet.")
+                print("Run 'flask db init', 'flask db migrate', and 'flask db upgrade' to set up the database.")
+        except Exception as e:
+            print(f"⚠️ Database not ready: {e}")
+            print("Run 'flask db init', 'flask db migrate', and 'flask db upgrade' to set up the database.")
 
     return app
 

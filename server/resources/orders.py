@@ -2,13 +2,13 @@ from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, Order, OrderItem, Merchandise, User
-from resources.auth.decorators import role_required, admin_or_role_required
+from resources.auth.decorators import role_required, admin_or_role_required, get_current_user
 
 class OrderList(Resource):
     @jwt_required(optional=True) # Allow guest orders
     def post(self):
         try:
-            current_user = get_jwt_identity()
+            current_user = get_current_user()
             data = request.get_json()
             
             if not data.get('items'):
@@ -19,12 +19,12 @@ class OrderList(Resource):
 
             if current_user:
                 # If logged in, use user_id
-                user_id = current_user['id']
-                if current_user['role'] not in ['student', 'client', 'admin']:
+                user_id = current_user.id
+                if current_user.role.name not in ['student', 'client', 'admin']:
                     return {'error': 'Only registered users can place orders'}, 403
             else:
                 # If not logged in, it's a guest order, require email
-                if not data.get('name'):
+                if not data.get('email'):
                     return {'error': 'Email is required for guest orders'}, 400
                 user_email = data['email']
             
@@ -89,13 +89,15 @@ class OrderList(Resource):
     @admin_or_role_required(['student', 'client']) # Users can view their own, admins can view all
     def get(self):
         try:
-            current_user = get_jwt_identity()
+            current_user = get_current_user()
+            if not current_user:
+                return {'error': 'User not found'}, 404
             page = request.args.get('page', 1, type=int)
             per_page = request.args.get('per_page', 10, type=int)
             
             query = Order.query
-            if current_user['role'] != 'admin':
-                query = query.filter_by(user_id=current_user['id'])
+            if current_user.role.name != 'admin':
+                query = query.filter_by(user_id=current_user.id)
             
             orders = query.order_by(Order.date.desc()).paginate(
                 page=page,
@@ -118,11 +120,13 @@ class OrderDetail(Resource):
     @admin_or_role_required(['student', 'client'])
     def get(self, id):
         try:
-            current_user = get_jwt_identity()
+            current_user = get_current_user()
+            if not current_user:
+                return {'error': 'User not found'}, 404
             order = Order.query.get_or_404(id)
             
             # Check if user owns the order or is admin
-            if current_user['role'] != 'admin' and order.user_id != current_user['id']:
+            if current_user.role.name != 'admin' and order.user_id != current_user.id:
                 return {'error': 'You can only view your own orders'}, 403
             
             return {'order': order.to_dict()}, 200
@@ -132,14 +136,16 @@ class OrderDetail(Resource):
 
 class CancelOrder(Resource):
     @jwt_required()
-    @role_required(['student', 'client']) # Only regular users can cancel their own orders
+    @admin_or_role_required(['student', 'client']) # Only regular users can cancel their own orders
     def post(self, id):
         try:
-            current_user = get_jwt_identity()
+            current_user = get_current_user()
+            if not current_user:
+                return {'error': 'User not found'}, 404
             order = Order.query.get_or_404(id)
             
             # Check if user owns the order
-            if order.user_id != current_user['id']:
+            if order.user_id != current_user.id:
                 return {'error': 'You can only cancel your own orders'}, 403
             
             if order.status != 'pending':

@@ -3,7 +3,8 @@ from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, Project, Category, UserProject
 from sqlalchemy import or_
-from resources.auth.decorators import role_required, admin_or_role_required
+from resources.auth.decorators import role_required, admin_or_role_required, get_current_user
+from datetime import date
 
 class ProjectList(Resource):
     def get(self):
@@ -44,8 +45,8 @@ class ProjectList(Resource):
                 else:
                     return {'error': 'Category not found'}, 404
             
-            # Order by creation date (newest first)
-            query = query.order_by(Project.created_at.desc())
+            # Order by id (newest first)
+            query = query.order_by(Project.id.desc())
             
             # Paginate
             projects = query.paginate(
@@ -69,8 +70,7 @@ class ProjectList(Resource):
     @role_required('student') # Only students can create projects
     def post(self):
         try:
-            current_user = get_jwt_identity()
-            user_id = current_user['id']
+            user_id = int(get_jwt_identity())  # Convert string back to int
             
             data = request.get_json()
             
@@ -106,7 +106,8 @@ class ProjectList(Resource):
             user_project = UserProject(
                 user_id=user_id,
                 project_id=project.id,
-                interested_in='contributor' # Default for student creating project
+                interested_in='contributor', # Default for student creating project
+                date=date.today()
             )
             db.session.add(user_project)
             
@@ -139,9 +140,9 @@ class ProjectDetail(Resource):
     @admin_or_role_required(['student']) # Students can update their own, admins can update any
     def put(self, id):
         try:
-            current_user = get_jwt_identity()
-            user_id = current_user['id']
-            role_name = current_user['role']
+            current_user = get_current_user()
+            user_id = current_user.id
+            role_name = current_user.role.name
             project = Project.query.get_or_404(id)
             
             # Check if user is the project owner or admin
@@ -191,9 +192,9 @@ class ProjectDetail(Resource):
     @admin_or_role_required(['student']) # Students can delete their own, admins can delete any
     def delete(self, project_id):
         try:
-            current_user = get_jwt_identity()
-            user_id = current_user['id']
-            role_name = current_user['role']
+            current_user = get_current_user()
+            user_id = current_user.id
+            role_name = current_user.role.name
             project = Project.query.get_or_404(project_id)
             
             # Check if user is the project owner or admin

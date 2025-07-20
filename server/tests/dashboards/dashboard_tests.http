@@ -1,0 +1,38 @@
+### 📊 Dashboard Endpoints
+# Role-specific dashboard views for students, clients, and admins
+# Authentication handled via secure HttpOnly cookies
+
+@baseUrl = http://127.0.0.1:5000
+
+### =============================================
+### STUDENT DASHBOARD
+### Note: Login as STUDENT first using auth_tests.http
+### =============================================
+
+### Get Student Dashboard
+# Shows: User profile, student's projects, client interests in their projects
+GET {{baseUrl}}/api/dashboard/student
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+### =============================================
+### CLIENT DASHBOARD  
+### Note: Login as CLIENT first using auth_tests.http
+### =============================================
+
+### Get Client Dashboard
+# Shows: User profile, client's expressed interests in projects, order history
+GET {{baseUrl}}/api/dashboard/client
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+### =============================================
+### ADMIN DASHBOARD
+### Note: Login as ADMIN first using auth_tests.http
+### =============================================
+
+### Get Admin Dashboard
+# Shows: System statistics, recent projects for review, platform analytics
+GET {{baseUrl}}/api/dashboard/admin
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE

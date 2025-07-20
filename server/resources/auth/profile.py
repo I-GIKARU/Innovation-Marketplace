@@ -3,15 +3,12 @@ from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, User
 from utils.validation import validate_student_email, validate_email_format, validate_password_strength
+from resources.auth.decorators import get_current_user
 
 class UserProfile(Resource):
     @jwt_required()
     def get(self):
-        current_user = get_jwt_identity()
-        user_id = current_user['id']
-        role_name = current_user['role']
-        
-        user = User.query.get(user_id)
+        user = get_current_user()
         
         if not user:
             return {'message': 'User not found'}, 404
@@ -19,7 +16,7 @@ class UserProfile(Resource):
         profile_data = {
             'id': user.id,
             'email': user.email,
-            'role': role_name,
+            'role': user.role.name,
             'phone': user.phone,
             'bio': user.bio,
             'socials': user.socials,
@@ -31,12 +28,8 @@ class UserProfile(Resource):
     
     @jwt_required()
     def put(self):
-        current_user = get_jwt_identity()
-        user_id = current_user['id']
-        role_name = current_user['role']
+        user = get_current_user()
         data = request.get_json()
-        
-        user = User.query.get(user_id)
         
         if not user:
             return {'message': 'User not found'}, 404
@@ -44,7 +37,7 @@ class UserProfile(Resource):
         try:
             # Update email if provided and changed
             if 'email' in data and data['email'] != user.email:
-                if role_name == 'student':
+                if user.role.name == 'student':
                     is_valid, message = validate_student_email(data['email'])
                 else:
                     is_valid, message = validate_email_format(data['email'])

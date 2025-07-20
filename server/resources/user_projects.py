@@ -2,16 +2,18 @@ from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, UserProject, Project, Review
-from resources.auth.decorators import role_required, admin_or_role_required
+from resources.auth.decorators import role_required, admin_or_role_required, get_current_user
 
 class UserProjectList(Resource):
     @jwt_required()
     @admin_or_role_required(['student', 'client']) # Students and Clients can create/view their own
     def post(self):
         try:
-            current_user = get_jwt_identity()
-            user_id = current_user['id']
-            role_name = current_user['role']
+            current_user = get_current_user()
+            if not current_user:
+                return {'error': 'User not found'}, 404
+            user_id = current_user.id
+            role_name = current_user.role.name
             
             data = request.get_json()
             
@@ -71,9 +73,11 @@ class UserProjectList(Resource):
     @admin_or_role_required(['student', 'client'])
     def get(self):
         try:
-            current_user = get_jwt_identity()
-            user_id = current_user['id']
-            role_name = current_user['role']
+            current_user = get_current_user()
+            if not current_user:
+                return {'error': 'User not found'}, 404
+            user_id = current_user.id
+            role_name = current_user.role.name
             page = request.args.get('page', 1, type=int)
             per_page = request.args.get('per_page', 10, type=int)
             
@@ -120,9 +124,11 @@ class UserProjectDetail(Resource):
     @admin_or_role_required(['student', 'client'])
     def get(self, id):
         try:
-            current_user = get_jwt_identity()
-            user_id = current_user['id']
-            role_name = current_user['role']
+            current_user = get_current_user()
+            if not current_user:
+                return {'error': 'User not found'}, 404
+            user_id = current_user.id
+            role_name = current_user.role.name
             user_project = UserProject.query.get_or_404(id)
             
             # Check permissions
@@ -150,8 +156,10 @@ class CreateReview(Resource):
     @role_required('client') # Only clients can create reviews for now
     def post(self, id):
         try:
-            current_user = get_jwt_identity()
-            user_id = current_user['id']
+            current_user = get_current_user()
+            if not current_user:
+                return {'error': 'User not found'}, 404
+            user_id = current_user.id
             
             user_project = UserProject.query.get_or_404(id)
             data = request.get_json()
