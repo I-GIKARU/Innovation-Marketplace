@@ -15,6 +15,14 @@ env/
 .env
 deploy-client.sh
 
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn/
+
 # IDE files
 .vscode/
 .idea/
