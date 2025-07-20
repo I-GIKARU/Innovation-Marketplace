@@ -14,13 +14,13 @@ class Config:
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'dev-jwt-secret')
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
 
-    # JWT via cookies
+    # JWT Cookie settings - matching working config
     JWT_TOKEN_LOCATION = ['cookies']
-    JWT_COOKIE_SECURE = False               # Set True in production with HTTPS
-    JWT_COOKIE_SAMESITE = 'Lax'             # 'Strict' or 'None' depending on cross-site needs
-    JWT_ACCESS_COOKIE_PATH = '/'
-    JWT_COOKIE_CSRF_PROTECT = False         # Enable and use CSRF tokens in production
-    JWT_SESSION_COOKIE = True
+    JWT_COOKIE_SECURE = os.getenv('JWT_COOKIE_SECURE', 'false').lower() == 'true'
+    JWT_COOKIE_HTTPONLY = True
+    JWT_COOKIE_SAMESITE = 'Lax'
+    JWT_ACCESS_COOKIE_NAME = 'access_token'
+    JWT_COOKIE_CSRF_PROTECT = False  # Disable CSRF protection for simplicity
 
     # Custom domain validation
     STUDENT_EMAIL_DOMAIN = '@student.moringaschool.com'

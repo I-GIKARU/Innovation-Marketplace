@@ -15,7 +15,7 @@ migrate = Migrate()
 
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='static')
     app.config.from_object(Config)
 
     db.init_app(app)
@@ -25,8 +25,10 @@ def create_app():
     CORS(app,
          supports_credentials=True,
          origins=['*'],
-         allow_headers=['Content-Type', 'Authorization'],
-         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
+         allow_headers=['Content-Type', 'Authorization', 'Cookie', 'Access-Control-Allow-Credentials'],
+         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+         expose_headers=['Set-Cookie'],
+         send_wildcard=False)
 
     api = Api(app)
 
@@ -44,7 +46,8 @@ def create_app():
     merchandise_setup_routes(api)
     orders_setup_routes(api)
     user_projects_setup_routes(api)
-
+    
+    # Debug route
     # ✅ Create default admin immediately in app context
     with app.app_context():
         try:

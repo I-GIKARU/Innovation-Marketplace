@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
@@ -7,18 +7,18 @@ export function useAuth() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Fetch user from backend (uses HttpOnly cookie)
     const fetchUser = async () => {
         try {
             setLoading(true);
-            const res = await fetch(`${API_BASE}/me`, {
-                credentials: 'include', // 👈 send cookies
+            const res = await fetch(`${API_BASE}/auth/me`, {
+                credentials: 'include',
             });
 
             const data = await res.json();
             if (!res.ok) throw new Error(data.message || 'Failed to fetch user');
-            setUser(data.user);
-        } catch (err) {
+
+            setUser(typeof data.user === 'string' ? { id: data.user } : data.user);
+        } catch {
             setUser(null);
         } finally {
             setLoading(false);
@@ -29,20 +29,21 @@ export function useAuth() {
         fetchUser();
     }, []);
 
-    const login = async ({ email, password, role }) => {
+    const login = async ({ email, password }) => {
         setLoading(true);
         setError(null);
         try {
-            const res = await fetch(`${API_BASE}/login`, {
+            const res = await fetch(`${API_BASE}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                credentials: 'include', // 👈 save JWT in cookie
-                body: JSON.stringify({ email, password, role }),
+                credentials: 'include',
+                body: JSON.stringify({ email, password }),
             });
 
             const data = await res.json();
             if (!res.ok) throw new Error(data.message || 'Login failed');
-            await fetchUser(); // Refresh user state
+
+            await fetchUser();
             return { success: true, user: data.user };
         } catch (err) {
             setError(err.message);
@@ -56,7 +57,7 @@ export function useAuth() {
         setLoading(true);
         setError(null);
         try {
-            const res = await fetch(`${API_BASE}/register`, {
+            const res = await fetch(`${API_BASE}/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -64,7 +65,8 @@ export function useAuth() {
             });
 
             const data = await res.json();
-            if (!res.ok) throw new Error(data.error || data.message || 'Registration failed');
+            if (!res.ok) throw new Error(data.message || 'Registration failed');
+
             await fetchUser();
             return { success: true, user: data.user };
         } catch (err) {
@@ -77,7 +79,7 @@ export function useAuth() {
 
     const logout = async () => {
         try {
-            await fetch(`${API_BASE}/logout`, {
+            await fetch(`${API_BASE}/auth/logout`, {
                 method: 'POST',
                 credentials: 'include',
             });
@@ -86,7 +88,8 @@ export function useAuth() {
         }
     };
 
-    const authFetch = async (url, options = {}) => {
+    // ✅ Memoize authFetch so it's stable across renders
+    const authFetch = useCallback(async (url, options = {}) => {
         const res = await fetch(`${API_BASE}${url}`, {
             ...options,
             headers: {
@@ -97,9 +100,9 @@ export function useAuth() {
         });
 
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || data.message || 'Request failed');
+        if (!res.ok) throw new Error(data.message || 'Request failed');
         return data;
-    };
+    }, []);
 
     return {
         user,

@@ -1,7 +1,7 @@
 ### 🔐 Authentication Endpoints
 # Complete test suite for user authentication and profile management
 
-@baseUrl =https://innovation-marketplace-840370620772.us-central1.run.app
+@baseUrl =http://127.0.0.1:5000
 
 ### =============================================
 ### USER REGISTRATION TESTS
@@ -56,7 +56,7 @@ POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "jane.doe@student.moringaschool.com",
+  "email": "jane.student@student.moringaschool.com",
   "password": "StrongPass123!"
 }
 
@@ -89,12 +89,12 @@ Content-Type: application/json
 
 ### =============================================
 ### USER PROFILE TESTS (Requires Authentication)
-### =============================================
+### =============================================eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA0MDk0MywianRpIjoiODQxMGU2YTctZWMyMC00YTlhLWExZTctN2M2YWE1ODdiY2NkIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NTMwNDA5NDMsImV4cCI6MTc1MzEyNzM0M30.u-Xc3DWU1l1Ipybw91ZFgOg46nqR3B_ANEQwNBLHIOc
 
 ### Get Current User Identity
 GET {{baseUrl}}/api/auth/me
 Content-Type: application/json
-Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzAyNTE3OSwianRpIjoiMDdmY2JmNTUtYTc3Mi00Y2MyLThiMjAtNzc2YmJjODNmYjE0IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NTMwMjUxNzksImV4cCI6MTc1MzExMTU3OX0.D8L2WQlbWh_WlezgoMB_WbEvm_gSK_tCmuYLIKbJecs
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA0MzM4NCwianRpIjoiYWE3Y2I4MWMtNzJhYy00OTRlLTgwZGUtNGQ2OWJjNjhhZDYwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjE0IiwibmJmIjoxNzUzMDQzMzg0LCJleHAiOjE3NTMxMjk3ODR9.X46a4boosYX2l6CX7i12OaYaufEiOeU8spfTi1bQXBg
 
 ### Get User Profile Details
 GET {{baseUrl}}/api/auth/profile

@@ -2,7 +2,7 @@
 # Complete test suite for order creation, management, and tracking
 # Authentication handled via secure HttpOnly cookies where required
 
-@baseUrl = http://127.0.0.1:5000
+@baseUrl =https://innovation-marketplace-840370620772.us-central1.run.app
 
 ### =============================================
 ### AUTHENTICATED USER ORDERS

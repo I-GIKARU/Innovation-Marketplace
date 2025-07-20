@@ -22,17 +22,9 @@ export default function ClientDashboard() {
                 </div>
 
                 <h2 className="text-lg font-bold mb-2">Client Dashboard</h2>
-                <p>Manage your bookings, view project status, and more.</p>
+                <p>Manage your orders</p>
 
-                <button
-                    onClick={() => {
-                        logout();
-                        router.push("/");
-                    }}
-                    className="mt-6 bg-red-500 text-white px-4 py-2 rounded"
-                >
-                    Logout
-                </button>
+
             </main>
         </div>
     );

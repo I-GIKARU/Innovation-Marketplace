@@ -92,7 +92,7 @@ export default function Sidebar() {
               {isOpen && <span className="text-sm">Sync</span>}
             </div>
           </div>
-        </div>clie
+        </div>
 
         <div className="mb-6">
           <button

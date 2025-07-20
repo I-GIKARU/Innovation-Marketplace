@@ -35,7 +35,10 @@ class UserLogin(Resource):
                 'user': identity,
                 'message': 'Login successful'
             }), 200)
+            
+            # Use standard JWT cookie setting with proper config
             set_access_cookies(response, access_token)
+            
             return response
             
         except Exception as exc:
@@ -44,13 +47,24 @@ class UserLogin(Resource):
 class CurrentUser(Resource):
     @jwt_required(optional=True) # Allow access without token
     def get(self):
+        from flask import request
         try:
             identity = get_jwt_identity()
             if identity:
-                return jsonify({"user": identity})
+                # Convert string identity back to int and fetch user from database
+                user_id = int(identity)
+                user = User.query.get(user_id)
+                if user:
+                    user_data = {
+                        'id': user.id,
+                        'email': user.email,
+                        'role': user.role.name
+                    }
+                    return jsonify({"user": user_data})
+                return jsonify({"user": None})
             return jsonify({"user": None})
-        except Exception:
-            return {"message": "Error verifying user"}, 500
+        except Exception as exc:
+            return {"message": f"Error verifying user: {str(exc)}"}, 500
 
 class UserLogout(Resource):
     def post(self):

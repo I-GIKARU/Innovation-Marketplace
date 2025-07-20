@@ -1,7 +1,7 @@
 ### 📁 Project Management Endpoints
 # Complete test suite for project CRUD operations and browsing
 
-@baseUrl = http://127.0.0.1:5000
+@baseUrl =http://127.0.0.1:5000
 
 ### =============================================
 ### PUBLIC PROJECT BROWSING (No Authentication)

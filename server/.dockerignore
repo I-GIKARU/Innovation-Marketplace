@@ -54,8 +54,6 @@ migrations/
 
 # API testing files
 *.http
-cookies.txt
-user_cookies.txt
 
 # Lock files
 uv.lock

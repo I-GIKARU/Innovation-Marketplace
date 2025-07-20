@@ -1,7 +1,9 @@
 ### Add 10 Merchandise Items with Sunflower Image
-@baseUrl = https://innovation-marketplace-840370620772.us-central1.run.app
+@baseUrl =http://127.0.0.1:5000
 @jwtToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzAyNDkxNSwianRpIjoiYmZkNmM1YjEtZGY4OC00ZTZlLWJkZmYtMGExYzViMWYyNWQ1IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NTMwMjQ5MTUsImV4cCI6MTc1MzExMTMxNX0.sFakm1fJJyDlzBEIvouJUMOEYKoiu27xpyIaWE1cpu8
 
+GET {{baseUrl}}/api/merchandise
+Content-Type: application/json
 ### 1. Sunflower Canvas Print
 POST {{baseUrl}}/api/admin/merchandise
 Content-Type: application/json

@@ -1,6 +1,6 @@
 // projects/page.jsx
 import React from 'react';
-import Projects from "@/components/Project";
+import Projects from "@/components/projects/Projects";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 
