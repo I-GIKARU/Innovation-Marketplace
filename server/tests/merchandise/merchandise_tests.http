@@ -2,7 +2,7 @@
 # Complete test suite for merchandise catalog and inventory management
 # Admin operations require authentication via secure HttpOnly cookies
 
-@baseUrl = http://127.0.0.1:5000
+@baseUrl =https://innovation-marketplace-840370620772.us-central1.run.app
 
 ### =============================================
 ### PUBLIC MERCHANDISE BROWSING (No Authentication)

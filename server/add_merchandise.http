@@ -1,0 +1,151 @@
+### Add 10 Merchandise Items with Sunflower Image
+@baseUrl = https://innovation-marketplace-840370620772.us-central1.run.app
+@jwtToken =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzAyNDkxNSwianRpIjoiYmZkNmM1YjEtZGY4OC00ZTZlLWJkZmYtMGExYzViMWYyNWQ1IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NTMwMjQ5MTUsImV4cCI6MTc1MzExMTMxNX0.sFakm1fJJyDlzBEIvouJUMOEYKoiu27xpyIaWE1cpu8
+
+### 1. Sunflower Canvas Print
+POST {{baseUrl}}/api/admin/merchandise
+Content-Type: application/json
+Cookie: access_token_cookie={{jwtToken}}
+
+{
+  "name": "Sunflower Field Canvas Print",
+  "description": "Beautiful high-quality canvas print featuring a stunning sunflower field viewed through a rustic window frame. Perfect for home or office decoration. Premium stretched canvas with fade-resistant inks.",
+  "price": 49.99,
+  "image_url": "https://images.pexels.com/photos/32980837/pexels-photo-32980837.jpeg",
+  "is_in_stock": true
+}
+
+###
+
+### 2. Sunflower Notebook
+POST {{baseUrl}}/api/admin/merchandise
+Content-Type: application/json
+Cookie: access_token_cookie={{jwtToken}}
+
+{
+  "name": "Sunflower Inspiration Journal",
+  "description": "Premium hardcover notebook with sunflower field cover design. 200 lined pages perfect for journaling, note-taking, or creative writing. Features elastic band closure and ribbon bookmark.",
+  "price": 18.99,
+  "image_url": "https://images.pexels.com/photos/32980837/pexels-photo-32980837.jpeg",
+  "is_in_stock": true
+}
+
+###
+
+### 3. Sunflower Coffee Mug
+POST {{baseUrl}}/api/admin/merchandise
+Content-Type: application/json
+Cookie: access_token_cookie={{jwtToken}}
+
+{
+  "name": "Sunflower Vista Coffee Mug",
+  "description": "Ceramic coffee mug with beautiful sunflower field print. 11oz capacity, dishwasher and microwave safe. Start your morning with this inspiring view of nature's beauty.",
+  "price": 14.99,
+  "image_url": "https://images.pexels.com/photos/32980837/pexels-photo-32980837.jpeg",
+  "is_in_stock": true
+}
+
+###
+
+### 4. Sunflower Tote Bag
+POST {{baseUrl}}/api/admin/merchandise
+Content-Type: application/json
+Cookie: access_token_cookie={{jwtToken}}
+
+{
+  "name": "Sunflower Field Eco Tote Bag",
+  "description": "Durable canvas tote bag featuring the stunning sunflower field design. Made from 100% organic cotton, perfect for shopping, beach trips, or daily use. Large 15x16 inch size with reinforced handles.",
+  "price": 22.99,
+  "image_url": "https://images.pexels.com/photos/32980837/pexels-photo-32980837.jpeg",
+  "is_in_stock": true
+}
+
+###
+
+### 5. Sunflower Phone Case
+POST {{baseUrl}}/api/admin/merchandise
+Content-Type: application/json
+Cookie: access_token_cookie={{jwtToken}}
+
+{
+  "name": "Sunflower Window View Phone Case",
+  "description": "Protective phone case with stunning sunflower field design. Available for iPhone and Samsung models. Shock-absorbent with raised edges to protect screen and camera. Slim profile maintains wireless charging compatibility.",
+  "price": 24.99,
+  "image_url": "https://images.pexels.com/photos/32980837/pexels-photo-32980837.jpeg",
+  "is_in_stock": true
+}
+
+###
+
+### 6. Sunflower Puzzle
+POST {{baseUrl}}/api/admin/merchandise
+Content-Type: application/json
+Cookie: access_token_cookie={{jwtToken}}
+
+{
+  "name": "Sunflower Field 1000-Piece Puzzle",
+  "description": "Challenging 1000-piece jigsaw puzzle featuring the beautiful sunflower field through window scene. High-quality pieces with precision cutting. Finished size: 27x20 inches. Includes reference poster.",
+  "price": 19.99,
+  "image_url": "https://images.pexels.com/photos/32980837/pexels-photo-32980837.jpeg",
+  "is_in_stock": true
+}
+
+###
+
+### 7. Sunflower Mousepad
+POST {{baseUrl}}/api/admin/merchandise
+Content-Type: application/json
+Cookie: access_token_cookie={{jwtToken}}
+
+{
+  "name": "Sunflower Field Gaming Mousepad",
+  "description": "Large gaming mousepad with anti-slip rubber base and smooth fabric surface. Features the inspiring sunflower field design. 12x10 inches, perfect for both gaming and professional work.",
+  "price": 16.99,
+  "image_url": "https://images.pexels.com/photos/32980837/pexels-photo-32980837.jpeg",
+  "is_in_stock": true
+}
+
+###
+
+### 8. Sunflower Wall Calendar
+POST {{baseUrl}}/api/admin/merchandise
+Content-Type: application/json
+Cookie: access_token_cookie={{jwtToken}}
+
+{
+  "name": "2025 Sunflower Inspiration Wall Calendar",
+  "description": "12-month wall calendar featuring beautiful nature photography including the stunning sunflower field cover image. Large date grids with space for notes. Spiral-bound with hanging loop.",
+  "price": 12.99,
+  "image_url": "https://images.pexels.com/photos/32980837/pexels-photo-32980837.jpeg",
+  "is_in_stock": true
+}
+
+###
+
+### 9. Sunflower Throw Pillow
+POST {{baseUrl}}/api/admin/merchandise
+Content-Type: application/json
+Cookie: access_token_cookie={{jwtToken}}
+
+{
+  "name": "Sunflower Window View Throw Pillow",
+  "description": "Decorative throw pillow with double-sided sunflower field print. 18x18 inches, made with soft polyester fabric and hypoallergenic fill. Hidden zipper closure, machine washable cover.",
+  "price": 28.99,
+  "image_url": "https://images.pexels.com/photos/32980837/pexels-photo-32980837.jpeg",
+  "is_in_stock": true
+}
+
+###
+
+### 10. Sunflower Desk Mat
+POST {{baseUrl}}/api/admin/merchandise
+Content-Type: application/json
+Cookie: access_token_cookie={{jwtToken}}
+
+{
+  "name": "Sunflower Field Extended Desk Mat",
+  "description": "Large extended desk mat perfect for your workspace. Features the beautiful sunflower field design with non-slip rubber base. Water-resistant surface, easy to clean. Size: 31.5x11.8 inches.",
+  "price": 34.99,
+  "image_url": "https://images.pexels.com/photos/32980837/pexels-photo-32980837.jpeg",
+  "is_in_stock": true
+}

@@ -2,7 +2,7 @@
 # Role-specific dashboard views for students, clients, and admins
 # Authentication handled via secure HttpOnly cookies
 
-@baseUrl = http://127.0.0.1:5000
+@baseUrl =https://innovation-marketplace-840370620772.us-central1.run.app
 
 ### =============================================
 ### STUDENT DASHBOARD
@@ -24,7 +24,7 @@ Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
 # Shows: User profile, client's expressed interests in projects, order history
 GET {{baseUrl}}/api/dashboard/client
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzAyNTE3OSwianRpIjoiMDdmY2JmNTUtYTc3Mi00Y2MyLThiMjAtNzc2YmJjODNmYjE0IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NTMwMjUxNzksImV4cCI6MTc1MzExMTU3OX0.D8L2WQlbWh_WlezgoMB_WbEvm_gSK_tCmuYLIKbJecs
 
 ### =============================================
 ### ADMIN DASHBOARD
