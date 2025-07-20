@@ -1,0 +1,269 @@
+### 📦 Order Management Endpoints
+# Complete test suite for order creation, management, and tracking
+# Authentication handled via secure HttpOnly cookies where required
+
+@baseUrl = http://127.0.0.1:5000
+
+### =============================================
+### AUTHENTICATED USER ORDERS
+### Note: Login as CLIENT or STUDENT first using auth_tests.http
+### =============================================
+
+### Create Small Order (Authenticated User)
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "items": [
+    {
+      "merchandise_id": 1,
+      "quantity": 1
+    }
+  ]
+}
+
+### Create Multi-Item Order (Authenticated User)
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "items": [
+    {
+      "merchandise_id": 1,
+      "quantity": 2
+    },
+    {
+      "merchandise_id": 2,
+      "quantity": 1
+    },
+    {
+      "merchandise_id": 4,
+      "quantity": 3
+    }
+  ]
+}
+
+### Create Large Order (Authenticated User)
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "items": [
+    {
+      "merchandise_id": 1,
+      "quantity": 5
+    },
+    {
+      "merchandise_id": 2,
+      "quantity": 3
+    },
+    {
+      "merchandise_id": 3,
+      "quantity": 2
+    },
+    {
+      "merchandise_id": 4,
+      "quantity": 4
+    }
+  ]
+}
+
+### =============================================
+### GUEST ORDERS (No Authentication Required)
+### =============================================
+
+### Create Guest Order (Single Item)
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{
+  "email": "guest.customer@example.com",
+  "items": [
+    {
+      "merchandise_id": 2,
+      "quantity": 2
+    }
+  ]
+}
+
+### Create Large Guest Order
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{
+  "email": "bulk.buyer@company.co.ke",
+  "items": [
+    {
+      "merchandise_id": 1,
+      "quantity": 10
+    },
+    {
+      "merchandise_id": 4,
+      "quantity": 15
+    }
+  ]
+}
+
+### Create Corporate Guest Order
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{
+  "email": "procurement@techcorp.co.ke",
+  "items": [
+    {
+      "merchandise_id": 1,
+      "quantity": 50
+    },
+    {
+      "merchandise_id": 2,
+      "quantity": 50
+    },
+    {
+      "merchandise_id": 3,
+      "quantity": 25
+    }
+  ]
+}
+
+### =============================================
+### ORDER MANAGEMENT (Authenticated Users)
+### =============================================
+
+### Get User's Orders
+GET {{baseUrl}}/api/orders
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+### Get User's Orders with Pagination
+GET {{baseUrl}}/api/orders?page=1&per_page=5
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+### Get Specific Order Details
+GET {{baseUrl}}/api/orders/1
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+### =============================================
+### ORDER CANCELLATION (Authenticated Users)
+### =============================================
+
+### Cancel Order (Only pending orders can be cancelled)
+POST {{baseUrl}}/api/orders/1/cancel
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+### Try to Cancel Already Cancelled Order (Should fail)
+POST {{baseUrl}}/api/orders/1/cancel
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+### =============================================
+### ERROR TESTING SCENARIOS
+### =============================================
+
+### Try to Order Out-of-Stock Item (Should fail)
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "merchandise_id": 999,
+      "quantity": 1
+    }
+  ]
+}
+
+### Try to Order with Invalid Quantity (Should fail)
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "items": [
+    {
+      "merchandise_id": 1,
+      "quantity": 0
+    }
+  ]
+}
+
+### Try Guest Order without Email (Should fail)
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "merchandise_id": 1,
+      "quantity": 1
+    }
+  ]
+}
+
+### Try to Order Nonexistent Merchandise (Should fail)
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "items": [
+    {
+      "merchandise_id": 999,
+      "quantity": 1
+    }
+  ]
+}
+
+### =============================================
+### BULK ORDER EXAMPLES
+### =============================================
+
+### Student Organization Bulk Order
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{
+  "email": "events@studentorg.moringaschool.com",
+  "items": [
+    {
+      "merchandise_id": 1,
+      "quantity": 30
+    },
+    {
+      "merchandise_id": 4,
+      "quantity": 30
+    }
+  ]
+}
+
+### Corporate Training Event Order
+POST {{baseUrl}}/api/orders
+Content-Type: application/json
+
+{
+  "email": "training@corporateclient.com",
+  "items": [
+    {
+      "merchandise_id": 1,
+      "quantity": 100
+    },
+    {
+      "merchandise_id": 2,
+      "quantity": 100
+    },
+    {
+      "merchandise_id": 3,
+      "quantity": 50
+    },
+    {
+      "merchandise_id": 4,
+      "quantity": 100
+    }
+  ]
+}

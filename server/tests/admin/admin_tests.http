@@ -1,0 +1,253 @@
+### ⚙️ Admin Management Endpoints
+# Complete administrative control panel for system management
+# ALL endpoints require ADMIN authentication via secure HttpOnly cookies
+
+@baseUrl = http://127.0.0.1:5000
+
+### =============================================
+### ADMIN LOGIN (REQUIRED FIRST)
+### =============================================
+
+### Login as Admin
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "StrongPass123!"
+}
+
+### =============================================
+### SYSTEM ANALYTICS & OVERVIEW
+### =============================================
+
+### Get System Statistics Dashboard
+GET {{baseUrl}}/api/admin/stats
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+### =============================================
+### PROJECT MODERATION
+### =============================================
+
+### Get All Pending Projects for Review
+GET {{baseUrl}}/api/admin/projects/pending
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+### Get Pending Projects with Pagination
+GET {{baseUrl}}/api/admin/projects/pending?page=1&per_page=5
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+### Approve Project
+POST {{baseUrl}}/api/admin/projects/1/approve
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+### Feature Project (Makes it highlighted)
+POST {{baseUrl}}/api/admin/projects/1/feature
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+### Un-feature Project (Toggle off)
+POST {{baseUrl}}/api/admin/projects/1/feature
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+### Reject Project with Reason
+POST {{baseUrl}}/api/admin/projects/2/reject
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "reason": "Project does not meet quality standards. Issues found: 1) Incomplete documentation, 2) Missing error handling, 3) Security vulnerabilities in authentication. Please address these issues and resubmit."
+}
+
+### =============================================
+### CATEGORY MANAGEMENT
+### =============================================
+
+### Create New Category
+POST {{baseUrl}}/api/admin/categories
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "name": "Blockchain & Web3 Development",
+  "description": "Cryptocurrency, smart contracts, DeFi protocols, NFT platforms, and decentralized applications built on various blockchain networks"
+}
+
+### Create AI/ML Category
+POST {{baseUrl}}/api/admin/categories
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "name": "Artificial Intelligence & Machine Learning",
+  "description": "AI-powered applications, machine learning models, deep learning systems, computer vision, natural language processing, and intelligent automation solutions"
+}
+
+### Create IoT Category
+POST {{baseUrl}}/api/admin/categories
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "name": "Internet of Things (IoT)",
+  "description": "Connected devices, smart home systems, industrial IoT solutions, sensor networks, and embedded systems with cloud integration"
+}
+
+### Update Existing Category
+PUT {{baseUrl}}/api/admin/categories/1
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "name": "Advanced Web Development",
+  "description": "Modern full-stack web applications using cutting-edge frameworks, microservices architecture, progressive web apps, and cloud-native technologies"
+}
+
+### Delete Category (Use with caution!)
+# DELETE {{baseUrl}}/api/admin/categories/8
+# Content-Type: application/json
+
+### =============================================
+### MERCHANDISE MANAGEMENT
+### =============================================
+
+### Create Premium Merchandise
+POST {{baseUrl}}/api/admin/merchandise
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "name": "Innovation Hub Premium Coding Keyboard",
+  "description": "Mechanical keyboard designed for developers with RGB backlighting, programmable keys, and ergonomic design. Features Cherry MX switches and dedicated function keys for common coding tasks.",
+  "price": 129.99,
+  "image_url": "https://shop.innovationhub.com/images/premium-keyboard.jpg",
+  "is_in_stock": true
+}
+
+### Create Affordable Merchandise
+POST {{baseUrl}}/api/admin/merchandise
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "name": "Innovation Hub Coding Notebook Set",
+  "description": "Set of 3 notebooks with grid pages perfect for wireframing, algorithm planning, and note-taking. Features durable covers and high-quality paper.",
+  "price": 12.99,
+  "image_url": "https://shop.innovationhub.com/images/notebook-set.jpg",
+  "is_in_stock": true
+}
+
+### Update Merchandise (Price Change)
+PUT {{baseUrl}}/api/admin/merchandise/1
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "name": "Innovation Hub Premium T-Shirt (Updated)",
+  "price": 22.99,
+  "is_in_stock": true
+}
+
+### Mark Merchandise as Out of Stock
+PUT {{baseUrl}}/api/admin/merchandise/2
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "is_in_stock": false
+}
+
+### Delete Discontinued Merchandise
+# DELETE {{baseUrl}}/api/admin/merchandise/5
+# Content-Type: application/json
+
+### =============================================
+### ORDER MONITORING
+### =============================================
+
+### View All System Orders
+GET {{baseUrl}}/api/admin/orders
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+### View Orders with Pagination
+GET {{baseUrl}}/api/admin/orders?page=1&per_page=20
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+### =============================================
+### CONTENT MODERATION WORKFLOWS
+### =============================================
+
+### Batch Approve Multiple Projects
+# POST {{baseUrl}}/api/admin/projects/1/approve
+# Content-Type: application/json
+
+# POST {{baseUrl}}/api/admin/projects/3/approve
+# Content-Type: application/json
+
+# POST {{baseUrl}}/api/admin/projects/4/approve
+# Content-Type: application/json
+
+### Feature Trending Projects
+# POST {{baseUrl}}/api/admin/projects/1/feature
+# Content-Type: application/json
+
+# POST {{baseUrl}}/api/admin/projects/3/feature
+# Content-Type: application/json
+
+### Reject Low Quality Projects
+# POST {{baseUrl}}/api/admin/projects/5/reject
+# Content-Type: application/json
+# {
+#   "reason": "Insufficient project documentation and missing demo link"
+# }
+
+### =============================================
+### INVENTORY MANAGEMENT
+### =============================================
+
+### Check Low Stock Items
+GET {{baseUrl}}/api/merchandise?in_stock=false
+Content-Type: application/json
+
+### Bulk Update Inventory Status
+# PUT {{baseUrl}}/api/admin/merchandise/1
+# Content-Type: application/json
+# { "is_in_stock": true }
+
+# PUT {{baseUrl}}/api/admin/merchandise/2
+# Content-Type: application/json
+# { "is_in_stock": true }
+
+### =============================================
+### SEASONAL OPERATIONS
+### =============================================
+
+### Create Limited Time Category
+POST {{baseUrl}}/api/admin/categories
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "name": "Hackathon Projects 2025",
+  "description": "Outstanding projects from various hackathons throughout 2025, showcasing innovation and rapid development skills"
+}
+
+### Create Seasonal Merchandise
+POST {{baseUrl}}/api/admin/merchandise
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "name": "Innovation Hub 2025 Annual Conference T-Shirt",
+  "description": "Limited edition t-shirt commemorating the Innovation Hub 2025 Annual Conference. Features unique design with conference logo and speaker signatures.",
+  "price": 29.99,
+  "image_url": "https://shop.innovationhub.com/images/conference-2025-tshirt.jpg",
+  "is_in_stock": true
+}

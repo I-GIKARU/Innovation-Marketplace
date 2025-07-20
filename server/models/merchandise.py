@@ -2,27 +2,6 @@ from datetime import datetime, timezone
 from sqlalchemy_serializer import SerializerMixin
 from . import db,bcrypt
 
-
-
-class User(db.Model, SerializerMixin):
-    __tablename__ = 'users'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    phone = db.Column(db.String(20))
-    password_hash = db.Column(db.String(128))
-
-    orders = db.relationship('Order', back_populates='buyer')
-    
-    serialize_rules = ('-orders.users', '-password_hash',)  
-    
-    def set_password(self, password):
-        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
-        
-    def check_password(self, password):
-        return bcrypt.check_password_hash(self.password_hash, password)
-
-
 class Merchandise(db.Model, SerializerMixin):
     __tablename__ = 'merchandise'
 
@@ -63,18 +42,18 @@ class Order(db.Model, SerializerMixin):
     status = db.Column(db.String(50))
     amount = db.Column(db.Integer)
 
-    buyer = db.relationship('User', back_populates='orders')
+    user = db.relationship('User', back_populates='orders')
     items = db.relationship('OrderItem', back_populates='order')
     payment = db.relationship('Payment', back_populates='order', uselist=False)
 
-    serialize_rules = ('-buyer.orders', '-items.order', '-payment.order',)
+    serialize_rules = ('-user.orders', '-items.order', '-payment.order',)
 
     def to_dict(self):
         return {
             "id": self.id,
             "user_id": self.user_id,
             "email": self.email if self.user_id is None else None,
-            "buyer": self.buyer.to_dict() if self.buyer else None,
+            "user": self.user.to_dict() if self.user else None,
             "amount": self.amount,
             "status": self.status,
             "date": self.date.isoformat(),

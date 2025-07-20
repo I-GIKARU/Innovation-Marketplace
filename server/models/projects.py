@@ -3,69 +3,52 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin
 from . import db,bcrypt
 
-
-
-class Student(db.Model, SerializerMixin):
-    __tablename__ = 'students'
+class Role(db.Model, SerializerMixin):
+    __tablename__ = 'roles'
     
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
-    bio = db.Column(db.Text)
-    skills = db.Column(db.String(255))
-    github_link = db.Column(db.String(255))
-    linkedin_link = db.Column(db.String(255))
-    past_projects = db.Column(db.Text)
+    name = db.Column(db.String(50), nullable=False)
+    desc = db.Column(db.String(255))
     
-    projects = db.relationship('ProjectStudent', back_populates='student')
-    
-    serialize_rules = ('-password_hash', '-projects.student',)
-    
-    def set_password(self, password):
-        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
-        
-    def check_password(self, password):
-        return bcrypt.check_password_hash(self.password_hash, password)
+    # Relationships
+    users = db.relationship('User', back_populates='role', lazy=True)
 
-class Admin(db.Model, SerializerMixin):
-    __tablename__ = 'admins'
+    # Serialization rules
+    serialize_rules = ('-users.role',)
+
+class User(db.Model, SerializerMixin):
+    __tablename__ = 'users'
     
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
-    
-    reviewed_projects = db.relationship('Project', back_populates='reviewer')
-    
-    serialize_rules = ('-password_hash', '-reviewed_projects.reviewer',)
-    
-    def set_password(self, password):
-        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
-        
-    def check_password(self, password):
-        return bcrypt.check_password_hash(self.password_hash, password)
-
-class Client(db.Model, SerializerMixin):
-    __tablename__ = 'clients'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
-    company = db.Column(db.String(100))
     phone = db.Column(db.String(20))
+    password_hash = db.Column(db.String(255), nullable=False)
+    bio = db.Column(db.Text)
+    socials = db.Column(db.String(255))
+    company = db.Column(db.String(100))
+    past_projects = db.Column(db.Text)
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable=False)
     
-    interests = db.relationship('ClientInterest', back_populates='client')
-   
+    # Relationships
+    orders = db.relationship('Order', back_populates='user', lazy=True)
+    user_projects = db.relationship('UserProject', back_populates='user', lazy=True)
+    role = db.relationship('Role', back_populates='users')
+
+    # Serialization rules
+    serialize_rules = ('-password_hash', '-role.users', '-orders.user', '-user_projects.user')
     
-    serialize_rules = ('-password_hash', '-interests.client',)
+    @property
+    def password(self):
+        raise AttributeError('password is not a readable attribute')
     
-    def set_password(self, password):
+    @password.setter
+    def password(self, password):
         self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
-        
-    def check_password(self, password):
+    
+    def verify_password(self, password):
         return bcrypt.check_password_hash(self.password_hash, password)
+
+
 
 class Category(db.Model, SerializerMixin):
     __tablename__ = 'categories'
@@ -82,71 +65,60 @@ class Project(db.Model, SerializerMixin):
     __tablename__ = 'projects'
     
     id = db.Column(db.Integer, primary_key=True)
-    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
-    reviewed_by = db.Column(db.Integer, db.ForeignKey('admins.id'))
-    title = db.Column(db.String(255), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
+    title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
     tech_stack = db.Column(db.String(255))
     github_link = db.Column(db.String(255))
     demo_link = db.Column(db.String(255))
     is_for_sale = db.Column(db.Boolean, default=False)
     status = db.Column(db.String(50))
-    price = db.Column(db.Integer)
-    is_approved = db.Column(db.Boolean, default=False)
     featured = db.Column(db.Boolean, default=False)
-    views = db.Column(db.Integer, default=0)
+    technical_mentor = db.Column(db.String(100))
+    views = db.Column( db.Integer, default=0)
     clicks = db.Column(db.Integer, default=0)
     downloads = db.Column(db.Integer, default=0)
     
+    # Relationships
     category = db.relationship('Category', back_populates='projects')
-    reviewer = db.relationship('Admin', back_populates='reviewed_projects')
-    students = db.relationship('ProjectStudent', back_populates='project')
-    reviews = db.relationship('Review', back_populates='project')
-    client_interests = db.relationship('ClientInterest', back_populates='project')
+    user_projects = db.relationship('UserProject', back_populates='project', lazy=True)
     
-    serialize_rules = (
-        '-category.projects',
-        '-reviewer.reviewed_projects',
-        '-students.project',
-        '-reviews.project',
-        '-client_interests.project'
-    )
-class ProjectStudent(db.Model, SerializerMixin):
-    __tablename__ = 'project_student'
+    # Serialization rules
+    serialize_rules = ('-category.projects', '-user_projects.project')
+    
+    
+  
+class UserProject(db.Model, SerializerMixin):
+    __tablename__ = 'users_projects'
     
     id = db.Column(db.Integer, primary_key=True)
-    student_id = db.Column(db.Integer, db.ForeignKey('students.id'))
-    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
-    
-    student = db.relationship('Student', back_populates='projects')
-    project = db.relationship('Project', back_populates='students')
-    
-    serialize_rules = ('-student.projects', '-project.students',)
-    
-class ClientInterest(db.Model, SerializerMixin):
-    __tablename__ = 'client_interest'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
-    client_id = db.Column(db.Integer, db.ForeignKey('clients.id'))
-    interested_in = db.Column(db.String(50), default="buying,hiring")
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
+    interested_in = db.Column(db.String(255))
+    date = db.Column(db.Date)
     message = db.Column(db.Text)
-    date = db.Column(db.Date, default=datetime.utcnow)
     
-    project = db.relationship('Project', back_populates='client_interests')
-    client = db.relationship('Client', back_populates='interests')
+    # Relationships
+    user = db.relationship('User', back_populates='user_projects')
+    project = db.relationship('Project', back_populates='user_projects')
     
-    serialize_rules = ('-project.client_interests', '-client.interests',)
+    reviews = db.relationship('Review', back_populates='user_project', lazy=True)
+
+    # Serialization rules
+    serialize_rules = ('-user.user_projects', '-project.user_projects', '-reviews.user_project')
+    
 
 class Review(db.Model, SerializerMixin):
     __tablename__ = 'reviews'
     
     id = db.Column(db.Integer, primary_key=True)
-    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
+    user_project_id = db.Column(db.Integer, db.ForeignKey('users_projects.id'), nullable=False)
     rating = db.Column(db.Integer)
     comment = db.Column(db.Text)
-    date = db.Column(db.Date, default=datetime.utcnow)
+    date = db.Column(db.Date)
     
-    project = db.relationship('Project', back_populates='reviews')
-    
-    serialize_rules = ('-project.reviews',)
+    # Relationships
+    user_project = db.relationship('UserProject', back_populates='reviews')
+
+    # Serialization rules
+    serialize_rules = ('-user_project.reviews',)

@@ -1,0 +1,155 @@
+### 🔐 Authentication Endpoints
+# Complete test suite for user authentication and profile management
+
+@baseUrl = http://127.0.0.1:5000
+
+### =============================================
+### USER REGISTRATION TESTS
+### =============================================
+
+### Register Student User
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "jane.doe@student.moringaschool.com",
+  "password": "StrongPass123!",
+  "role": "student",
+  "bio": "Full-stack developer passionate about web technologies and AI",
+  "socials": "github.com/janedoe, linkedin.com/in/janedoe, twitter.com/janedoe_dev",
+  "past_projects": "E-commerce platform with React/Node.js, Task management app with Vue.js, AI-powered portfolio website",
+  "phone": "+254701234567"
+}
+
+### Register Client User
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "hiring@techcorp.co.ke",
+  "password": "StrongPass123!",
+  "role": "client",
+  "company": "TechCorp Solutions Kenya Ltd",
+  "phone": "+254700123456"
+}
+
+### Register Regular User
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "StrongPass123!",
+  "role": "user",
+  "phone": "+254708765432"
+}
+
+### Test Invalid Student Email (Should fail)
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "invalid@gmail.com",
+  "password": "StrongPass123!",
+  "role": "student",
+  "bio": "Student with invalid email",
+  "socials": "github.com/invalid",
+  "past_projects": "Test project"
+}
+
+### =============================================
+### USER LOGIN TESTS
+### =============================================
+
+### Login Student
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "jane.doe@student.moringaschool.com",
+  "password": "StrongPass123!"
+}
+
+### Login Client
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "hiring@techcorp.co.ke",
+  "password": "StrongPass123!"
+}
+
+### Login Admin (Default admin created on server start)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "StrongPass123!"
+}
+
+### Test Invalid Login (Should fail)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "nonexistent@example.com",
+  "password": "WrongPassword123!"
+}
+
+### =============================================
+### USER PROFILE TESTS (Requires Authentication)
+### =============================================
+
+### Get Current User Identity
+GET {{baseUrl}}/api/auth/me
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+### Get User Profile Details
+GET {{baseUrl}}/api/auth/profile
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+### Update Student Profile
+PUT {{baseUrl}}/api/auth/profile
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "bio": "Updated: Senior full-stack developer specializing in MERN stack and AI integration",
+  "socials": "github.com/janedoe, linkedin.com/in/janedoe, twitter.com/janedoe_dev, portfolio: janedoe.dev",
+  "past_projects": "E-commerce platform (React/Node.js), AI Task manager (Vue.js/Python), ML-powered portfolio, Blockchain voting system",
+  "phone": "+254701234999"
+}
+
+### Update Client Profile
+PUT {{baseUrl}}/api/auth/profile
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "company": "TechCorp Solutions Kenya Ltd - Digital Innovation Hub",
+  "phone": "+254700123999"
+}
+
+### Change Password
+PUT {{baseUrl}}/api/auth/profile
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "password": "NewStrongPass123!"
+}
+
+### =============================================
+### USER LOGOUT TESTS
+### =============================================
+
+### Logout User (Clears JWT cookies)
+POST {{baseUrl}}/api/auth/logout
+Content-Type: application/json
+
+### Test Accessing Protected Route After Logout (Should fail)
+GET {{baseUrl}}/api/auth/profile
+Content-Type: application/json

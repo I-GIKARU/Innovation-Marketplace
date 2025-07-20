@@ -1,0 +1,152 @@
+### 🛍️ Merchandise Management Endpoints
+# Complete test suite for merchandise catalog and inventory management
+# Admin operations require authentication via secure HttpOnly cookies
+
+@baseUrl = http://127.0.0.1:5000
+
+### =============================================
+### PUBLIC MERCHANDISE BROWSING (No Authentication)
+### =============================================
+
+### Get All In-Stock Merchandise
+GET {{baseUrl}}/api/merchandise
+Content-Type: application/json
+
+### Get Merchandise with Pagination
+GET {{baseUrl}}/api/merchandise?page=1&per_page=5
+Content-Type: application/json
+
+### Get All Merchandise (Including Out of Stock)
+GET {{baseUrl}}/api/merchandise?in_stock=false
+Content-Type: application/json
+
+### Get Specific Merchandise Item
+GET {{baseUrl}}/api/merchandise/1
+Content-Type: application/json
+
+### =============================================
+### ADMIN MERCHANDISE MANAGEMENT
+### Note: Login as ADMIN first using auth_tests.http
+### =============================================
+
+### Create Innovation Hub T-Shirt
+POST {{baseUrl}}/api/admin/merchandise
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "name": "Innovation Hub Premium T-Shirt",
+  "description": "Premium cotton t-shirt with Innovation Hub logo. Available in multiple sizes (S, M, L, XL, XXL). Made from 100% organic cotton with screen-printed logo. Perfect for developers, students, and tech enthusiasts.",
+  "price": 25.99,
+  "image_url": "https://shop.innovationhub.com/images/premium-tshirt.jpg",
+  "is_in_stock": true
+}
+
+### Create Innovation Hub Coffee Mug
+POST {{baseUrl}}/api/admin/merchandise
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "name": "Innovation Hub Ceramic Coffee Mug",
+  "description": "Premium ceramic coffee mug perfect for your morning brew. Features the Innovation Hub logo and motivational coding quotes. Dishwasher and microwave safe. 11oz capacity.",
+  "price": 15.50,
+  "image_url": "https://shop.innovationhub.com/images/ceramic-mug.jpg",
+  "is_in_stock": true
+}
+
+### Create Innovation Hub Hoodie
+POST {{baseUrl}}/api/admin/merchandise
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "name": "Innovation Hub Developer Hoodie",
+  "description": "Ultra-comfortable hoodie with Innovation Hub branding. Perfect for coding sessions and casual wear. Made from premium cotton blend with kangaroo pocket and adjustable hood. Available in multiple colors.",
+  "price": 45.00,
+  "image_url": "https://shop.innovationhub.com/images/developer-hoodie.jpg",
+  "is_in_stock": true
+}
+
+### Create Innovation Hub Laptop Sticker Pack
+POST {{baseUrl}}/api/admin/merchandise
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "name": "Innovation Hub Laptop Sticker Pack",
+  "description": "Pack of 10 high-quality vinyl stickers featuring Innovation Hub logos, programming languages, and tech-themed designs. Waterproof and fade-resistant. Perfect for laptops, water bottles, and tech gear.",
+  "price": 8.99,
+  "image_url": "https://shop.innovationhub.com/images/sticker-pack.jpg",
+  "is_in_stock": true
+}
+
+### Create Limited Edition Item (Out of Stock)
+POST {{baseUrl}}/api/admin/merchandise
+Content-Type: application/json
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzAwODExNSwianRpIjoiZTdiYzg3OWQtZGI3Yy00ZTM0LWJiZGEtYjE0M2EyMjA1OTY2IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjUiLCJuYmYiOjE3NTMwMDgxMTUsImV4cCI6MTc1MzA5NDUxNX0.uGZrzJVJAT_SrAzGH3NDlkCwwyU7A0Jlib-B_wfDmc0
+
+{
+  "name": "Innovation Hub Limited Edition Backpack",
+  "description": "Limited edition tech backpack with laptop compartment, USB charging port, and multiple pockets. Perfect for students and professionals. Water-resistant material with reinforced stitching.",
+  "price": 89.99,
+  "image_url": "https://shop.innovationhub.com/images/limited-backpack.jpg",
+  "is_in_stock": false
+}
+
+### =============================================
+### MERCHANDISE UPDATES (Admin Only)
+### =============================================
+
+### Update Merchandise Details
+PUT {{baseUrl}}/api/admin/merchandise/3
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "name": "Innovation Hub Premium Developer Hoodie",
+  "description": "Updated: Ultra-comfortable premium hoodie with Innovation Hub branding. Perfect for coding sessions and casual wear. Made from premium cotton blend with kangaroo pocket, adjustable hood, and thumb holes. Available in Black, Navy, and Gray.",
+  "price": 39.99,
+  "image_url": "https://shop.innovationhub.com/images/premium-developer-hoodie.jpg",
+  "is_in_stock": true
+}
+
+### Mark Item as Out of Stock
+PUT {{baseUrl}}/api/admin/merchandise/1
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "is_in_stock": false
+}
+
+### Restock Item and Update Price
+PUT {{baseUrl}}/api/admin/merchandise/5
+Content-Type: application/json
+Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+
+{
+  "name": "Innovation Hub Tech Professional Backpack",
+  "price": 79.99,
+  "is_in_stock": true
+}
+
+### =============================================
+### MERCHANDISE DELETION (Admin Only)
+### =============================================
+
+### Delete Discontinued Item
+# DELETE {{baseUrl}}/api/admin/merchandise/5
+# Content-Type: application/json
+
+### =============================================
+### INVENTORY MANAGEMENT EXAMPLES
+### =============================================
+
+### Check Current Inventory Status
+GET {{baseUrl}}/api/merchandise?in_stock=false
+Content-Type: application/json
+
+### View Specific Item for Stock Check
+GET {{baseUrl}}/api/merchandise/2
+Content-Type: application/json
