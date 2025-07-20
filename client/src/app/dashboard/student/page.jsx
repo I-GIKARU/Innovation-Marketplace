@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 
-import Sidebar from "@/components/Sidebar";
-import Topbar from "@/components/Topbar";
+import Sidebar from "@/components/student/Sidebar";
+import Topbar from "@/components/student/Topbar";
 import ProjectCard from "@/components/ProjectCard";
-import SkillsPanel from "@/components/SkillsPanel";
+import SkillsPanel from "@/components/student/SkillsPanel";
 
 export default function StudentDashboard() {
   const { user, logout } = useAuth("student");

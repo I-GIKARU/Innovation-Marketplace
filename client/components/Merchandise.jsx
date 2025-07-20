@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 const products = [
   {
@@ -39,9 +40,11 @@ const Merchandise = () => {
           <p className="text-gray-500 italic">
             Every purchase supports student innovation and growth.
           </p>
-          <button className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-full font-semibold transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:scale-105">
-            Shop Moringa Merch
-          </button>
+          <Link href="/e_commerce">
+            <button className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-full font-semibold transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:scale-105">
+              Shop Moringa Merch
+            </button>
+          </Link>
         </div>
 
       

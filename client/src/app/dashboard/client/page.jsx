@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
-import Sidebar from "@/components/Sidebar";
+import Sidebar from "@/components/student/Sidebar";
 
 export default function ClientDashboard() {
     const { user, logout } = useAuth();
