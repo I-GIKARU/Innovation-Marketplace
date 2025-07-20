@@ -113,9 +113,6 @@ const Portallogin = ({ closeParentDropdown }) => {
                   required
               />
 
-              <label className="mb-2 text-sm font-medium">Select Role</label>
-              <RoleMenu selectedRole={selectedRole} setSelectedRole={setSelectedRole} />
-
               <button
                   type="submit"
                   disabled={loading}
