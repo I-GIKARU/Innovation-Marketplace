@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import Sidebar from '../../../components/AdminSidebar'
-import Products from '../../../components/AdminProducts'
-import Projects from '../../../components/AdminProjects'
-import Dashboard from '../../../components/AdminDashboard'
-import Navbar from '../../../components/AdminNavbar'
+import Sidebar from '../../../../components/AdminSidebar'
+import Products from '../../../../components/AdminProducts'
+import Projects from '../../../../components/AdminProjects'
+import Dashboard from '../../../../components/AdminDashboard'
+import Navbar from '../../../../components/AdminNavbar'
 
 function AdminPage() {
   const [selectedPage, setSelectedPage] = useState('dashboard')

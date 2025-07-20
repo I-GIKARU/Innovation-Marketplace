@@ -1,40 +1,58 @@
 'use client';
 
-import { useCart } from './contexts/CartContext';
 import Link from 'next/link';
+import {useCart} from "@/contexts/CartContext";
 
 const CartPage = () => {
-  const { cart, addToCart,removeFromCart, updateQuantity } = useCart();
+    const { cart, updateQuantity, removeFromCart } = useCart();
 
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Your Cart</h2>
-      {cart.map(item => (
-        <div key={item.id} className="flex items-center mb-4 border-b pb-2">
-          <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
-          <div className="flex-1 ml-4">
-            <h3>{item.name}</h3>
-            <div className="flex items-center space-x-2">
-              <button onClick={() => updateQuantity(item.id, item.quantity - 1)}>-</button>
-              <span>{item.quantity}</span>
-              <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+    if (cart.length === 0) {
+        return <p className="p-6 text-gray-600">Your cart is empty.</p>;
+    }
+
+    return (
+        <div className="p-6 max-w-4xl mx-auto">
+            <h1 className="text-2xl font-bold mb-6">Your Cart</h1>
+            {cart.map(item => (
+                <div
+                    key={`${item.id}-${item.selectedSize}-${item.selectedColor}`}
+                    className="flex items-center justify-between border-b py-4"
+                >
+                    <div className="flex items-center gap-4">
+                        <img src={item.image_url} alt={item.name} className="w-16 h-16 rounded" />
+                        <div>
+                            <h2 className="font-semibold">{item.name}</h2>
+                            <p className="text-sm text-gray-600">Size: {item.selectedSize}</p>
+                            <p className="text-sm text-gray-600">Color: <span className="inline-block w-4 h-4 rounded-full border" style={{ backgroundColor: item.selectedColor }} /></p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <button onClick={() => updateQuantity(item, item.quantity - 1)}>-</button>
+                        <span>{item.quantity}</span>
+                        <button onClick={() => updateQuantity(item, item.quantity + 1)}>+</button>
+                        <button
+                            className="text-red-500 ml-2"
+                            onClick={() => removeFromCart(item)}
+                        >
+                            Remove
+                        </button>
+                    </div>
+                </div>
+            ))}
+
+            <div className="mt-6 text-right">
+                <p className="text-lg font-bold mb-2">Total: KES {total}</p>
+                <Link href="/e_commerce/checkout">
+                    <button className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">
+                        Proceed to Checkout
+                    </button>
+                </Link>
             </div>
-          </div>
-          <p>KES {item.price * item.quantity}</p>
-          <button onClick={() => removeFromCart(item.id)} className="text-red-500 ml-2">Remove</button>
         </div>
-      ))}
-
-      <div className="mt-4">
-        <p className="text-lg font-bold">Total: KES {total}</p>
-        <Link href="/e_commerce/checkout">
-          <button className="mt-2 w-full bg-green-600 text-white py-2 rounded">Proceed to Checkout</button>
-        </Link>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default CartPage;

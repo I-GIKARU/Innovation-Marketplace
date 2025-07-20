@@ -1,140 +1,93 @@
+'use client';
+
 import React from "react";
+import { useCart } from "@/contexts/CartContext";
+import Link from "next/link";
 
 const CheckoutPage = () => {
+  const { cart } = useCart();
+  
+  const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const shipping = cart.length > 0 ? 350 : 0;
+  const total = subtotal + shipping;
+  
+  if (cart.length === 0) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-8 text-center">
+        <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
+        <p className="text-gray-600 mb-4">Add some items to your cart before checking out.</p>
+        <Link href="/e_commerce" className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700">
+          Continue Shopping
+        </Link>
+      </div>
+    );
+  }
+  
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 grid md:grid-cols-3 gap-8">
       
       <div className="md:col-span-2 space-y-8">
-    
         <div>
-          <h2 className="text-xl font-bold mb-4">Delivery Address</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              type="text"
-              placeholder="First name"
-              className="border px-3 py-2 rounded w-full"
-            />
-            <input
-              type="text"
-              placeholder="Last name"
-              className="border px-3 py-2 rounded w-full"
-            />
+          <h2 className="text-xl font-bold mb-4">Checkout</h2>
+          <p className="text-gray-600">Complete your order details below.</p>
+          
+          {/* Delivery Address Form */}
+          <div className="mt-6 p-4 border rounded">
+            <h3 className="text-lg font-semibold mb-2">Delivery Address</h3>
+            <p className="text-sm text-gray-500">Enter your delivery details here.</p>
+            {/* Form fields can be added here */}
           </div>
-          <input
-            type="text"
-            placeholder="Enter delivery address"
-            className="border px-3 py-2 rounded w-full mt-4"
-          />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-            <select className="border px-3 py-2 rounded w-full">
-              <option>City</option>
-              <option>Nairobi</option>
-              <option>Mombasa</option>
-            </select>
-            <select className="border px-3 py-2 rounded w-full">
-              <option>State</option>
-              <option>Nairobi</option>
-            </select>
-            <input
-              type="text"
-              placeholder="Zip code"
-              className="border px-3 py-2 rounded w-full"
-            />
-          </div>
-          <input
-            type="text"
-            placeholder="Enter your phone number"
-            className="border px-3 py-2 rounded w-full mt-4"
-          />
-          <div className="flex items-center mt-2">
-            <input type="checkbox" id="save" className="mr-2" />
-            <label htmlFor="save">Save this information for next time</label>
+          
+          {/* Payment Method */}
+          <div className="mt-6 p-4 border rounded">
+            <h3 className="text-lg font-semibold mb-2">Payment Method</h3>
+            <p className="text-sm text-gray-500">Select your preferred payment method.</p>
+            {/* Payment options can be added here */}
           </div>
         </div>
-
-       
-        <div>
-          <h2 className="text-xl font-bold mb-4">Shipping method</h2>
-          <div className="space-y-2">
-            <label className="flex items-center justify-between border px-3 py-2 rounded">
-              <div className="flex items-center space-x-2">
-                <input type="radio" name="shipping" defaultChecked />
-                <span>Standard shipping (3-5 days)</span>
-              </div>
-              <span>KES 350</span>
-            </label>
-            <label className="flex items-center justify-between border px-3 py-2 rounded">
-              <div className="flex items-center space-x-2">
-                <input type="radio" name="shipping" />
-                <span>Expedited shipping (1-2 days)</span>
-              </div>
-              <span>KES 700</span>
-            </label>
-          </div>
-        </div>
-
-  
-        <div>
-          <h2 className="text-xl font-bold mb-4">Payment</h2>
-          <div className="space-y-2">
-            <label className="flex items-center space-x-2">
-              <input type="radio" name="payment" defaultChecked />
-              <span>Mpesa</span>
-            </label>
-            <label className="flex items-center space-x-2">
-              <input type="radio" name="payment" />
-              <span>Cash on Delivery</span>
-            </label>
-            <label className="flex items-center space-x-2">
-              <input type="radio" name="payment" />
-              <span>Card Payment</span>
-            </label>
-          </div>
-        </div>
-
-        <button className="bg-green-600 text-white w-full py-3 rounded mt-4">
-          Pay now
-        </button>
       </div>
 
-    
+      {/* Order Summary */}
       <div>
         <h2 className="text-xl font-bold mb-4">Order Summary</h2>
         <div className="space-y-4">
-          {[1, 2].map((item) => (
-            <div key={item} className="flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold">Product Name {item}</h3>
-                <p className="text-sm text-gray-500">Description here</p>
+          {cart.map((item, index) => (
+            <div key={`${item.id}-${item.selectedSize}-${item.selectedColor}`} className="flex items-center justify-between border-b pb-2">
+              <div className="flex-1">
+                <h3 className="font-semibold">{item.name}</h3>
+                <p className="text-sm text-gray-500">Size: {item.selectedSize}</p>
+                <p className="text-sm text-gray-500">Color: {item.selectedColor}</p>
+                <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
               </div>
-              <p>KES 1,500</p>
+              <div className="text-right">
+                <p className="font-semibold">KES {(item.price * item.quantity).toLocaleString()}</p>
+              </div>
             </div>
           ))}
         </div>
+        
         <div className="border-t mt-4 pt-4 space-y-2">
           <div className="flex justify-between">
             <span>Subtotal</span>
-            <span>KES 3,000</span>
+            <span>KES {subtotal.toLocaleString()}</span>
           </div>
           <div className="flex justify-between">
             <span>Shipping</span>
-            <span>KES 350</span>
+            <span>KES {shipping.toLocaleString()}</span>
           </div>
-          <div className="flex justify-between font-bold">
+          <div className="flex justify-between font-bold text-lg">
             <span>Total</span>
-            <span>KES 3,350</span>
+            <span>KES {total.toLocaleString()}</span>
           </div>
         </div>
-        <div className="mt-4">
-          <input
-            type="text"
-            placeholder="Discount code or gift card"
-            className="border px-3 py-2 rounded w-full"
-          />
-          <button className="mt-2 w-full bg-gray-800 text-white py-2 rounded">
-            Apply
-          </button>
-        </div>
+        
+        <button className="w-full bg-green-600 text-white py-3 rounded mt-4 hover:bg-green-700">
+          Place Order
+        </button>
+        
+        <Link href="/e_commerce/cart" className="block text-center text-blue-600 mt-2 hover:underline">
+          Back to Cart
+        </Link>
       </div>
     </div>
   );
