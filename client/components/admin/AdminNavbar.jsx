@@ -5,9 +5,16 @@ import Image from "next/image";
 import Form from "./AddModal";
 import AvatarDropdown from "./AvatarDropdown";
 
-export default function Navbar() {
+export default function Navbar({onsearch}) {
   const [showForm, setShowForm] = useState(false);
+  const [query, setQuery] = useState("");
 
+
+  const handleSearch = (e) =>{
+    const value = e.target.value;
+    setQuery(value);
+    onSearch(value);
+  }
   const handleAddProduct = async (productData) => {
     try {
       const response = await fetch("http://127.0.0.1:5000/api/products", {
@@ -39,9 +46,10 @@ export default function Navbar() {
           <div className="flex-1 flex justify-center">
             <div className="flex items-center bg-gray-100 px-4 py-2 rounded-full w-full max-w-md">
               <Search className="text-gray-400 mr-2" size={16} />
-              <input
-                type="text"
+              <input type="text"
                 placeholder="Search"
+                value={query}
+                onChange={handleSearch}
                 className="bg-transparent outline-none w-full"
               />
             </div>
