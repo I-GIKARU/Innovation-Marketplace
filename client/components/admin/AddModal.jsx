@@ -38,29 +38,66 @@ const Form = ({ onSubmit, initialData = null, onCancel }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-6">
-      {successMessage && (
-        <p className="text-green-600 font-medium mb-2">{successMessage}</p>
-      )}
-      <div className="flex flex-col md:flex-row gap-4">
-        <input name="name" value={formData.name}  onChange={handleChange}  placeholder="Product name"className="border px-3 py-2 rounded w-full"
-          required/>
-  
-        <input name="price" type="number" value={formData.price}  onChange={handleChange} placeholder="Price" className="border px-3 py-2 rounded w-full"
-          required/>
-       
-        <input name="availablestock" type="number"  value={formData.availablestock} onChange={handleChange} placeholder="Stock" className="border px-3 py-2 rounded w-full"
-       required/>
-       
-        <button type="submit" className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
-        {initialData ? "Update" : "Add"}
-        </button>
-        <button  type="button" onClick={onCancel} className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400">
+    <div className="fixed inset-0 flex items-center justify-center bg-black/10 z-50 pt-70">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-6 rounded-xl shadow-lg w-full max-w-sm"
+      >
+        {successMessage && (
+          <p className="text-green-600 font-medium mb-4 text-center">
+            {successMessage}
+          </p>
+        )}
 
-          Cancel
-        </button>
-      </div>
-    </form>
+        <div className="flex flex-col gap-4">
+          <input
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="Product name"
+            className="border px-3 py-2 rounded"
+            required
+          />
+
+          <input
+            name="price"
+            type="number"
+            value={formData.price}
+            onChange={handleChange}
+            placeholder="Price"
+            className="border px-3 py-2 rounded"
+            required
+          />
+
+          <input
+            name="availablestock"
+            type="number"
+            value={formData.availablestock}
+            onChange={handleChange}
+            placeholder="Stock"
+            className="border px-3 py-2 rounded"
+            required
+          />
+
+          <div className="flex justify-between mt-4">
+            <button
+              type="submit"
+              className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+            >
+              {initialData ? "Update" : "Add"}
+            </button>
+            <button
+              type="button"
+              onClick={onCancel}
+            
+              className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
   );
 };
 

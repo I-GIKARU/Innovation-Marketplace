@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useMerchandise } from '@/hooks/useMerchandise';
 import Form from './AddModal';
 import ProductsTable from './AdminProductsTable';
-import Navbar from './AdminNavbar';
+
 
 const Products = () => {
   const {
@@ -65,21 +65,23 @@ const Products = () => {
 
   return (
     <section className="bg-white p-6 rounded shadow-md">
-      <Navbar onAddProduct={handleAddClick} />
+      
 
-      <div className="flex justify-between items-center mb-4 mt-4">
+      <div className=" mb-4 mt-4">
         <h2 className="text-xl font-bold">Products</h2>
+
+        <p className="text-gray-600 mb-6">
+        {editingProduct ? "Edit product information below" : "Add or manage merchandise."}
+      </p>
         <button
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+          className="bg-orange-400 text-white px-4 py-2 mt-3 rounded hover:bg-orange-500 transition"
           onClick={() => setShowDetails(!showDetails)}
         >
           {showDetails ? "Hide Details" : "View Details"}
         </button>
       </div>
 
-      <p className="text-gray-600 mb-6">
-        {editingProduct ? "Edit product information below" : "Add or manage merchandise."}
-      </p>
+      
 
       {showForm && (
         <Form

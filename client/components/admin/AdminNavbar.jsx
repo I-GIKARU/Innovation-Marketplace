@@ -6,7 +6,7 @@ import Form from "./AddModal";
 import AvatarDropdown from "./AvatarDropdown";
 
 export default function Navbar() {
-  const [showModal, setShowModal] = useState(false);
+  const [showForm, setShowForm] = useState(false);
 
   const handleAddProduct = async (productData) => {
     try {
@@ -51,7 +51,7 @@ export default function Navbar() {
           <div className="flex items-center gap-4 ml-6">
             <button
               className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200"
-              onClick={() => setShowModal(true)}>
+              onClick={() => setShowForm(true)}>
               <Plus className="cursor-pointer text-gray-600 hover:text-gray-800" />
             </button>
          
@@ -62,8 +62,8 @@ export default function Navbar() {
       </div>
 
      
-      {showModal && (
-        <Form onClose={() => setShowModal(false)} onSubmit={handleAddProduct}/>
+      {showForm && (
+        <Form onCancel={() => setShowForm(false)} onSubmit={handleAddProduct}/>
         
       )}
     </>
