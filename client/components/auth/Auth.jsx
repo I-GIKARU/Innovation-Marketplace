@@ -60,7 +60,8 @@ const Auth = ({ closeParentDropdown }) => {
     return (
         <div
             ref={dropdownRef}
-            className="absolute right-0 mt-2 w-80 bg-white rounded shadow-lg z-50 ring"
+            className="absolute right-0 mt-2 w-80 bg-white/30 backdrop-invert backdrop-opacity-95 border border-orange-300 rounded-xl text-orange-500 shadow-lg z-50"
+            onClick={(e) => e.stopPropagation()}
         >
             {/* Tabs */}
             <div className="flex justify-around">

@@ -49,7 +49,7 @@ const NavBar = () => {
   }, []);
 
   return (
-      <nav className="bg-white shadow-md px-6 md:px-10 py-4">
+      <nav className="ffixed bg-white shadow-md px-6 md:px-10 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
@@ -58,14 +58,9 @@ const NavBar = () => {
                 alt="Moringa Marketplace Logo"
                 width={60}
                 height={500}
+                className="rounded-full h-10 w-10 object-cover"
             />
-            <div className="text-orange-600">
-              <span className="text-xl font-bold font-serif">M</span>oringa
-              <br />
-              <span className="text-xs font-light text-gray-700">
-              marketplace
-            </span>
-            </div>
+      
           </Link>
 
           {/* Mobile Menu Button */}

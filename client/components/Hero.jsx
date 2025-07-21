@@ -1,39 +1,71 @@
-import Image from "next/image";
-import Link from "next/link";
-import { HiArrowNarrowRight } from "react-icons/hi";
+'use client';
+import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 
 const Hero = () => {
+  const [currentImage, setCurrentImage] = useState(0);
+  const images = ['/images/hero1.jpg', '/images/hero2.jpg'];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImage((prev) => (prev + 1) % images.length);
+    }, 7000); // change image every 7 seconds
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <section
-      className="bg-gradient-to-t from-[#e65e4e] to-[#f5f5f5] py-24 px-6 md:px-12 flex flex-col-reverse md:flex-row items-center justify-between"
-      style={{ borderBottomLeftRadius: "50px", borderBottomRightRadius: "50px" }}
-    >
-      <div className="w-full md:w-1/2 max-w-lg text-center md:text-left">
-        <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 leading-tight">
-          Turn Your Capstone Project Into Your First Opportunity
-        </h1>
-        <p className="text-gray-700 mb-6 text-base md:text-lg">
-          Build it. Launch it. Get hired. Get paid. <br />
-          Your Moringa project deserves more than just a demo day.
-        </p>
-        <Link href="/explore" passHref>
-          <button className="inline-flex items-center bg-orange-400 hover:bg-orange-500 transition-colors duration-300 text-white px-6 py-3 rounded-full font-medium shadow-md">
-            Explore Projects
-            <HiArrowNarrowRight className="ml-2 w-5 h-5" />
-          </button>
-        </Link>
+    <section className="relative h-[90vh] text-white flex flex-col items-center justify-center text-center px-4 overflow-hidden">
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/50 z-10" />
+
+      {/* Background with motion zoom-out */}
+      <div className="absolute inset-0 z-0 h-full w-full">
+        {images.map((src, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{
+              opacity: currentImage === index ? 1 : 0,
+              scale: currentImage === index ? 1 : 1.1,
+            }}
+            transition={{ duration: 6.5, ease: 'easeInOut' }}
+            className="absolute inset-0 w-full h-full bg-cover bg-center"
+            style={{ backgroundImage: `url(${src})` }}
+          />
+        ))}
       </div>
 
-      <div className="w-full md:w-1/2 flex justify-center mb-10 md:mb-0">
-        <div className="relative w-72 h-72 md:w-96 md:h-96">
-          <Image
-            src="/images/hero.png"
-            alt="Illustration showcasing capstone projects"
-            layout="fill"
-            objectFit="contain"
-            priority
-          />
-        </div>
+      {/* Hero Content */}
+      <div className="relative z-20">
+        <motion.h1
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-2xl md:text-4xl font-extrabold mb-4 leading-tight"
+        >
+          Turn Your Capstone Project  
+          Into Your First Opportunity
+        </motion.h1>
+
+       <motion.p
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="text-base md:text-lg font-light text-white/80 max-w-4xl mx-auto mb-6 px-4 md:px-0"
+        >
+          Build it. Launch it. Get hired. Get paid.
+          <br className="block sm:hidden" />
+          Your Moringa project deserves more than just a demo day.
+        </motion.p>
+
+
+        <a
+          href="#/projects"
+          className="bg-orange-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-yellow-400 transition"
+        >
+          Explore Projects
+        </a>
+
       </div>
     </section>
   );
