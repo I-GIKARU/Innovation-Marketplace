@@ -50,7 +50,7 @@ const NavBar = () => {
   const toggleMenu = () => setIsOpen(!isOpen);
 
   return (
-    <nav className="bg-white shadow-md px-6 md:px-10 py-4">
+<nav className="bg-white shadow-md px-6 md:px-10 py-4">
       <div className="flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
@@ -58,7 +58,8 @@ const NavBar = () => {
             src="/images/marketlogo.JPG"
             alt="Moringa Marketplace Logo"
             width={60}
-            height={500}
+            height={60}
+            className="rounded-full h-10 w-10 object-cover"
           />
           <div className="text-orange-600">
             <span className="text-xl font-bold font-serif">M</span>oringa

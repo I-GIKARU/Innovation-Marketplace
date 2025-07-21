@@ -1,77 +1,72 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useMerchandise } from '@/hooks/useMerchandise';
+import { motion } from 'framer-motion';
 
-const Merchandise = () => {
-  const {
-    merchandise,
-    fetchMerchandise,
-    loading,
-    error
-  } = useMerchandise();
+const merchItems = [
+  {
+    name: 'Moringa Hoodie',
+    price: 'KES 2,000',
+    image: '/images/hoody3.jpg',
+    link: 'https://yourstore.com/hoodie',
+  },
+  {
+    name: 'Branded Mug',
+    price: 'KES 800',
+    image: '/images/cup2.jpg',
+    link: 'https://yourstore.com/mug',
+  },
+  {
+    name: 'Brandded Notebook',
+    price: 'KES 400',
+    image: '/images/notebook3.jpg',
+    link: 'https://yourstore.com/stickers',
+  },
+  {
+    name: 'Branded Water Bottle',
+    price: 'KES 1,200',
+    image: '/images/waterbottle1.jpg',
+    link: 'https://yourstore.com/bag',
+  },
+];
 
-  const [displayItems, setDisplayItems] = useState([]);
-
-  useEffect(() => {
-    fetchMerchandise({ perPage: 10 }); // still fetch more, just show 3
-  }, [fetchMerchandise]);
-
-  useEffect(() => {
-    if (merchandise.length > 0) {
-      setDisplayItems(merchandise.slice(0, 3));
-    }
-  }, [merchandise]);
-
+const MerchandiseGrid = () => {
   return (
-      <section className="bg-white py-20 px-6">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center md:items-start gap-8">
+    <section className="py-20 bg-white">
+      <h2 className="text-3xl md:text-4xl font-extrabold text-center mb-4">Official Merch</h2>
+      <p className="text-center text-gray-600 mb-12">
+        Wear your journey. Support the community. Rep the code.
+      </p>
 
-          {/* Text Content */}
-          <div className="md:w-1/2 space-y-6 text-center md:text-left">
-            <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">
-              Merch for Devs, by Devs.
-            </h2>
-            <p className="text-gray-700 text-lg">
-              Hoodies, mugs, stickers, and more — crafted to inspire your daily grind.
-            </p>
-            <p className="text-gray-500 italic">
-              Every purchase supports student innovation and growth.
-            </p>
-            <Link href="/e_commerce">
-              <button className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-full font-semibold transition duration-300 ease-in-out shadow-md hover:shadow-lg transform hover:scale-105">
-                Shop Moringa Merch
-              </button>
-            </Link>
-          </div>
-
-          {/* Merchandise Display */}
-          <div className="md:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {loading && <p className="text-gray-500">Loading merchandise...</p>}
-            {error && <p className="text-red-500">Error: {error}</p>}
-            {!loading && displayItems.length === 0 && (
-                <p className="text-gray-500">No merchandise found.</p>
-            )}
-            {!loading && displayItems.map(item => (
-                <div key={item.id} className="overflow-hidden rounded-xl group shadow-md">
-                  {item.image_url ? (
-                      <img
-                          src={item.image_url}
-                          alt={item.name || 'Merch item'}
-                          className="w-full h-64 object-cover transform group-hover:scale-105 transition duration-500 ease-in-out"
-                      />
-                  ) : (
-                      <div className="h-64 bg-gray-200 flex items-center justify-center text-gray-500">
-                        No Image
-                      </div>
-                  )}
-                </div>
-            ))}
-          </div>
-
-        </div>
-      </section>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto px-6">
+        {merchItems.map((item, index) => (
+          <motion.div
+            key={index}
+            whileHover={{ scale: 1.03 }}
+            className="relative w-full h-96 rounded-xl overflow-hidden shadow-lg group"
+          >
+            <img
+              src={item.image}
+              alt={item.name}
+              className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+            />
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition duration-300 z-10" />
+            <div className="absolute bottom-0 left-0 w-full p-4 z-20 text-white bg-gradient-to-t from-black/70 to-transparent">
+              <h3 className="text-lg font-semibold">{item.name}</h3>
+              <p className="text-sm text-white/80 mb-2">{item.price}</p>
+              <a
+                href={item.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-white text-black text-sm px-4 py-2 rounded hover:bg-yellow-400 transition"
+              >
+                Buy Now
+              </a>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </section>
   );
 };
 
-export default Merchandise;
+export default MerchandiseGrid;
