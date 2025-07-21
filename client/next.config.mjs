@@ -4,8 +4,9 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: '/api/:path*',
-        destination: 'http://localhost:5000/api/:path*',
+        source: "/api/:path*",
+        destination:
+          "https://innovation-marketplace-840370620772.us-central1.run.app/api/:path*",
       },
     ];
   },
