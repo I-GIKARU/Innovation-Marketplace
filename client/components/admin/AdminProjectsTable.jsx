@@ -1,28 +1,23 @@
-import React, { useEffect } from 'react';
-import { useProjects } from '@/hooks/useProjects';
+"use client";
+import React, { useEffect } from "react";
+import { useProjects } from "@/hooks/useProjects";
 
-const ProjectsTable = () => {
-  const {
-    projects,
-    fetchProjects,
-    loading,
-    error,
-  } = useProjects();
+const ProjectsTable = ({ query }) => {
+  const { projects, fetchProjects, loading, error } = useProjects();
 
   useEffect(() => {
-    fetchProjects(); // Fetch data on mount
+    fetchProjects();
   }, [fetchProjects]);
 
   const handleApprove = async (projectId) => {
     try {
-      const res = await fetch(`http://127.0.0.1:5000/${id}`, {
-        method: 'POST',
+      const res = await fetch(`http://127.0.0.1:5000/projects${id}`, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-
       const data = await res.json();
       if (res.ok) {
         alert("Project approved!");
@@ -37,15 +32,14 @@ const ProjectsTable = () => {
 
   const handleReject = async (projectId) => {
     try {
-      const res = await fetch(`http://127.0.0.1:5000/project${id}`, {
-        method: 'POST',
+      const res = await fetch(`http://127.0.0.1:5000/projects${id}`, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify({ reason: 'Not eligible' }),
+        body: JSON.stringify({ reason: "Not eligible" }),
       });
-
       const data = await res.json();
       if (res.ok) {
         alert("Project rejected!");
@@ -57,6 +51,10 @@ const ProjectsTable = () => {
       alert("Server error");
     }
   };
+
+  const filtered = projects.filter((p) =>
+    p.title.toLowerCase().includes(query.toLowerCase())
+  );
 
   if (loading) return <p>Loading projects...</p>;
   if (error) return <p className="text-red-500">Error: {error}</p>;
@@ -73,23 +71,23 @@ const ProjectsTable = () => {
           </tr>
         </thead>
         <tbody>
-          {projects.map((project, index) => (
+          {filtered.map((project, index) => (
             <tr key={index} className="border-t">
-              <td className="px-4 py-2">{project.student_name || 'N/A'}</td>
-              <td className="px-4 py-2">{project.title || 'Untitled'}</td>
+              <td className="px-4 py-2">{project.student_name || "N/A"}</td>
+              <td className="px-4 py-2">{project.title || "Untitled"}</td>
               <td
                 className={`px-4 py-2 font-medium ${
-                  project.status === 'approved'
-                    ? 'text-green-600'
-                    : project.status === 'pending'
-                    ? 'text-yellow-600'
-                    : 'text-red-600'
+                  project.status === "approved"
+                    ? "text-green-600"
+                    : project.status === "pending"
+                    ? "text-yellow-600"
+                    : "text-red-600"
                 }`}
               >
-                {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+                {project.status}
               </td>
               <td className="px-4 py-2 space-x-2">
-                {project.status === 'pending' && (
+                {project.status === "pending" && (
                   <>
                     <button
                       onClick={() => handleApprove(project.id)}
@@ -115,4 +113,3 @@ const ProjectsTable = () => {
 };
 
 export default ProjectsTable;
-
