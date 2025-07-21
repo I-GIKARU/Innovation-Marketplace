@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Search, Plus } from "lucide-react";
 import Image from "next/image";
 import Form from "./AddModal";
+import AvatarDropdown from "./AvatarDropdown";
 
 export default function Navbar() {
   const [showModal, setShowModal] = useState(false);
@@ -53,8 +54,8 @@ export default function Navbar() {
               onClick={() => setShowModal(true)}>
               <Plus className="cursor-pointer text-gray-600 hover:text-gray-800" />
             </button>
-
-            <Image src="/images/admin_profile.jpg" alt="paul"width={32} height={32} className="rounded-full"/>
+         
+            <AvatarDropdown/>
             <span className="text-gray-700 font-medium">Paul</span>
           </div>
         </div>

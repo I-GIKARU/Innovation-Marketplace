@@ -68,7 +68,7 @@ export default function AvatarDropdown({ user, onLogout }) {
         <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-[1000] transition ease-out duration-100 transform origin-top-right scale-95">
           <div className="px-4 py-2 border-b border-gray-100">
             <p className="text-sm font-medium text-gray-900 truncate">
-              {user?.name || 'User'}
+              {user?.name || 'Admin'}
             </p>
             <p className="text-xs text-gray-500 truncate">{user?.email || ''}</p>
           </div>
