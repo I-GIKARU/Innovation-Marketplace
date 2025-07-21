@@ -3,29 +3,38 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/student/Sidebar";
+import AvatarDropdown from "@/components/student/AvatarDropdown";
 
 export default function ClientDashboard() {
-    const { user, logout } = useAuth();
-    const router = useRouter();
+  const { user, logout } = useAuth();
+  const router = useRouter();
 
-    if (!user) return <p>Loading...</p>;
+  if (user === null) return <p>Loading...</p>;
+  if (user === undefined) {
+    router.push("/login");
+    return null;
+  }
 
-    return (
-        <div className="flex">
-            <Sidebar />
-            <main className="flex-1 p-6">
-                <div className="mb-6 p-4 bg-green-100 rounded shadow">
-                    <h1 className="text-2xl font-semibold">
-                        Welcome, {user.name || "Client"}!
-                    </h1>
-                    <p className="text-gray-700">Email: {user.email}</p>
-                </div>
+  const handleLogout = async () => {
+    await logout();
+    router.replace("/");
+  };
 
-                <h2 className="text-lg font-bold mb-2">Client Dashboard</h2>
-                <p>Manage your orders</p>
-
-
-            </main>
+  return (
+    <div className="flex min-h-screen">
+      <Sidebar />
+      <main className="flex-1 p-6">
+        <div className="mb-6 p-4 bg-green-100 rounded shadow">
+          <h1 className="text-2xl font-semibold">Welcome, {user.name || "Client"}!</h1>
+          <div className="flex items-center justify-between mt-2 gap-4">
+            <p className="text-gray-700">Email: {user.email}</p>
+            <AvatarDropdown onLogout={handleLogout} />
+          </div>
         </div>
-    );
+
+        <h2 className="text-lg font-bold mb-2">Client Dashboard</h2>
+        <p>Manage your orders</p>
+      </main>
+    </div>
+  );
 }
