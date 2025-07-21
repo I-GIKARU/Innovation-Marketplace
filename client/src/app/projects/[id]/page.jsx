@@ -1,53 +1,132 @@
-"use client"
+"use client";
 
-import { useEffect } from "react"
-import { useParams } from "next/navigation"
-import { FiGithub, FiExternalLink, FiEye, FiDownload, FiStar, FiMail } from "react-icons/fi" // Added FiMail icon
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import {
+  FiGithub,
+  FiExternalLink,
+  FiEye,
+  FiDownload,
+  FiStar,
+  FiMail,
+  FiEdit,
+  FiTrash2,
+} from "react-icons/fi";
 
-import { useProjects } from "@/hooks/useProjects"
-import { useAuth } from "@/hooks/useAuth"
-import Image from "next/image"
-
-
+import { useProjects } from "@/hooks/useProjects";
+import { useAuth } from "@/hooks/useAuth";
+import Image from "next/image";
 
 export default function ProjectDetail() {
-  const { id } = useParams()
-  const { user, loading: authLoading } = useAuth()
-  const { singleProject, loading, error, fetchProjectById, recordProjectDownload } = useProjects()
+  const { id } = useParams();
+  const router = useRouter();
+  const { user, loading: authLoading, token } = useAuth();
+  const {
+    singleProject,
+    loading,
+    error,
+    fetchProjectById,
+    recordProjectDownload,
+    updateProject,
+    deleteProject,
+  } = useProjects();
 
-  const defaultImage = "/placeholder.svg?height=400&width=600"
-  const defaultUserAvatar = "/placeholder.svg?height=48&width=48"
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedDescription, setEditedDescription] = useState("");
+  const [editedTechStack, setEditedTechStack] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const defaultImage = "/placeholder.svg?height=400&width=600";
+  const defaultUserAvatar = "/placeholder.svg?height=48&width=48";
 
   useEffect(() => {
     if (id) {
-      fetchProjectById(id)
+      fetchProjectById(id);
     }
-  }, [id, fetchProjectById])
+  }, [id, fetchProjectById]);
+
+  useEffect(() => {
+    if (singleProject) {
+      setEditedDescription(singleProject.description || "");
+      setEditedTechStack(singleProject.tech_stack || "");
+    }
+  }, [singleProject]);
 
   const handleDownload = () => {
     if (singleProject?.id) {
-      recordProjectDownload(singleProject.id)
-      alert(`Downloading ${singleProject.title}!`)
+      recordProjectDownload(singleProject.id);
+      alert(`Downloading ${singleProject.title}!`);
     }
-  }
+  };
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!token) {
+      alert("You must be logged in to edit projects.");
+      return;
+    }
+    const updatedData = {
+      description: editedDescription,
+      tech_stack: editedTechStack,
+    };
+    const result = await updateProject(singleProject.id, updatedData, token);
+    if (result.success) {
+      alert("Project updated successfully!");
+      setIsEditing(false);
+    } else {
+      alert(`Failed to update project: ${result.error}`);
+    }
+  };
+
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!token) {
+      alert("You must be logged in to delete projects.");
+      return;
+    }
+    const result = await deleteProject(singleProject.id, token);
+    if (result.success) {
+      alert("Project deleted successfully!");
+      router.push("/projects"); // Redirect to projects list after deletion
+    } else {
+      alert(`Failed to delete project: ${result.error}`);
+    }
+    setShowDeleteConfirm(false);
+  };
+
+  const canEditOrDelete =
+    user &&
+    singleProject &&
+    (user.role?.name === "admin" ||
+      (user.role?.name === "student" &&
+        singleProject.user_projects?.some(
+          (up) => up.user?.id === user.id && up.interested_in === "contributor"
+        )));
 
   if (authLoading || loading) {
-    return <div className="p-4 text-center">Loading project details...</div>
+    return <div className="p-4 text-center">Loading project details...</div>;
   }
 
   if (error) {
-    return <div className="p-4 text-center text-red-500">Error: {error}</div>
+    return <div className="p-4 text-center text-red-500">Error: {error}</div>;
   }
-
+  
   if (!singleProject) {
-    return <div className="p-4 text-center">Project not found.</div>
+    return <div className="p-4 text-center">Project not found.</div>;
   }
 
-  const teamMembers = singleProject.user_projects?.filter((up) => up.interested_in === "contributor" && up.user)
+  const teamMembers = singleProject.user_projects?.filter(
+    (up) => up.interested_in === "contributor" && up.user
+  );
 
   return (
     <div className="p-4">
-      <NavBar />
       <div className="bg-white rounded-xl shadow-lg p-6 mt-6 max-w-4xl mx-auto">
         <div className="relative mb-6">
           <Image
@@ -64,29 +143,57 @@ export default function ProjectDetail() {
             </div>
           )}
           {singleProject.is_for_sale && (
-            <div className="absolute top-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm">For Sale</div>
+            <div className="absolute top-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm">
+              For Sale
+            </div>
           )}
         </div>
 
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{singleProject.title}</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          {singleProject.title}
+        </h1>
         {singleProject.category?.name && (
           <span className="inline-block bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full mb-4">
             {singleProject.category.name}
           </span>
         )}
 
-        <p className="text-gray-700 text-lg mb-6">{singleProject.description}</p>
+        {isEditing ? (
+          <textarea
+            className="w-full p-2 border rounded-md mb-4 text-gray-700 text-lg"
+            value={editedDescription}
+            onChange={(e) => setEditedDescription(e.target.value)}
+            rows={5}
+          />
+        ) : (
+          <p className="text-gray-700 text-lg mb-6">
+            {singleProject.description}
+          </p>
+        )}
 
         {singleProject.tech_stack && (
           <div className="mb-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Tech Stack</h3>
-            <p className="text-gray-700">{singleProject.tech_stack}</p>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+              Tech Stack
+            </h3>
+            {isEditing ? (
+              <input
+                type="text"
+                className="w-full p-2 border rounded-md text-gray-700"
+                value={editedTechStack}
+                onChange={(e) => setEditedTechStack(e.target.value)}
+              />
+            ) : (
+              <p className="text-gray-700">{singleProject.tech_stack}</p>
+            )}
           </div>
         )}
 
         {singleProject.technical_mentor && (
           <div className="mb-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Technical Mentor</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+              Technical Mentor
+            </h3>
             <p className="text-gray-700">{singleProject.technical_mentor}</p>
           </div>
         )}
@@ -136,14 +243,74 @@ export default function ProjectDetail() {
               Download
             </button>
           )}
+
+          {canEditOrDelete && (
+            <>
+              {isEditing ? (
+                <button
+                  onClick={handleSaveEdit}
+                  className="flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                >
+                  Save Changes
+                </button>
+              ) : (
+                <button
+                  onClick={handleEditClick}
+                  className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+                >
+                  <FiEdit className="w-5 h-5 mr-2" />
+                  Edit Project
+                </button>
+              )}
+              <button
+                onClick={handleDeleteClick}
+                className="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+              >
+                <FiTrash2 className="w-5 h-5 mr-2" />
+                Delete Project
+              </button>
+            </>
+          )}
         </div>
+
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              <h3 className="text-lg font-bold mb-4">Confirm Deletion</h3>
+              <p className="mb-4">
+                Are you sure you want to delete this project? This action cannot
+                be undone.
+              </p>
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmDelete}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Team Members Section */}
         {teamMembers && teamMembers.length > 0 && (
           <div className="mt-8 border-t pt-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Team Members</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              Team Members
+            </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {teamMembers.map((up) => (
-                <div key={up.user.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg shadow-sm">
+                <div
+                  key={up.user.id}
+                  className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg shadow-sm"
+                >
                   <Image
                     src={defaultUserAvatar || "/placeholder.svg"}
                     alt={up.user.email}
@@ -152,8 +319,14 @@ export default function ProjectDetail() {
                     className="rounded-full object-cover"
                   />
                   <div>
-                    <p className="font-semibold text-gray-800">{up.user.email}</p>
-                    {up.user.bio && <p className="text-sm text-gray-600 line-clamp-1">{up.user.bio}</p>}
+                    <p className="font-semibold text-gray-800">
+                      {up.user.email}
+                    </p>
+                    {up.user.bio && (
+                      <p className="text-sm text-gray-600 line-clamp-1">
+                        {up.user.bio}
+                      </p>
+                    )}
                     <a
                       href={`mailto:${up.user.email}`}
                       className="flex items-center text-blue-600 hover:underline text-sm mt-1"
@@ -169,28 +342,28 @@ export default function ProjectDetail() {
         )}
         {teamMembers && teamMembers.length === 0 && (
           <div className="mt-8 border-t pt-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Team Members</h3>
-            <p className="text-gray-600">No team members listed for this project.</p>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              Team Members
+            </h3>
+            <p className="text-gray-600">
+              No team members listed for this project.
+            </p>
           </div>
         )}
         <div className="mt-8 border-t pt-6">
-                      <h3 className="text-xl font-bold text-gray-900 mb-4">Reviews</h3>
-                      {singleProject.reviews && singleProject.reviews.length > 0 ? (
-                          singleProject.reviews.map((review) => (
-                              <div key={review.id} className="mb-4 p-4 border rounded-md">
-                                  <p className="font-semibold">Rating: {review.rating}/5</p>
-                                  <p className="text-gray-700">{review.comment}</p>
-                                  <p className="text-xs text-gray-500 mt-1">
-                                      {new Date(review.date).toLocaleDateString()}
-                                  </p>
-                              </div>
-                          ))
-                      ) : (
-                          <p className="text-gray-600">No reviews yet.</p>
-                      )}
-                  </div>
+          <h3 className="text-xl font-bold text-gray-900 mb-4">Reviews</h3>
+          {singleProject.reviews && singleProject.reviews.length > 0 ? (
+            singleProject.reviews.map((review) => (
+              <div key={review.id} className="mb-4 p-4 border rounded-md">
+                <p className="font-semibold">Rating: {review.rating}/5</p>
+                <p className="text-gray-700">{review.comment}</p>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-600">No reviews yet.</p>
+          )}
+        </div>
       </div>
-      <Footer />  
     </div>
-  )
+  );
 }
