@@ -6,7 +6,6 @@ verify_ssl = true
 [packages]
 Flask = "*"
 Flask-SQLAlchemy = "*"
-Flask-JWT-Extended = "*"
 Flask-Bcrypt = "*"
 Flask-CORS = "*"
 Flask-Mail = "*"
@@ -20,6 +19,7 @@ Werkzeug = "*"
 requests = "*"
 cloudinary = "*"
 gunicorn = "*"
+flask-jwt-extended = "*"
 
 [dev-packages]
 

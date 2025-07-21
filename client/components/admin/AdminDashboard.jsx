@@ -1,15 +1,27 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from './AdminSidebar';
 import Projects from './AdminProjects'; 
 import Products from './AdminProducts'; 
 import ProjectsTable from './AdminProjectsTable'; 
-import Merchandise from '@/components/Merchandise';
 import ProductsTable from './AdminProductsTable'; 
+import { useProjects } from '@/hooks/useProjects';
+
 
 const Dashboard = () => {
   const [activePage, setActivePage] = useState('dashboard');
   const [showProjectsTable, setShowProjectsTable] = useState(false);
   const [showProductsTable, setShowProductsTable] = useState(false);
+
+   const { projects, fetchProjects, loading, error } = useProjects();
+
+  useEffect(() => {
+    fetchProjects(); // 👈 fetch projects on mount
+  }, [fetchProjects]);
+
+  const totalProjects = projects.length;
+  const today = new Date().toISOString().slice(0, 10); 
+  const todaysProjects = projects.filter(p => p.created_at?.startsWith(today)).length;
+
 
   const renderPage = () => {
     switch (activePage) {
@@ -20,7 +32,7 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-green-100 rounded-lg p-6 shadow-md">
                 <h3 className="text-xl font-bold text-gray-800">Projects</h3>
-                <p className="text-sm mt-1 text-gray-700">30 + 1 today</p>
+                <p className="text-sm mt-1 text-gray-700">Projects: {totalProjects} + {todaysProjects} today</p>
                 <button onClick={() => setShowProjectsTable(!showProjectsTable)} className="mt-3 text-green-700 font-semibold underline cursor-pointer">
                   View details
                 </button>
@@ -39,7 +51,7 @@ const Dashboard = () => {
 
           
             <div className="mt-8 space-y-8">
-              {showProjectsTable && <ProjectsTable />}
+              {showProjectsTable && <ProjectsTable  />}
               {showProductsTable && <ProductsTable />}
             </div>
           </div>
@@ -73,3 +85,4 @@ const Dashboard = () => {
 
 export default Dashboard;
 
+ 
