@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useInView, useAnimation } from 'framer-motion';
 
-// ✅ Counter component (must be before StatsSection)
+
 const AnimatedCounter = ({ target }) => {
   const ref = useRef(null);
   const [count, setCount] = useState(0);
@@ -32,7 +32,7 @@ const AnimatedCounter = ({ target }) => {
   );
 };
 
-// ✅ StatsSection
+
 const StatsSection = () => {
   const stats = [
     { label: 'Projects Launched', target: 120 },
