@@ -15,6 +15,7 @@ export function useProjects() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [projectReviews, setProjectReviews] = useState([]); // New state for project reviews
 
   const fetchProjects = useCallback(
     async ({
@@ -186,6 +187,101 @@ export function useProjects() {
     }
   }, []);
 
+  const createProjectInteraction = useCallback(
+    async (projectId, interestedIn, message, token) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch(`${API_BASE}/user-projects`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            project_id: projectId,
+            interested_in: interestedIn,
+            message,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            errorData.error || `HTTP error! status: ${response.status}`
+          );
+        }
+
+        const data = await response.json();
+        return { success: true, userProject: data.user_project };
+      } catch (err) {
+        setError(err.message || "Failed to create project interaction");
+        console.error("Error creating project interaction:", err);
+        return { success: false, error: err.message };
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  const submitReview = useCallback(
+    async (userProjectId, rating, comment, token) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch(
+          `${API_BASE}/user-projects/${userProjectId}/review`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ rating, comment }),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            errorData.error || `HTTP error! status: ${response.status}`
+          );
+        }
+
+        const data = await response.json();
+        return { success: true, review: data.review };
+      } catch (err) {
+        setError(err.message || "Failed to submit review");
+        console.error("Error submitting review:", err);
+        return { success: false, error: err.message };
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  const fetchProjectReviews = useCallback(async (projectId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`${API_BASE}/projects/${projectId}/reviews`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setProjectReviews(data.reviews || []);
+      return { success: true, reviews: data.reviews };
+    } catch (err) {
+      setError(err.message || "Failed to fetch project reviews");
+      console.error("Error fetching project reviews:", err);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     projects,
     singleProject,
@@ -193,6 +289,7 @@ export function useProjects() {
     pagination,
     loading,
     error,
+    projectReviews,
     fetchProjects,
     fetchProjectById,
     fetchCategories,
@@ -200,5 +297,8 @@ export function useProjects() {
     recordProjectDownload,
     updateProject,
     deleteProject,
+    createProjectInteraction,
+    submitReview,
+    fetchProjectReviews,
   };
 }

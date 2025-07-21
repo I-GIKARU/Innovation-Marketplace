@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   FiGithub,
@@ -11,6 +11,8 @@ import {
   FiMail,
   FiEdit,
   FiTrash2,
+  FiMessageSquare,
+  FiStar as FiStarFilled,
 } from "react-icons/fi";
 
 import { useProjects } from "@/hooks/useProjects";
@@ -25,10 +27,14 @@ export default function ProjectDetail() {
     singleProject,
     loading,
     error,
+    projectReviews,
     fetchProjectById,
     recordProjectDownload,
     updateProject,
     deleteProject,
+    createProjectInteraction,
+    submitReview,
+    fetchProjectReviews,
   } = useProjects();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -36,21 +42,44 @@ export default function ProjectDetail() {
   const [editedTechStack, setEditedTechStack] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const defaultImage = "/placeholder.svg?height=400&width=600";
+  const [showInteractionForm, setShowInteractionForm] = useState(false);
+  const [userProjectMessage, setUserProjectMessage] = useState("");
+  const [userProjectInterestedIn, setUserProjectInterestedIn] = useState("");
+  const [currentUserProjectInteraction, setCurrentUserProjectInteraction] =
+    useState(null);
+
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState("");
+
+  const defaultImage =
+    "https://images.pexels.com/photos/32980837/pexels-photo-32980837.jpeg";
   const defaultUserAvatar = "/placeholder.svg?height=48&width=48";
 
-  useEffect(() => {
+  const fetchProjectData = useCallback(async () => {
     if (id) {
-      fetchProjectById(id);
+      await fetchProjectById(id);
+      await fetchProjectReviews(id);
     }
-  }, [id, fetchProjectById]);
+  }, [id, fetchProjectById, fetchProjectReviews]);
+
+  useEffect(() => {
+    fetchProjectData();
+  }, [fetchProjectData]);
 
   useEffect(() => {
     if (singleProject) {
       setEditedDescription(singleProject.description || "");
       setEditedTechStack(singleProject.tech_stack || "");
+
+      if (user && singleProject.user_projects) {
+        const interaction = singleProject.user_projects.find(
+          (up) => up.user?.id === user.id && up.project_id === singleProject.id
+        );
+        setCurrentUserProjectInteraction(interaction);
+      }
     }
-  }, [singleProject]);
+  }, [singleProject, user]);
 
   const handleDownload = () => {
     if (singleProject?.id) {
@@ -76,6 +105,7 @@ export default function ProjectDetail() {
     if (result.success) {
       alert("Project updated successfully!");
       setIsEditing(false);
+      fetchProjectData(); // Re-fetch data to ensure UI is up-to-date
     } else {
       alert(`Failed to update project: ${result.error}`);
     }
@@ -100,6 +130,64 @@ export default function ProjectDetail() {
     setShowDeleteConfirm(false);
   };
 
+  const handleExpressInterest = async () => {
+    if (!token) {
+      alert("You must be logged in to express interest.");
+      return;
+    }
+    if (!userProjectInterestedIn || !userProjectMessage) {
+      alert("Please select your interest and provide a message.");
+      return;
+    }
+
+    const result = await createProjectInteraction(
+      singleProject.id,
+      userProjectInterestedIn,
+      userProjectMessage,
+      token
+    );
+    if (result.success) {
+      alert("Your interest has been recorded!");
+      setShowInteractionForm(false);
+      setUserProjectMessage("");
+      setUserProjectInterestedIn("");
+      fetchProjectData();
+    } else {
+      alert(`Failed to express interest: ${result.error}`);
+    }
+  };
+
+  const handleSubmitReview = async () => {
+    if (!token) {
+      alert("You must be logged in to submit a review.");
+      return;
+    }
+    if (!reviewRating || reviewRating < 1 || reviewRating > 5) {
+      alert("Please provide a rating between 1 and 5.");
+      return;
+    }
+    if (!currentUserProjectInteraction?.id) {
+      alert("No valid interaction found to review.");
+      return;
+    }
+
+    const result = await submitReview(
+      currentUserProjectInteraction.id,
+      reviewRating,
+      reviewComment,
+      token
+    );
+    if (result.success) {
+      alert("Review submitted successfully!");
+      setShowReviewForm(false);
+      setReviewRating(0);
+      setReviewComment("");
+      fetchProjectData(); // Re-fetch reviews
+    } else {
+      alert(`Failed to submit review: ${result.error}`);
+    }
+  };
+
   const canEditOrDelete =
     user &&
     singleProject &&
@@ -109,6 +197,20 @@ export default function ProjectDetail() {
           (up) => up.user?.id === user.id && up.interested_in === "contributor"
         )));
 
+  const canExpressInterest =
+    user &&
+    (user.role?.name === "student" || user.role?.name === "client") &&
+    !currentUserProjectInteraction &&
+    !canEditOrDelete;
+
+  const canWriteReview =
+    user &&
+    user.role?.name === "client" &&
+    currentUserProjectInteraction &&
+    !projectReviews.some(
+      (review) => review.user_project_id === currentUserProjectInteraction.id
+    );
+
   if (authLoading || loading) {
     return <div className="p-4 text-center">Loading project details...</div>;
   }
@@ -116,7 +218,7 @@ export default function ProjectDetail() {
   if (error) {
     return <div className="p-4 text-center text-red-500">Error: {error}</div>;
   }
-  
+
   if (!singleProject) {
     return <div className="p-4 text-center">Project not found.</div>;
   }
@@ -271,6 +373,26 @@ export default function ProjectDetail() {
               </button>
             </>
           )}
+
+          {canExpressInterest && (
+            <button
+              onClick={() => setShowInteractionForm(true)}
+              className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+            >
+              <FiMessageSquare className="w-5 h-5 mr-2" />
+              Express Interest
+            </button>
+          )}
+
+          {canWriteReview && (
+            <button
+              onClick={() => setShowReviewForm(true)}
+              className="flex items-center px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors"
+            >
+              <FiStarFilled className="w-5 h-5 mr-2" />
+              Write a Review
+            </button>
+          )}
         </div>
 
         {showDeleteConfirm && (
@@ -293,6 +415,130 @@ export default function ProjectDetail() {
                   className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
                 >
                   Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showInteractionForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+              <h3 className="text-lg font-bold mb-4">
+                Express Interest in {singleProject.title}
+              </h3>
+              <div className="mb-4">
+                <label
+                  htmlFor="interestedIn"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  I am interested in:
+                </label>
+                <select
+                  id="interestedIn"
+                  className="w-full p-2 border rounded-md"
+                  value={userProjectInterestedIn}
+                  onChange={(e) => setUserProjectInterestedIn(e.target.value)}
+                >
+                  <option value="">Select an option</option>
+                  {user?.role?.name === "student" && (
+                    <option value="collaboration">Collaboration</option>
+                  )}
+                  {user?.role?.name === "client" && (
+                    <>
+                      <option value="buying">Buying</option>
+                      <option value="hiring">Hiring</option>
+                    </>
+                  )}
+                </select>
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="message"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Message:
+                </label>
+                <textarea
+                  id="message"
+                  className="w-full p-2 border rounded-md"
+                  rows={4}
+                  value={userProjectMessage}
+                  onChange={(e) => setUserProjectMessage(e.target.value)}
+                  placeholder="Tell us why you're interested..."
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setShowInteractionForm(false)}
+                  className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleExpressInterest}
+                  className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+                >
+                  Submit Interest
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showReviewForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+              <h3 className="text-lg font-bold mb-4">
+                Write a Review for {singleProject.title}
+              </h3>
+              <div className="mb-4">
+                <label
+                  htmlFor="rating"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Rating (1-5):
+                </label>
+                <input
+                  type="number"
+                  id="rating"
+                  className="w-full p-2 border rounded-md"
+                  min="1"
+                  max="5"
+                  value={reviewRating}
+                  onChange={(e) =>
+                    setReviewRating(Number.parseInt(e.target.value))
+                  }
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="reviewComment"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Comment:
+                </label>
+                <textarea
+                  id="reviewComment"
+                  className="w-full p-2 border rounded-md"
+                  rows={4}
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  placeholder="Share your thoughts on this project..."
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setShowReviewForm(false)}
+                  className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSubmitReview}
+                  className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700"
+                >
+                  Submit Review
                 </button>
               </div>
             </div>
@@ -352,11 +598,14 @@ export default function ProjectDetail() {
         )}
         <div className="mt-8 border-t pt-6">
           <h3 className="text-xl font-bold text-gray-900 mb-4">Reviews</h3>
-          {singleProject.reviews && singleProject.reviews.length > 0 ? (
-            singleProject.reviews.map((review) => (
+          {projectReviews && projectReviews.length > 0 ? (
+            projectReviews.map((review) => (
               <div key={review.id} className="mb-4 p-4 border rounded-md">
                 <p className="font-semibold">Rating: {review.rating}/5</p>
                 <p className="text-gray-700">{review.comment}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {new Date(review.date).toLocaleDateString()}
+                </p>
               </div>
             ))
           ) : (
