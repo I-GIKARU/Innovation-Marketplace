@@ -1,11 +1,5 @@
-### 🔐 Authentication Endpoints
-# Complete test suite for user authentication and profile management
 
 @baseUrl =http://127.0.0.1:5000
-
-### =============================================
-### USER REGISTRATION TESTS
-### =============================================
 
 ### Register Student User
 POST {{baseUrl}}/api/auth/register
@@ -47,9 +41,6 @@ Content-Type: application/json
   "past_projects": "Test project"
 }
 
-### =============================================
-### USER LOGIN TESTS
-### =============================================
 
 ### Login Student
 POST {{baseUrl}}/api/auth/login
@@ -78,23 +69,11 @@ Content-Type: application/json
   "password": "StrongPass123!"
 }
 
-### Test Invalid Login (Should fail)
-POST {{baseUrl}}/api/auth/login
-Content-Type: application/json
-
-{
-  "email": "nonexistent@example.com",
-  "password": "WrongPassword123!"
-}
-
-### =============================================
-### USER PROFILE TESTS (Requires Authentication)
-### =============================================eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA0MDk0MywianRpIjoiODQxMGU2YTctZWMyMC00YTlhLWExZTctN2M2YWE1ODdiY2NkIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NTMwNDA5NDMsImV4cCI6MTc1MzEyNzM0M30.u-Xc3DWU1l1Ipybw91ZFgOg46nqR3B_ANEQwNBLHIOc
 
 ### Get Current User Identity
 GET {{baseUrl}}/api/auth/me
 Content-Type: application/json
-Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA0MzM4NCwianRpIjoiYWE3Y2I4MWMtNzJhYy00OTRlLTgwZGUtNGQ2OWJjNjhhZDYwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjE0IiwibmJmIjoxNzUzMDQzMzg0LCJleHAiOjE3NTMxMjk3ODR9.X46a4boosYX2l6CX7i12OaYaufEiOeU8spfTi1bQXBg
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzExODQxNiwianRpIjoiNTJmYzk3MTAtOWJkYi00MzczLWFhZDUtOTgzMjE5YTM0ODU5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NTMxMTg0MTYsImV4cCI6MTc1MzIwNDgxNn0.1mhvvY69IoMe6p-fRn172POcIn9YYk47DzP5FnF2M5c
 
 ### Get User Profile Details
 GET {{baseUrl}}/api/auth/profile
@@ -104,7 +83,7 @@ Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmF
 ### Update Student Profile
 PUT {{baseUrl}}/api/auth/profile
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MjUwNCwianRpIjoiMDlkYmU0MmQtZGMzZi00NDEyLWFhMzYtNzAzMDM3ZTdmMTkwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NTMwODI1MDQsImV4cCI6MTc1MzE2ODkwNH0.9ad1loFkkEJ6TjK07HtCWVqCAL2ZOcr-P0RY1qyfZ2Q
 
 {
   "bio": "Updated: Senior full-stack developer specializing in MERN stack and AI integration",
@@ -116,7 +95,7 @@ Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
 ### Update Client Profile
 PUT {{baseUrl}}/api/auth/profile
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MjUwNCwianRpIjoiMDlkYmU0MmQtZGMzZi00NDEyLWFhMzYtNzAzMDM3ZTdmMTkwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NTMwODI1MDQsImV4cCI6MTc1MzE2ODkwNH0.9ad1loFkkEJ6TjK07HtCWVqCAL2ZOcr-P0RY1qyfZ2Q
 
 {
   "company": "TechCorp Solutions Kenya Ltd - Digital Innovation Hub",
@@ -126,20 +105,13 @@ Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
 ### Change Password
 PUT {{baseUrl}}/api/auth/profile
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MjUwNCwianRpIjoiMDlkYmU0MmQtZGMzZi00NDEyLWFhMzYtNzAzMDM3ZTdmMTkwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NTMwODI1MDQsImV4cCI6MTc1MzE2ODkwNH0.9ad1loFkkEJ6TjK07HtCWVqCAL2ZOcr-P0RY1qyfZ2Q
 
 {
   "password": "NewStrongPass123!"
 }
 
-### =============================================
-### USER LOGOUT TESTS
-### =============================================
-
 ### Logout User (Clears JWT cookies)
 POST {{baseUrl}}/api/auth/logout
 Content-Type: application/json
 
-### Test Accessing Protected Route After Logout (Should fail)
-GET {{baseUrl}}/api/auth/profile
-Content-Type: application/json

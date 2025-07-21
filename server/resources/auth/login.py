@@ -3,46 +3,7 @@ from flask_restful import Resource
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, set_access_cookies, unset_jwt_cookies
 from models import User
 from datetime import timedelta
-
-class UserLogin(Resource):
-    def post(self):
-        try:
-            data = request.get_json()
-            
-            if not data or 'email' not in data or 'password' not in data:
-                return {'message': 'Email and password required'}, 400
-            
-            email = data['email']
-            password = data['password']
-            
-            user = User.query.filter_by(email=email).first()
-            
-            if not user or not user.verify_password(password): # Use verify_password
-                return {'message': 'Invalid credentials'}, 401
-            
-            identity = {
-                'id': user.id,
-                'email': user.email,
-                'role': user.role.name # Get role name from relationship
-            }
-            
-            access_token = create_access_token(
-                identity=str(user.id),  # Convert to string for JWT compliance
-                expires_delta=timedelta(hours=24)
-            )
-            
-            response = make_response(jsonify({
-                'user': identity,
-                'message': 'Login successful'
-            }), 200)
-            
-            # Use standard JWT cookie setting with proper config
-            set_access_cookies(response, access_token)
-            
-            return response
-            
-        except Exception as exc:
-            return {'error': str(exc)}, 500
+from utils.firebase_auth import verify_firebase_token, create_or_get_user_from_firebase
 
 class CurrentUser(Resource):
     @jwt_required(optional=True) # Allow access without token
@@ -65,6 +26,59 @@ class CurrentUser(Resource):
             return jsonify({"user": None})
         except Exception as exc:
             return {"message": f"Error verifying user: {str(exc)}"}, 500
+
+class FirebaseLogin(Resource):
+    def post(self):
+        """
+        Login using Firebase ID token
+        """
+        try:
+            data = request.get_json()
+            
+            if not data or 'idToken' not in data:
+                return {'message': 'Firebase ID token required'}, 400
+            
+            id_token = data['idToken']
+            
+            # Verify Firebase token
+            firebase_user_data, error = verify_firebase_token(id_token)
+            if error:
+                return {'error': error}, 401
+            
+            # Create or get user from database with role
+            role = data.get('role')  # Get role from request if provided
+            user, error = create_or_get_user_from_firebase(firebase_user_data, role)
+            if error:
+                return {'error': error}, 500
+            
+            if not user:
+                return {'error': 'Failed to authenticate user'}, 500
+            
+            # Create our own JWT token for the session
+            access_token = create_access_token(
+                identity=str(user.id),
+                expires_delta=timedelta(hours=24)
+            )
+            
+            user_identity = {
+                'id': user.id,
+                'email': user.email,
+                'role': user.role.name,
+                'auth_provider': user.auth_provider
+            }
+            
+            response = make_response(jsonify({
+                'user': user_identity,
+                'message': 'Firebase login successful'
+            }), 200)
+            
+            # Set JWT cookie for session management
+            set_access_cookies(response, access_token)
+            
+            return response
+            
+        except Exception as exc:
+            return {'error': f'Firebase login failed: {str(exc)}'}, 500
 
 class UserLogout(Resource):
     def post(self):

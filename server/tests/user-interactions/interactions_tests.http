@@ -1,21 +1,14 @@
-### 👥 User-Project Interactions Endpoints
-# Test suite for user-project interactions, reviews, and collaboration
-# Authentication handled via secure HttpOnly cookies
 
 @baseUrl = http://127.0.0.1:5000
 
-### =============================================
-### CLIENT INTERACTIONS WITH PROJECTS
-### Note: Login as CLIENT first using auth_tests.http
-### =============================================
 
 ### Client Interested in Buying Project
 POST {{baseUrl}}/api/user-projects
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4NDk5OSwianRpIjoiZWYzZGZiOTQtYmFkMS00M2FlLWFiMWYtNmI5ZWExZGRiZjlmIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NTMwODQ5OTksImV4cCI6MTc1MzE3MTM5OX0.bO5Ax_QEfg2yvjBEPTdEbMc_6bj_nDA4JpzoPypllL8
 
 {
-  "project_id": 1,
+  "project_id": 2,
   "interested_in": "buying",
   "message": "Hi! I'm interested in purchasing this AI-powered task management platform for my company. The features look exactly like what we need for our internal productivity optimization. Could we discuss pricing, customization options, and deployment requirements? We have a team of 50+ developers and would need it integrated with our existing infrastructure (AWS, Slack, Jira). Looking forward to hearing from you!"
 }
@@ -23,7 +16,7 @@ Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
 ### Client Interested in Hiring Developer
 POST {{baseUrl}}/api/user-projects
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MzI5NiwianRpIjoiM2MwMTYyZDUtNTQyMy00NDUwLWFjYzktZDBmNzgxZGFhMDFiIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NTMwODMyOTYsImV4cCI6MTc1MzE2OTY5Nn0.CzRl5OkKhDlWGk8ehiqCOwwImNA-_iWiNZPPFZ23brw
 
 {
   "project_id": 1,
@@ -31,26 +24,23 @@ Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
   "message": "Excellent work on this project! We're impressed by your technical skills, particularly the AI integration and full-stack development expertise. We're looking for a senior full-stack developer to join our team at TechCorp Solutions. We offer competitive salary, remote work options, and exciting projects in fintech and AI. Would you be interested in discussing a full-time position or consulting opportunities?"
 }
 
-### Client Interested in Another Project (Mobile App)
+### Client Interested in Another Project
 POST {{baseUrl}}/api/user-projects
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4NDk5OSwianRpIjoiZWYzZGZiOTQtYmFkMS00M2FlLWFiMWYtNmI5ZWExZGRiZjlmIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NTMwODQ5OTksImV4cCI6MTc1MzE3MTM5OX0.bO5Ax_QEfg2yvjBEPTdEbMc_6bj_nDA4JpzoPypllL8
 
 {
-  "project_id": 2,
+  "project_id": 4,
   "interested_in": "buying",
   "message": "This AR fitness tracker is innovative! We run a chain of fitness centers and would love to white-label this app for our members. Can we discuss licensing terms, customization possibilities, and integration with our existing membership system?"
 }
 
-### =============================================
-### STUDENT COLLABORATION REQUESTS
-### Note: Login as STUDENT first using auth_tests.http
-### =============================================
+
 
 ### Student Collaboration Request
 POST {{baseUrl}}/api/user-projects
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MzI5NiwianRpIjoiM2MwMTYyZDUtNTQyMy00NDUwLWFjYzktZDBmNzgxZGFhMDFiIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NTMwODMyOTYsImV4cCI6MTc1MzE2OTY5Nn0.CzRl5OkKhDlWGk8ehiqCOwwImNA-_iWiNZPPFZ23brw
 
 {
   "project_id": 2,
@@ -61,7 +51,7 @@ Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
 ### Another Student Collaboration
 POST {{baseUrl}}/api/user-projects
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MzI5NiwianRpIjoiM2MwMTYyZDUtNTQyMy00NDUwLWFjYzktZDBmNzgxZGFhMDFiIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NTMwODMyOTYsImV4cCI6MTc1MzE2OTY5Nn0.CzRl5OkKhDlWGk8ehiqCOwwImNA-_iWiNZPPFZ23brw
 
 {
   "project_id": 3,
@@ -69,35 +59,27 @@ Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
   "message": "Great work on the predictive analytics dashboard! I'm a data science student with experience in Python, TensorFlow, and business intelligence. I've worked on similar customer segmentation and recommendation engine projects. Would you be open to collaboration? I could contribute to the A/B testing framework and help optimize the ML models. I'm also familiar with MLOps and could help with model deployment and monitoring."
 }
 
-### =============================================
-### VIEWING USER INTERACTIONS
-### Note: Different views based on user role
-### =============================================
 
 ### Get User-Project Interactions (Student view - shows interactions on their projects)
 GET {{baseUrl}}/api/user-projects
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MzI5NiwianRpIjoiM2MwMTYyZDUtNTQyMy00NDUwLWFjYzktZDBmNzgxZGFhMDFiIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NTMwODMyOTYsImV4cCI6MTc1MzE2OTY5Nn0.CzRl5OkKhDlWGk8ehiqCOwwImNA-_iWiNZPPFZ23brw
 
 ### Get User-Project Interactions with Pagination
 GET {{baseUrl}}/api/user-projects?page=1&per_page=5
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MzI5NiwianRpIjoiM2MwMTYyZDUtNTQyMy00NDUwLWFjYzktZDBmNzgxZGFhMDFiIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NTMwODMyOTYsImV4cCI6MTc1MzE2OTY5Nn0.CzRl5OkKhDlWGk8ehiqCOwwImNA-_iWiNZPPFZ23brw
 
 ### Get Specific User-Project Interaction Details
 GET {{baseUrl}}/api/user-projects/1
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MzI5NiwianRpIjoiM2MwMTYyZDUtNTQyMy00NDUwLWFjYzktZDBmNzgxZGFhMDFiIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NTMwODMyOTYsImV4cCI6MTc1MzE2OTY5Nn0.CzRl5OkKhDlWGk8ehiqCOwwImNA-_iWiNZPPFZ23brw
 
-### =============================================
-### CLIENT REVIEWS (After Project Purchase/Hiring)
-### Note: Must be logged in as CLIENT who created the interaction
-### =============================================
 
 ### Create Excellent Review
 POST {{baseUrl}}/api/user-projects/1/review
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MzI5NiwianRpIjoiM2MwMTYyZDUtNTQyMy00NDUwLWFjYzktZDBmNzgxZGFhMDFiIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NTMwODMyOTYsImV4cCI6MTc1MzE2OTY5Nn0.CzRl5OkKhDlWGk8ehiqCOwwImNA-_iWiNZPPFZ23brw
 
 {
   "rating": 5,
@@ -107,7 +89,7 @@ Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
 ### Create Good Review with Minor Issues
 POST {{baseUrl}}/api/user-projects/2/review
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MzI5NiwianRpIjoiM2MwMTYyZDUtNTQyMy00NDUwLWFjYzktZDBmNzgxZGFhMDFiIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NTMwODMyOTYsImV4cCI6MTc1MzE2OTY5Nn0.CzRl5OkKhDlWGk8ehiqCOwwImNA-_iWiNZPPFZ23brw
 
 {
   "rating": 4,
@@ -117,7 +99,7 @@ Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
 ### Create Average Review
 POST {{baseUrl}}/api/user-projects/3/review
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MzI5NiwianRpIjoiM2MwMTYyZDUtNTQyMy00NDUwLWFjYzktZDBmNzgxZGFhMDFiIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NTMwODMyOTYsImV4cCI6MTc1MzE2OTY5Nn0.CzRl5OkKhDlWGk8ehiqCOwwImNA-_iWiNZPPFZ23brw
 
 {
   "rating": 3,
@@ -127,16 +109,13 @@ Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
 ### Create Critical Review
 POST {{baseUrl}}/api/user-projects/4/review
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MzI5NiwianRpIjoiM2MwMTYyZDUtNTQyMy00NDUwLWFjYzktZDBmNzgxZGFhMDFiIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjMiLCJuYmYiOjE3NTMwODMyOTYsImV4cCI6MTc1MzE2OTY5Nn0.CzRl5OkKhDlWGk8ehiqCOwwImNA-_iWiNZPPFZ23brw
 
 {
   "rating": 2,
   "comment": "The project had potential but several issues prevented full satisfaction. Multiple bugs were discovered after delivery, documentation was incomplete, and some promised features were not implemented. Communication was inconsistent and deadline management needs improvement. While the basic concept is sound, the execution fell short of professional standards. Required significant additional work to make it production-ready."
 }
 
-### =============================================
-### PUBLIC REVIEW VIEWING
-### =============================================
 
 ### Get All Reviews for a Specific Project
 GET {{baseUrl}}/api/projects/1/reviews

@@ -22,7 +22,8 @@ class User(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     phone = db.Column(db.String(20))
-    password_hash = db.Column(db.String(255), nullable=False)
+    firebase_uid = db.Column(db.String(128), unique=True, nullable=False)  # Store Firebase UID
+    auth_provider = db.Column(db.String(20), default='firebase')  # Only Firebase auth
     bio = db.Column(db.Text)
     socials = db.Column(db.String(255))
     company = db.Column(db.String(100))
@@ -35,18 +36,7 @@ class User(db.Model, SerializerMixin):
     role = db.relationship('Role', back_populates='users')
 
     # Serialization rules
-    serialize_rules = ('-password_hash', '-role.users', '-orders.user', '-user_projects.user')
-    
-    @property
-    def password(self):
-        raise AttributeError('password is not a readable attribute')
-    
-    @password.setter
-    def password(self, password):
-        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
-    
-    def verify_password(self, password):
-        return bcrypt.check_password_hash(self.password_hash, password)
+    serialize_rules = ('-role.users', '-orders.user', '-user_projects.user')
 
 
 

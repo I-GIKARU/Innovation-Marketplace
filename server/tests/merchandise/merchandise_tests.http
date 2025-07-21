@@ -1,20 +1,10 @@
-### 🛍️ Merchandise Management Endpoints
-# Complete test suite for merchandise catalog and inventory management
-# Admin operations require authentication via secure HttpOnly cookies
 
 @baseUrl =https://innovation-marketplace-840370620772.us-central1.run.app
-
-### =============================================
-### PUBLIC MERCHANDISE BROWSING (No Authentication)
-### =============================================
 
 ### Get All In-Stock Merchandise
 GET {{baseUrl}}/api/merchandise
 Content-Type: application/json
 
-### Get Merchandise with Pagination
-GET {{baseUrl}}/api/merchandise?page=1&per_page=5
-Content-Type: application/json
 
 ### Get All Merchandise (Including Out of Stock)
 GET {{baseUrl}}/api/merchandise?in_stock=false
@@ -24,15 +14,10 @@ Content-Type: application/json
 GET {{baseUrl}}/api/merchandise/1
 Content-Type: application/json
 
-### =============================================
-### ADMIN MERCHANDISE MANAGEMENT
-### Note: Login as ADMIN first using auth_tests.http
-### =============================================
-
 ### Create Innovation Hub T-Shirt
 POST {{baseUrl}}/api/admin/merchandise
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MjUwNCwianRpIjoiMDlkYmU0MmQtZGMzZi00NDEyLWFhMzYtNzAzMDM3ZTdmMTkwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NTMwODI1MDQmV4cCI6MTc1MzE2ODkwNH0.9ad1loFkkEJ6TjK07HtCWVqCAL2ZOcr-P0RY1qyfZ2Q
 
 {
   "name": "Innovation Hub Premium T-Shirt",
@@ -45,7 +30,7 @@ Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
 ### Create Innovation Hub Coffee Mug
 POST {{baseUrl}}/api/admin/merchandise
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MjUwNCwianRpIjoiMDlkYmU0MmQtZGMzZi00NDEyLWFhMzYtNzAzMDM3ZTdmMTkwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NTMwOI1MDQsImV4cCI6MTc1MzE2ODkwNH0.9ad1loFkkEJ6TjK07HtCWVqCAL2ZOcr-P0RY1qyfZ2Q
 
 {
   "name": "Innovation Hub Ceramic Coffee Mug",
@@ -58,7 +43,7 @@ Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
 ### Create Innovation Hub Hoodie
 POST {{baseUrl}}/api/admin/merchandise
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MjUwNCwianRpIjoiMDlkYmU0MmQtZGMzZi00NDEyLWFhMzYtNzAzMDM3ZTdmMTkwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NTMwODI1MDQsImV4cCI6MTc1MzE2ODkwNH0.9ad1loFkkEJ6TjK07HtCWVqCAL2ZOcr-P0RY1qyfZ2Q
 
 {
   "name": "Innovation Hub Developer Hoodie",
@@ -71,7 +56,7 @@ Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
 ### Create Innovation Hub Laptop Sticker Pack
 POST {{baseUrl}}/api/admin/merchandise
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MjUwNCwianRpIjoiMDlkYmU0MmQtZGMzZi00NDEyLWFhMzYtNzAzMDM3ZTdmMTkwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NTMwODI1MDQsImV4cCI6MTc1MzE2ODkwNH0.9ad1lokkEJ6TjK07HtCWVqCAL2ZOcr-P0RY1qyfZ2Q
 
 {
   "name": "Innovation Hub Laptop Sticker Pack",
@@ -94,14 +79,11 @@ Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmF
   "is_in_stock": false
 }
 
-### =============================================
-### MERCHANDISE UPDATES (Admin Only)
-### =============================================
 
 ### Update Merchandise Details
 PUT {{baseUrl}}/api/admin/merchandise/3
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MjUwNCwianRpIjoiMDlkYmU0MmQtZGMzZi00NDEyLWFhMzYtNzAzMDM3ZTdmMTkwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NTMwODI1MDQsImV4cCI6MTc1MzE2ODkwNH0.9ad1loFkkEJ6TjK07HtCWVqCAL2ZOcr-P0RY1qyfZ2Q
 
 {
   "name": "Innovation Hub Premium Developer Hoodie",
@@ -114,7 +96,7 @@ Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
 ### Mark Item as Out of Stock
 PUT {{baseUrl}}/api/admin/merchandise/1
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MjUwNCwianRpIjoiMDlkYmU0MmQtZGMzZi00NDEyLWFhMzYtNzAzMDM3ZTdmMTkwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NTMwODI1MDQsImV4cCI6MTc1MzE2ODkwNH0.9ad1loFkkEJ6TjK07HtCWVqCAL2ZOcr-P0RY1qyfZ2Q
 
 {
   "is_in_stock": false
@@ -123,7 +105,7 @@ Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
 ### Restock Item and Update Price
 PUT {{baseUrl}}/api/admin/merchandise/5
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MjUwNCwianRpIjoiMDlkYmU0MmQtZGMzZi00NDEyLWFhMzYtNzAzMDM3ZTdmMTkwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NTMwODI1MDQsImV4cCI6MTc1MzE2ODkwNH0.9ad1loFkkEJ6TjK07HtCWVqCAL2ZOcr-P0RY1qyfZ2Q
 
 {
   "name": "Innovation Hub Tech Professional Backpack",
@@ -131,17 +113,6 @@ Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
   "is_in_stock": true
 }
 
-### =============================================
-### MERCHANDISE DELETION (Admin Only)
-### =============================================
-
-### Delete Discontinued Item
-# DELETE {{baseUrl}}/api/admin/merchandise/5
-# Content-Type: application/json
-
-### =============================================
-### INVENTORY MANAGEMENT EXAMPLES
-### =============================================
 
 ### Check Current Inventory Status
 GET {{baseUrl}}/api/merchandise?in_stock=false

@@ -1,8 +1,8 @@
-"""Complete fresh start with all models
+"""Initial Firebase-only schema
 
-Revision ID: f46757b18b74
+Revision ID: 367a564b1ef0
 Revises: 
-Create Date: 2025-07-20 18:17:24.094150
+Create Date: 2025-07-21 19:50:59.012006
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f46757b18b74'
+revision = '367a564b1ef0'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -61,7 +61,8 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('email', sa.String(length=120), nullable=False),
     sa.Column('phone', sa.String(length=20), nullable=True),
-    sa.Column('password_hash', sa.String(length=255), nullable=False),
+    sa.Column('firebase_uid', sa.String(length=128), nullable=False),
+    sa.Column('auth_provider', sa.String(length=20), nullable=True),
     sa.Column('bio', sa.Text(), nullable=True),
     sa.Column('socials', sa.String(length=255), nullable=True),
     sa.Column('company', sa.String(length=100), nullable=True),
@@ -69,7 +70,8 @@ def upgrade():
     sa.Column('role_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['role_id'], ['roles.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('email')
+    sa.UniqueConstraint('email'),
+    sa.UniqueConstraint('firebase_uid')
     )
     op.create_table('orders',
     sa.Column('id', sa.Integer(), nullable=False),

@@ -1,18 +1,10 @@
-### 📦 Order Management Endpoints
-# Complete test suite for order creation, management, and tracking
-# Authentication handled via secure HttpOnly cookies where required
 
 @baseUrl =https://innovation-marketplace-840370620772.us-central1.run.app
-
-### =============================================
-### AUTHENTICATED USER ORDERS
-### Note: Login as CLIENT or STUDENT first using auth_tests.http
-### =============================================
 
 ### Create Small Order (Authenticated User)
 POST {{baseUrl}}/api/orders
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MjUwNCwianRpIjoiMDlkYmU0MmQtZGMzZi00NDEyLWFhMzYtNzAzMDM3ZTdmMTkwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NTMwODI1MDQsImV4cCI6MTc1MzE2ODkwNH0.9ad1loFkkEJ6TjK07HtCWVqCAL2ZOcr-P0RY1qyfZ2Q
 
 {
   "items": [
@@ -26,7 +18,7 @@ Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
 ### Create Multi-Item Order (Authenticated User)
 POST {{baseUrl}}/api/orders
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MjUwNCwianRpIjoiMDlkYmU0MmQtZGMzZi00NDEyLWFhMzYtNzAzMDM3ZTdmMTkwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NTMwODI1MDQsImV4cCI6MTc1MzE2ODkwNH0.9ad1loFkkEJ6TjK07HtCWVqCAL2ZOcr-P0RY1qyfZ2Q
 
 {
   "items": [
@@ -48,7 +40,7 @@ Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
 ### Create Large Order (Authenticated User)
 POST {{baseUrl}}/api/orders
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MjUwNCwianRpIjoiMDlkYmU0MmQtZGMzZi00NDEyLWFhMzYtNzAzMDM3ZTdmMTkwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NTMwODI1MDQsImV4cCI6MTc1MzE2ODkwNH0.9ad1loFkkEJ6TjK07HtCWVqCAL2ZOcr-P0RY1qyfZ2Q
 
 {
   "items": [
@@ -71,9 +63,7 @@ Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
   ]
 }
 
-### =============================================
-### GUEST ORDERS (No Authentication Required)
-### =============================================
+
 
 ### Create Guest Order (Single Item)
 POST {{baseUrl}}/api/orders
@@ -129,141 +119,23 @@ Content-Type: application/json
   ]
 }
 
-### =============================================
-### ORDER MANAGEMENT (Authenticated Users)
-### =============================================
 
 ### Get User's Orders
 GET {{baseUrl}}/api/orders
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MjUwNCwianRpIjoiMDlkYmU0MmQtZGMzZi00NDEyLWFhMzYtNzAzMDM3ZTdmMTkwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NTMwODI1MDQsImV4cCI6MTc1MzE2ODkwNH0.9ad1loFkkEJ6TjK07HtCWVqCAL2ZOcr-P0RY1qyfZ2Q
 
 ### Get User's Orders with Pagination
 GET {{baseUrl}}/api/orders?page=1&per_page=5
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MjUwNCwianRpIjoiMDlkYmU0MmQtZGMzZi00NDEyLWFhMzYtNzAzMDM3ZTdmMTkwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NTMwODI1MDQsImV4cCI6MTc1MzE2ODkwNH0.9ad1loFkkEJ6TjK07HtCWVqCAL2ZOcr-P0RY1qyfZ2Q
 
 ### Get Specific Order Details
 GET {{baseUrl}}/api/orders/1
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
-
-### =============================================
-### ORDER CANCELLATION (Authenticated Users)
-### =============================================
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MjUwNCwianRpIjoiMDlkYmU0MmQtZGMzZi00NDEyLWFhMzYtNzAzMDM3ZTdmMTkwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NTMwODI1MDQsImV4cCI6MTc1MzE2ODkwNH0.9ad1loFkkEJ6TjK07HtCWVqCAL2ZOcr-P0RY1qyfZ2Q
 
 ### Cancel Order (Only pending orders can be cancelled)
 POST {{baseUrl}}/api/orders/1/cancel
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
-
-### Try to Cancel Already Cancelled Order (Should fail)
-POST {{baseUrl}}/api/orders/1/cancel
-Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
-
-### =============================================
-### ERROR TESTING SCENARIOS
-### =============================================
-
-### Try to Order Out-of-Stock Item (Should fail)
-POST {{baseUrl}}/api/orders
-Content-Type: application/json
-
-{
-  "items": [
-    {
-      "merchandise_id": 999,
-      "quantity": 1
-    }
-  ]
-}
-
-### Try to Order with Invalid Quantity (Should fail)
-POST {{baseUrl}}/api/orders
-Content-Type: application/json
-
-{
-  "email": "test@example.com",
-  "items": [
-    {
-      "merchandise_id": 1,
-      "quantity": 0
-    }
-  ]
-}
-
-### Try Guest Order without Email (Should fail)
-POST {{baseUrl}}/api/orders
-Content-Type: application/json
-
-{
-  "items": [
-    {
-      "merchandise_id": 1,
-      "quantity": 1
-    }
-  ]
-}
-
-### Try to Order Nonexistent Merchandise (Should fail)
-POST {{baseUrl}}/api/orders
-Content-Type: application/json
-
-{
-  "email": "test@example.com",
-  "items": [
-    {
-      "merchandise_id": 999,
-      "quantity": 1
-    }
-  ]
-}
-
-### =============================================
-### BULK ORDER EXAMPLES
-### =============================================
-
-### Student Organization Bulk Order
-POST {{baseUrl}}/api/orders
-Content-Type: application/json
-
-{
-  "email": "events@studentorg.moringaschool.com",
-  "items": [
-    {
-      "merchandise_id": 1,
-      "quantity": 30
-    },
-    {
-      "merchandise_id": 4,
-      "quantity": 30
-    }
-  ]
-}
-
-### Corporate Training Event Order
-POST {{baseUrl}}/api/orders
-Content-Type: application/json
-
-{
-  "email": "training@corporateclient.com",
-  "items": [
-    {
-      "merchandise_id": 1,
-      "quantity": 100
-    },
-    {
-      "merchandise_id": 2,
-      "quantity": 100
-    },
-    {
-      "merchandise_id": 3,
-      "quantity": 50
-    },
-    {
-      "merchandise_id": 4,
-      "quantity": 100
-    }
-  ]
-}
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MjUwNCwianRpIjoiMDlkYmU0MmQtZGMzZi00NDEyLWFhMzYtNzAzMDM3ZTdmMTkwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NTMwODI1MDQsImV4cCI6MTc1MzE2ODkwNH0.9ad1loFkkEJ6TjK07HtCWVqCAL2ZOcr-P0RY1qyfZ2Q

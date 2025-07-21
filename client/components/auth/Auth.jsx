@@ -11,7 +11,8 @@ const Auth = ({ closeParentDropdown }) => {
     const [activeTab, setActiveTab] = useState("login");
     const [selectedRole, setSelectedRole] = useState("student"); // Only used in register
     const [formData, setFormData] = useState({
-        name: "",
+        firstName: "",
+        lastName: "",
         email: "",
         password: "",
     });
@@ -49,7 +50,8 @@ const Auth = ({ closeParentDropdown }) => {
     const handleRegister = async (e) => {
         e.preventDefault();
         const res = await register({
-            name: formData.name,
+            firstName: formData.firstName,
+            lastName: formData.lastName,
             email: formData.email,
             password: formData.password,
             role: selectedRole,
@@ -123,13 +125,24 @@ const Auth = ({ closeParentDropdown }) => {
                 </form>
             ) : (
                 <form onSubmit={handleRegister} className="px-6 py-4 flex flex-col">
-                    <label className="mb-2 text-sm font-medium">Name</label>
+                    <label className="mb-2 text-sm font-medium">First Name</label>
                     <input
                         type="text"
-                        name="name"
-                        value={formData.name}
+                        name="firstName"
+                        value={formData.firstName}
                         onChange={handleChange}
-                        placeholder="Your name"
+                        placeholder="John"
+                        className="mb-3 px-3 py-2 rounded focus:outline-none focus:ring-blue-400 hover:border"
+                        required
+                    />
+                    
+                    <label className="mb-2 text-sm font-medium">Last Name</label>
+                    <input
+                        type="text"
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleChange}
+                        placeholder="Doe"
                         className="mb-3 px-3 py-2 rounded focus:outline-none focus:ring-blue-400 hover:border"
                         required
                     />

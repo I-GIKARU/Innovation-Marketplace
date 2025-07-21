@@ -24,3 +24,7 @@ class Config:
 
     # Custom domain validation
     STUDENT_EMAIL_DOMAIN = '@student.moringaschool.com'
+    
+    # Firebase Configuration
+    FIREBASE_SERVICE_ACCOUNT_KEY = os.getenv('FIREBASE_SERVICE_ACCOUNT_KEY')  # Path to service account JSON
+    FIREBASE_PROJECT_ID = os.getenv('FIREBASE_PROJECT_ID')

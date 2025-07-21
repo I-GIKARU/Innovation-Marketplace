@@ -1,11 +1,6 @@
-### 📁 Project Management Endpoints
-# Complete test suite for project CRUD operations and browsing
 
 @baseUrl =http://127.0.0.1:5000
 
-### =============================================
-### PUBLIC PROJECT BROWSING (No Authentication)
-### =============================================
 
 ### Get All Approved Projects
 GET {{baseUrl}}/api/projects
@@ -35,32 +30,27 @@ Content-Type: application/json
 GET {{baseUrl}}/api/projects?approved=false
 Content-Type: application/json
 
-### =============================================
-### PROJECT CATEGORIES
-### =============================================
+
 
 ### Get All Categories
 GET {{baseUrl}}/api/projects/categories
 Content-Type: application/json
 
-### =============================================
-### PROJECT CREATION (Student Authentication Required)
-### =============================================
 
 ### Create Web Development Project
 POST {{baseUrl}}/api/projects
 Content-Type: application/json
-Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
+Cookie: access_token_cookie=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc1MzA4MTU5MCwianRpIjoiMDY4M2YwN2ItY2FkOC00NjM0LWFkZGQtM2I4N2NhMTc3YzlmIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjE0IiwibmJmIjoxNzUzMDgxNTkwLCJleHAiOjE3NTMxNjc5OTB9.uY4VtIwYBWhC-gM8MN51BBlmEZuWcLvc382iN0wdsuA
 
 {
   "title": "AI-Powered Task Management Platform",
   "description": "A comprehensive task management application with AI-powered task prioritization, smart deadline prediction, and team collaboration features. Built using modern web technologies with machine learning integration for productivity optimization.",
   "category_id": 1,
-  "tech_stack": "React, Node.js, Express, MongoDB, Socket.io, JWT, Material-UI, TensorFlow.js, Python FastAPI",
+  "tech_stack": "React, Python FastAPI",
   "github_link": "https://github.com/janedoe/ai-task-manager",
   "demo_link": "https://ai-task-manager.netlify.app",
   "is_for_sale": true,
-  "technical_mentor": "Prof. John Smith"
+  "technical_mentor": "Prof. ISAAC"
 }
 
 ### Create Mobile Development Project
@@ -111,9 +101,6 @@ Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
   "technical_mentor": "Eng. David Kim"
 }
 
-### =============================================
-### PROJECT DETAILS AND ANALYTICS
-### =============================================
 
 ### Get Specific Project Details
 GET {{baseUrl}}/api/projects/1
@@ -126,10 +113,6 @@ Content-Type: application/json
 ### Record Project Download (Analytics)
 POST {{baseUrl}}/api/projects/1/download
 Content-Type: application/json
-
-### =============================================
-### PROJECT UPDATES (Student/Admin Authentication Required)
-### =============================================
 
 ### Update Project Details
 PUT {{baseUrl}}/api/projects/1
@@ -155,12 +138,3 @@ Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
   "status": "approved",
   "featured": true
 }
-
-### =============================================
-### PROJECT DELETION (Student/Admin Authentication Required)
-### =============================================
-
-### Delete Project (Use with caution!)
-# DELETE {{baseUrl}}/api/projects/1
-# Content-Type: application/json
-# Cookie: access_token_cookie=YOUR_JWT_TOKEN_HERE
