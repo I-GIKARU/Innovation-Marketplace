@@ -17,7 +17,6 @@ const fadeInUp = {
 const AboutSection = () => {
   return (
     <section className="py-20 bg-white text-gray-800">
-      {/* Title */}
       <motion.h2
         variants={fadeInUp}
         initial="hidden"
@@ -28,7 +27,6 @@ const AboutSection = () => {
         More Than Just a Demo Day
       </motion.h2>
 
-      {/* Blurb */}
       <motion.p
         variants={fadeInUp}
         initial="hidden"
@@ -41,7 +39,7 @@ const AboutSection = () => {
         A home for future startups, side-hustles, and standout portfolios — all born at Moringa.
       </motion.p>
 
-      {/* Feature Grid */}
+ 
       <div className="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto px-6 text-center">
         {[
           {
@@ -77,7 +75,6 @@ const AboutSection = () => {
         ))}
       </div>
 
-      {/* CTA Button */}
       <motion.div
         variants={fadeInUp}
         initial="hidden"
