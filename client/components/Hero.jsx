@@ -9,16 +9,16 @@ const Hero = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImage((prev) => (prev + 1) % images.length);
-    }, 7000); // change image every 7 seconds
+    }, 7000);
     return () => clearInterval(interval);
   }, []);
 
   return (
     <section className="relative h-[90vh] text-white flex flex-col items-center justify-center text-center px-4 overflow-hidden">
-      {/* Overlay */}
+      
       <div className="absolute inset-0 bg-black/50 z-10" />
 
-      {/* Background with motion zoom-out */}
+  
       <div className="absolute inset-0 z-0 h-full w-full">
         {images.map((src, index) => (
           <motion.div
@@ -35,7 +35,7 @@ const Hero = () => {
         ))}
       </div>
 
-      {/* Hero Content */}
+
       <div className="relative z-20">
         <motion.h1
           initial={{ opacity: 0, y: -30 }}
