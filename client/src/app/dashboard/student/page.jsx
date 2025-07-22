@@ -1,11 +1,50 @@
+"use client";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Search, Plus, LogOut, ShoppingCart } from "lucide-react";
 
 import Sidebar from "@/components/Sidebar";
-import ProjectCard from "@/components/ProjectCard";
 import SkillsPanel from "@/components/SkillsPanel";
-import { Search, Plus, LogOut } from "lucide-react";
+
+function ProjectCard({ title, description, image, bgColor, onAddToCart }) {
+  return (
+    <div className={`rounded-xl p-4 ${bgColor} shadow-md`}>
+      <h2 className="font-bold mb-2">{title}</h2>
+      <div className="flex gap-2">
+        <div className="flex-1 text-sm">{description}</div>
+        <Image
+          src={image}
+          alt={title}
+          width={80}
+          height={80}
+          className="rounded-xl"
+        />
+      </div>
+      <div className="flex justify-between items-center mt-4">
+        <div className="flex items-center gap-2">
+          <Image
+            src="/images/profile.jpg"
+            alt="profile"
+            width={24}
+            height={24}
+            className="rounded-full"
+          />
+          <button
+            onClick={onAddToCart}
+            className="text-gray-700 hover:text-black"
+          >
+            <ShoppingCart className="w-5 h-5" />
+          </button>
+        </div>
+        <button className="bg-white px-3 py-1 rounded-full text-sm font-medium">
+          View more
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function StudentDashboard() {
   const { user, logout } = useAuth("student");
@@ -43,6 +82,10 @@ export default function StudentDashboard() {
   const handleLogout = () => {
     alert("Logging out...");
     logout();
+  };
+
+  const handleAddToCart = (project) => {
+    alert(`Added ${project.title} to cart!`);
   };
 
   const filteredProjects = projects.filter((proj) =>
@@ -108,6 +151,7 @@ export default function StudentDashboard() {
                   description={proj.description}
                   image="/images/default.jpg"
                   bgColor="bg-gray-100"
+                  onAddToCart={() => handleAddToCart(proj)}
                 />
               ))
             )}

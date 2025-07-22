@@ -1,8 +1,15 @@
-// components/ProjectCard.js
 "use client";
-import Image from "next/image";
 
-export default function ProjectCard({ title, description, image, bgColor }) {
+import Image from "next/image";
+import { ShoppingCart } from "lucide-react";
+
+export default function ProjectCard({
+  title,
+  description,
+  image,
+  bgColor,
+  onAddToCart,
+}) {
   return (
     <div className={`rounded-xl p-4 ${bgColor} shadow-md`}>
       <h2 className="font-bold mb-2">{title}</h2>
@@ -25,7 +32,13 @@ export default function ProjectCard({ title, description, image, bgColor }) {
             height={24}
             className="rounded-full"
           />
-          <button className="text-xl font-bold">+</button>
+          <button
+            onClick={onAddToCart}
+            className="p-2 bg-black text-white rounded-full hover:bg-gray-800"
+            aria-label="Add to cart"
+          >
+            <ShoppingCart size={16} />
+          </button>
         </div>
         <button className="bg-white px-3 py-1 rounded-full text-sm font-medium">
           View more
