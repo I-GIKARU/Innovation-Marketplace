@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useAuth } from "@/hooks/useAuth"; // adjust path as needed
 
 function Sidebar({ onSelect }) {
-    const menuItems = ['Dashboard', 'Products', 'Projects'];
+    const menuItems = ['Dashboard', 'Products', 'Projects', 'Categories'];
     const { logout, user } = useAuth();
 
     const handleLogout = async () => {

@@ -8,38 +8,48 @@ import {
 } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 export function useAuth() {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const fetchUser = async () => {
+    const fetchUser = useCallback(async () => {
         try {
             setLoading(true);
+            
+            // Add timeout to prevent getting stuck
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+            
             const res = await fetch(`${API_BASE}/auth/me`, {
                 credentials: 'include',
+                signal: controller.signal
             });
-
+            
+            clearTimeout(timeoutId);
+            
             const data = await res.json();
             if (!res.ok) throw new Error(data.message || 'Failed to fetch user');
 
             setUser(typeof data.user === 'string' ? { id: data.user } : data.user);
-        } catch {
+        } catch (error) {
+            console.log('Auth check failed:', error.message);
             setUser(null);
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         fetchUser();
-    }, []);
+    }, [fetchUser]);
     
     // Monitor Firebase auth state changes
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+            setLoading(true);
             if (firebaseUser) {
                 // User is signed in to Firebase, check backend sync
                 await fetchUser();
@@ -51,7 +61,7 @@ export function useAuth() {
         });
         
         return unsubscribe;
-    }, []);
+    }, [fetchUser]);
 
     const login = async ({ email, password }) => {
         setLoading(true);
@@ -145,12 +155,17 @@ export function useAuth() {
 
     // ✅ Memoize authFetch so it's stable across renders
     const authFetch = useCallback(async (url, options = {}) => {
-        const res = await fetch(`${API_BASE}${url}`, {
+        // Check if body is FormData to avoid setting Content-Type header
+        const isFormData = options.body instanceof FormData;
+        
+        const headers = { ...(options.headers || {}) };
+        if (!isFormData && !headers['Content-Type']) {
+            headers['Content-Type'] = 'application/json';
+        }
+        
+        const res = await fetch(url.startsWith('http') ? url : `${API_BASE}${url}`, {
             ...options,
-            headers: {
-                ...(options.headers || {}),
-                'Content-Type': 'application/json',
-            },
+            headers,
             credentials: 'include',
         });
 

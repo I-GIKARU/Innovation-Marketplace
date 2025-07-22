@@ -3,42 +3,40 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import Sidebar from "@/components/Sidebar";
-import ProjectCard from "@/components/ProjectCard";
-import SkillsPanel from "@/components/SkillsPanel";
+import Sidebar from "@/components/student/Sidebar";
+import SkillsPanel from "@/components/student/SkillsPanel";
+import ProjectUpload from "@/components/student/ProjectUpload";
+import MyProjectsPanel from "@/components/student/MyProjectsPanel";
 import { Search, Plus, LogOut } from "lucide-react";
 
 export default function StudentDashboard() {
-  const { user, logout } = useAuth("student");
+  const { user, loading: authLoading, logout } = useAuth();
   const router = useRouter();
   const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [showUploadModal, setShowUploadModal] = useState(false);
 
+  // Redirect non-students or unauthenticated users
   useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/projects`
-        );
-        const data = await res.json();
-        setProjects(data.projects);
-      } catch (err) {
-        console.error("Failed to load projects:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProjects();
-  }, []);
+    if (!authLoading && !user) {
+      router.push('/login');
+    } else if (!authLoading && user && user.role !== 'student') {
+      router.push('/'); // Redirect non-students to home
+    }
+  }, [authLoading, user, router]);
 
   const handleSearch = (value) => {
     setSearchTerm(value);
   };
 
   const handleAddProject = () => {
-    alert("Add Project button clicked!");
+    setShowUploadModal(true);
+  };
+
+  const handleUploadComplete = (newProject) => {
+    // Add new project to the list or refresh the list
+    setProjects(prev => [newProject, ...prev]);
+    setShowUploadModal(false);
   };
 
   const handleLogout = () => {
@@ -50,7 +48,22 @@ export default function StudentDashboard() {
     proj.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (!user) return <p>Loading student dashboard...</p>;
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <p>Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render if user is not authenticated or not a student
+  if (!user || user.role !== 'student') {
+    return null;
+  }
 
   return (
     <div className="flex">
@@ -94,28 +107,25 @@ export default function StudentDashboard() {
           <p className="text-gray-700">Email: {user.email}</p>
         </div>
 
-        {/* Projects and Skills */}
-        <div className="flex gap-4 mt-6">
-          <div className="grid grid-cols-2 gap-4 flex-1">
-            {loading ? (
-              <p>Loading projects...</p>
-            ) : filteredProjects.length === 0 ? (
-              <p>No matching projects found.</p>
-            ) : (
-              filteredProjects.map((proj, idx) => (
-                <ProjectCard
-                  key={idx}
-                  title={proj.title}
-                  description={proj.description}
-                  image="/images/default.jpg"
-                  bgColor="bg-gray-100"
-                />
-              ))
-            )}
+        {/* My Projects and Skills */}
+        <div className="flex gap-6 mt-6">
+          <div className="flex-1">
+            <MyProjectsPanel />
           </div>
-          <SkillsPanel />
+          <div className="w-80">
+            <SkillsPanel />
+          </div>
         </div>
       </div>
+      
+      {/* Project Upload Modal */}
+      {showUploadModal && (
+        <ProjectUpload
+          isOpen={showUploadModal}
+          onClose={() => setShowUploadModal(false)}
+          onUploadComplete={handleUploadComplete}
+        />
+      )}
     </div>
   );
 }

@@ -6,7 +6,7 @@ const nextConfig = {
       {
         source: "/api/:path*",
         destination:
-          "https://innovation-marketplace-840370620772.us-central1.run.app/api/:path*",
+          "http://127.0.0.1:5000/api/:path*",
       },
     ];
   },

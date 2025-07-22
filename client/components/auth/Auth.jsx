@@ -1,15 +1,15 @@
-// components/Auth.js
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Menu } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { useAuth } from "@/hooks/useAuth";
 
-const Auth = ({ closeParentDropdown }) => {
-    const [activeTab, setActiveTab] = useState("login");
-    const [selectedRole, setSelectedRole] = useState("student"); // Only used in register
+const Auth = ({ initialTab = "login" }) => {
+    const [activeTab, setActiveTab] = useState(initialTab);
+    const [selectedRole, setSelectedRole] = useState("student");
+
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
@@ -17,19 +17,8 @@ const Auth = ({ closeParentDropdown }) => {
         password: "",
     });
 
-    const dropdownRef = useRef(null);
     const router = useRouter();
     const { login, register, loading, error } = useAuth();
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                closeParentDropdown();
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, [closeParentDropdown]);
 
     const handleChange = (e) =>
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -60,29 +49,25 @@ const Auth = ({ closeParentDropdown }) => {
     };
 
     return (
-        <div
-            ref={dropdownRef}
-            className="absolute right-0 mt-2 w-80 bg-white/30 backdrop-invert backdrop-opacity-95 border border-orange-300 rounded-xl text-orange-500 shadow-lg z-50"
-            onClick={(e) => e.stopPropagation()}
-        >
+        <div className="w-full max-w-md bg-white border border-gray-200 rounded-xl shadow-lg p-6">
             {/* Tabs */}
-            <div className="flex justify-around">
+            <div className="flex justify-around mb-6">
                 <button
                     onClick={() => setActiveTab("login")}
-                    className={`w-1/2 py-2 font-medium ${
+                    className={`w-1/2 py-2 font-medium text-center transition ${
                         activeTab === "login"
                             ? "border-b-2 border-blue-600 text-blue-600"
-                            : "text-gray-600"
+                            : "text-gray-500 hover:text-blue-500"
                     }`}
                 >
                     Login
                 </button>
                 <button
                     onClick={() => setActiveTab("register")}
-                    className={`w-1/2 py-2 font-medium ${
+                    className={`w-1/2 py-2 font-medium text-center transition ${
                         activeTab === "register"
-                            ? "border-b-2 border-blue-600 text-blue-600"
-                            : "text-gray-600"
+                            ? "border-b-2 border-green-600 text-green-600"
+                            : "text-gray-500 hover:text-green-500"
                     }`}
                 >
                     Register
@@ -91,26 +76,26 @@ const Auth = ({ closeParentDropdown }) => {
 
             {/* Login Form */}
             {activeTab === "login" ? (
-                <form onSubmit={handleLogin} className="px-6 py-4 flex flex-col">
-                    <label className="mb-2 text-sm font-medium">Email</label>
+                <form onSubmit={handleLogin} className="flex flex-col">
+                    <label className="mb-1 text-sm font-medium text-gray-700">Email</label>
                     <input
                         type="email"
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="kimdan@gmail.com"
-                        className="mb-3 px-3 py-2 rounded focus:outline-none focus:ring-blue-400 hover:border"
+                        className="mb-4 px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
                         required
                     />
 
-                    <label className="mb-2 text-sm font-medium">Password</label>
+                    <label className="mb-1 text-sm font-medium text-gray-700">Password</label>
                     <input
                         type="password"
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
                         placeholder="********"
-                        className="mb-3 px-3 py-2 rounded focus:outline-none focus:ring-blue-400 hover:border"
+                        className="mb-4 px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
                         required
                     />
 
@@ -122,55 +107,55 @@ const Auth = ({ closeParentDropdown }) => {
                         {loading ? "Logging in..." : "Login"}
                     </button>
 
-                    {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+                    {error && <p className="text-red-500 text-sm mt-3">{error}</p>}
                 </form>
             ) : (
-                <form onSubmit={handleRegister} className="px-6 py-4 flex flex-col">
-                    <label className="mb-2 text-sm font-medium">First Name</label>
+                <form onSubmit={handleRegister} className="flex flex-col">
+                    <label className="mb-1 text-sm font-medium text-gray-700">First Name</label>
                     <input
                         type="text"
                         name="firstName"
                         value={formData.firstName}
                         onChange={handleChange}
                         placeholder="John"
-                        className="mb-3 px-3 py-2 rounded focus:outline-none focus:ring-blue-400 hover:border"
+                        className="mb-4 px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
                         required
                     />
-                    
-                    <label className="mb-2 text-sm font-medium">Last Name</label>
+
+                    <label className="mb-1 text-sm font-medium text-gray-700">Last Name</label>
                     <input
                         type="text"
                         name="lastName"
                         value={formData.lastName}
                         onChange={handleChange}
                         placeholder="Doe"
-                        className="mb-3 px-3 py-2 rounded focus:outline-none focus:ring-blue-400 hover:border"
+                        className="mb-4 px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
                         required
                     />
 
-                    <label className="mb-2 text-sm font-medium">Email</label>
+                    <label className="mb-1 text-sm font-medium text-gray-700">Email</label>
                     <input
                         type="email"
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="kimdan@gmail.com"
-                        className="mb-3 px-3 py-2 rounded focus:outline-none focus:ring-blue-400 hover:border"
+                        className="mb-4 px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
                         required
                     />
 
-                    <label className="mb-2 text-sm font-medium">Password</label>
+                    <label className="mb-1 text-sm font-medium text-gray-700">Password</label>
                     <input
                         type="password"
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
                         placeholder="********"
-                        className="mb-3 px-3 py-2 rounded focus:outline-none focus:ring-blue-400 hover:border"
+                        className="mb-4 px-3 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
                         required
                     />
 
-                    <label className="mb-2 text-sm font-medium">Select Role</label>
+                    <label className="mb-1 text-sm font-medium text-gray-700">Select Role</label>
                     <RoleMenu
                         selectedRole={selectedRole}
                         setSelectedRole={setSelectedRole}
@@ -180,12 +165,12 @@ const Auth = ({ closeParentDropdown }) => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500 transition"
+                        className="mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500 transition"
                     >
                         {loading ? "Registering..." : "Register"}
                     </button>
 
-                    {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+                    {error && <p className="text-red-500 text-sm mt-3">{error}</p>}
                 </form>
             )}
         </div>
@@ -193,12 +178,12 @@ const Auth = ({ closeParentDropdown }) => {
 };
 
 const RoleMenu = ({ selectedRole, setSelectedRole, roles }) => (
-    <Menu as="div" className="relative mb-3">
-        <Menu.Button className="inline-flex w-full justify-between rounded px-3 py-2 text-sm font-medium text-gray-700 bg-white shadow-xs ring-1 ring-gray-300 hover:bg-gray-50">
+    <Menu as="div" className="relative mb-4">
+        <Menu.Button className="inline-flex w-full justify-between rounded px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 shadow-sm hover:bg-gray-50">
             {selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}
             <ChevronDownIcon className="ml-2 h-5 w-5 text-gray-400" />
         </Menu.Button>
-        <Menu.Items className="absolute z-10 mt-2 w-full origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+        <Menu.Items className="absolute z-10 mt-2 w-full origin-top-right rounded-md bg-white shadow-lg border border-gray-200 focus:outline-none">
             <div className="py-1">
                 {roles.map((role) => (
                     <Menu.Item key={role}>

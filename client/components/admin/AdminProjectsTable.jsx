@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import { useProjects } from "@/hooks/useProjects";
 
-const ProjectsTable = ({ query }) => {
+const ProjectsTable = ({ query = "" }) => {
   const { projects, fetchProjects, loading, error } = useProjects();
 
   useEffect(() => {
@@ -11,12 +11,14 @@ const ProjectsTable = ({ query }) => {
 
   const handleApprove = async (projectId) => {
     try {
-      const res = await fetch(`http://127.0.0.1:5000/projects${id}`, {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || '/api';
+      const res = await fetch(`${apiBase}/admin/projects/${projectId}/approve`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
+        credentials: 'include',
       });
       const data = await res.json();
       if (res.ok) {
@@ -32,12 +34,14 @@ const ProjectsTable = ({ query }) => {
 
   const handleReject = async (projectId) => {
     try {
-      const res = await fetch(`http://127.0.0.1:5000/projects${id}`, {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || '/api';
+      const res = await fetch(`${apiBase}/admin/projects/${projectId}/reject`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
+        credentials: 'include',
         body: JSON.stringify({ reason: "Not eligible" }),
       });
       const data = await res.json();

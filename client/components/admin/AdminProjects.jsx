@@ -14,7 +14,7 @@ const Projects = () => {
         View Details
       </button>
 
-       {showDetails && <ProjectsTable query={query} />}
+       {showDetails && <ProjectsTable />}
     </section>
   );
 };

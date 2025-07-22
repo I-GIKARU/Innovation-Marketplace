@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import Sidebar from './AdminSidebar';
-import Projects from './AdminProjects'; 
+import AdminProjectManagement from './AdminProjectManagement'; 
 import Products from './AdminProducts'; 
 import ProjectsTable from './AdminProjectsTable'; 
 import ProductsTable from './AdminProductsTable'; 
+import AdminCategories from './AdminCategories';
 import { useProjects } from '@/hooks/useProjects';
 
 
@@ -59,7 +60,7 @@ const Dashboard = () => {
 
       case 'projects':
         return (
-          <div className="p-6 m-6"><Projects /> 
+          <div className="p-6 m-6"><AdminProjectManagement /> 
           </div>
           
         );
@@ -67,6 +68,12 @@ const Dashboard = () => {
       case 'products':
         return (
           <div className="p-6 m-6">  <Products />
+          </div>
+           
+        );
+      case 'categories':
+        return (
+          <div className="p-6 m-6">  <AdminCategories />
           </div>
            
         );

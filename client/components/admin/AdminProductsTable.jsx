@@ -12,7 +12,8 @@ const ProductsTable = ({
     const confirmDelete = window.confirm("Delete this product?");
     if (!confirmDelete) return;
 
-    const response = await fetch(`http://127.0.0.1:5000/api/products/${id}`, {
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || '/api';
+    const response = await fetch(`${apiBase}/merchandise/${id}`, {
       method: 'DELETE'
     });
 

@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { useMerchandise } from '@/hooks/useMerchandise';
 import Form from './AddModal';
 import ProductsTable from './AdminProductsTable';
+import MerchandiseUpload from './MerchandiseUpload';
+import { Plus, Package } from 'lucide-react';
 
 
 const Products = () => {
@@ -17,6 +19,7 @@ const Products = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [showUploadModal, setShowUploadModal] = useState(false);
  
 
   useEffect(() => {
@@ -63,6 +66,12 @@ const Products = () => {
     setShowForm(true);
   };
 
+  const handleUploadComplete = (newMerchandise) => {
+    // Refresh merchandise list after successful upload
+    fetchMerchandise();
+    setShowUploadModal(false);
+  };
+
   return (
     <section className="bg-white p-6 rounded shadow-md">
       
@@ -73,12 +82,22 @@ const Products = () => {
         <p className="text-gray-600 mb-6">
         {editingProduct ? "Edit product information below" : "Add or manage merchandise."}
       </p>
-        <button
-          className="bg-orange-400 text-white px-4 py-2 mt-3 rounded hover:bg-orange-500 transition"
-          onClick={() => setShowDetails(!showDetails)}
-        >
-          {showDetails ? "Hide Details" : "View Details"}
-        </button>
+        <div className="flex gap-3 mt-3">
+          <button
+            className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition flex items-center gap-2"
+            onClick={() => setShowUploadModal(true)}
+          >
+            <Plus className="w-4 h-4" />
+            Add Product with Images
+          </button>
+          
+          <button
+            className="bg-orange-400 text-white px-4 py-2 rounded hover:bg-orange-500 transition"
+            onClick={() => setShowDetails(!showDetails)}
+          >
+            {showDetails ? "Hide Details" : "View Details"}
+          </button>
+        </div>
       </div>
 
       
@@ -105,6 +124,15 @@ const Products = () => {
             onEdit={handleEdit}
           />
         </>
+      )}
+      
+      {/* Merchandise Upload Modal */}
+      {showUploadModal && (
+        <MerchandiseUpload
+          isOpen={showUploadModal}
+          onClose={() => setShowUploadModal(false)}
+          onUploadComplete={handleUploadComplete}
+        />
       )}
     </section>
   );

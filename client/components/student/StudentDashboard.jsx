@@ -9,7 +9,7 @@ import ProjectCard from '@/components/ProjectCard';
 import SkillsPanel from '@/components/student/SkillsPanel';
 import { useAuth } from '@/hooks/useAuth';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 export default function StudentDashboard() {
     const { user, loading: authLoading } = useAuth();

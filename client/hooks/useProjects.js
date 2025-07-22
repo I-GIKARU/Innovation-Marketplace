@@ -2,10 +2,13 @@
 
 import { useState, useCallback } from "react";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export function useProjects() {
   const [projects, setProjects] = useState([]);
+  const [featuredProjects, setFeaturedProjects] = useState([]);
+  const [myProjects, setMyProjects] = useState([]);
+  const [allProjects, setAllProjects] = useState([]); // For admin view
   const [singleProject, setSingleProject] = useState(null);
   const [categories, setCategories] = useState([]);
   const [pagination, setPagination] = useState({
@@ -15,16 +18,17 @@ export function useProjects() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [projectReviews, setProjectReviews] = useState([]); // New state for project reviews
+  const [projectReviews, setProjectReviews] = useState([]);
+  const [statusCounts, setStatusCounts] = useState({}); // For admin dashboard
 
-  const fetchProjects = useCallback(
+  // NEW: Fetch public projects (approved only)
+  const fetchPublicProjects = useCallback(
     async ({
       page = 1,
       per_page = 12,
       search = "",
-      category = "",
+      category_id = null,
       featured = null,
-      approved = true,
     } = {}) => {
       setLoading(true);
       setError(null);
@@ -33,11 +37,10 @@ export function useProjects() {
         const params = new URLSearchParams({
           page: page.toString(),
           per_page: per_page.toString(),
-          approved: approved.toString(),
         });
 
         if (search) params.append("search", search);
-        if (category) params.append("category", category);
+        if (category_id) params.append("category_id", category_id.toString());
         if (featured !== null) params.append("featured", featured.toString());
 
         const response = await fetch(`${API_BASE}/projects?${params}`);
@@ -63,6 +66,198 @@ export function useProjects() {
     },
     []
   );
+
+  // NEW: Fetch featured projects for homepage
+  const fetchFeaturedProjects = useCallback(
+    async (limit = 6) => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const params = new URLSearchParams();
+        if (limit) params.append("limit", limit.toString());
+
+        const response = await fetch(`${API_BASE}/projects/featured?${params}`);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setFeaturedProjects(data.projects || []);
+        return { success: true, projects: data.projects, count: data.count };
+      } catch (err) {
+        setError(err.message || "Failed to fetch featured projects");
+        console.error("Error fetching featured projects:", err);
+        return { success: false, error: err.message };
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  // NEW: Fetch projects by category
+  const fetchProjectsByCategory = useCallback(
+    async (categoryId, { page = 1, per_page = 12 } = {}) => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const params = new URLSearchParams({
+          page: page.toString(),
+          per_page: per_page.toString(),
+        });
+
+        const response = await fetch(`${API_BASE}/projects/category/${categoryId}?${params}`);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        setProjects(data.projects || []);
+        setPagination({
+          total: data.total || 0,
+          pages: data.pages || 0,
+          current_page: data.current_page || 1,
+        });
+        return { success: true, category: data.category, projects: data.projects };
+      } catch (err) {
+        setError(err.message || "Failed to fetch projects by category");
+        console.error("Error fetching projects by category:", err);
+        return { success: false, error: err.message };
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  // NEW: Fetch student's own projects
+  const fetchMyProjects = useCallback(
+    async (token) => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(`${API_BASE}/projects/my`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setMyProjects(data.projects || []);
+        setStatusCounts(data.status_counts || {});
+        return { success: true, projects: data.projects, status_counts: data.status_counts };
+      } catch (err) {
+        setError(err.message || "Failed to fetch my projects");
+        console.error("Error fetching my projects:", err);
+        return { success: false, error: err.message };
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  // NEW: Fetch all projects for admin
+  const fetchAllProjects = useCallback(
+    async (token, {
+      page = 1,
+      per_page = 12,
+      status = "",
+      search = "",
+      category_id = null,
+    } = {}) => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const params = new URLSearchParams({
+          page: page.toString(),
+          per_page: per_page.toString(),
+        });
+
+        if (status) params.append("status", status);
+        if (search) params.append("search", search);
+        if (category_id) params.append("category_id", category_id.toString());
+
+        const response = await fetch(`${API_BASE}/admin/projects?${params}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        setAllProjects(data.projects || []);
+        setPagination({
+          total: data.total || 0,
+          pages: data.pages || 0,
+          current_page: data.current_page || 1,
+        });
+        setStatusCounts(data.status_counts || {});
+        return { success: true, projects: data.projects, status_counts: data.status_counts };
+      } catch (err) {
+        setError(err.message || "Failed to fetch all projects");
+        console.error("Error fetching all projects:", err);
+        return { success: false, error: err.message };
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  // NEW: Create a new project
+  const createProject = useCallback(
+    async (projectData, token) => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(`${API_BASE}/projects/create`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(projectData),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            errorData.error || `HTTP error! status: ${response.status}`
+          );
+        }
+
+        const data = await response.json();
+        return { success: true, project: data.project, message: data.message };
+      } catch (err) {
+        setError(err.message || "Failed to create project");
+        console.error("Error creating project:", err);
+        return { success: false, error: err.message };
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  // LEGACY: Keep old method for backward compatibility
+  const fetchProjects = fetchPublicProjects;
 
   const fetchProjectById = useCallback(async (id) => {
     setLoading(true);
@@ -90,7 +285,7 @@ export function useProjects() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE}/projects/categories`);
+      const response = await fetch(`${API_BASE}/categories`);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -283,14 +478,28 @@ export function useProjects() {
   }, []);
 
   return {
+    // State
     projects,
+    featuredProjects,
+    myProjects,
+    allProjects,
     singleProject,
     categories,
     pagination,
     loading,
     error,
     projectReviews,
-    fetchProjects,
+    statusCounts,
+    
+    // NEW Organized Methods
+    fetchPublicProjects,
+    fetchFeaturedProjects,
+    fetchProjectsByCategory,
+    fetchMyProjects,
+    fetchAllProjects,
+    createProject,
+    
+    // Existing Methods (unchanged)
     fetchProjectById,
     fetchCategories,
     recordProjectClick,
@@ -300,5 +509,8 @@ export function useProjects() {
     createProjectInteraction,
     submitReview,
     fetchProjectReviews,
+    
+    // LEGACY (for backward compatibility)
+    fetchProjects, // Maps to fetchPublicProjects
   };
 }
