@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/student/Sidebar";
 import AvatarDropdown from "@/components/student/AvatarDropdown";
+import OrderList from "@/components/orders/OrderList";
 
 export default function ClientDashboard() {
   const { user, logout } = useAuth();
@@ -33,9 +34,9 @@ export default function ClientDashboard() {
         </div>
 
         <h2 className="text-lg font-bold mb-2">Client Dashboard</h2>
-        <p>Manage your orders</p>
+        <OrderList />
 
-        
+
       </main>
     </div>
   );
