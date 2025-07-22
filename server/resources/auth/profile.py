@@ -2,7 +2,7 @@ from flask import request, jsonify
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, User
-from utils.validation import validate_student_email, validate_email_format, validate_password_strength
+from utils.validation import validate_student_email, validate_email_format
 from resources.auth.decorators import get_current_user
 
 class UserProfile(Resource):
@@ -55,12 +55,7 @@ class UserProfile(Resource):
             user.company = data.get('company', user.company)
             user.past_projects = data.get('past_projects', user.past_projects)
             
-            # Update password if provided
-            if data.get('password'):
-                is_valid_password, password_message = validate_password_strength(data['password'])
-                if not is_valid_password:
-                    return {'error': password_message}, 400
-                user.password = data['password'] # Use the password setter
+            # Password updates are handled by Firebase Auth, not through this endpoint
             
             db.session.commit()
             return {'message': 'Profile updated successfully', 'user': user.to_dict()}, 200

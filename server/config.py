@@ -9,18 +9,28 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key')
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///moringa_marketplace.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
+    # Connection pool settings for better stability
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_size': 10,
+        'pool_recycle': 300,
+        'pool_pre_ping': True,
+        'max_overflow': 20
+    }
 
     # JWT Configuration
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'dev-jwt-secret')
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
 
-    # JWT Cookie settings - matching working config
-    JWT_TOKEN_LOCATION = ['cookies']
+    # JWT Token locations - accept both cookies and headers for flexibility
+    JWT_TOKEN_LOCATION = ['cookies', 'headers']
     JWT_COOKIE_SECURE = os.getenv('JWT_COOKIE_SECURE', 'false').lower() == 'true'
     JWT_COOKIE_HTTPONLY = True
     JWT_COOKIE_SAMESITE = 'Lax'
     JWT_ACCESS_COOKIE_NAME = 'access_token'
     JWT_COOKIE_CSRF_PROTECT = False  # Disable CSRF protection for simplicity
+    JWT_HEADER_NAME = 'Authorization'
+    JWT_HEADER_TYPE = 'Bearer'
 
     # Custom domain validation
     STUDENT_EMAIL_DOMAIN = '@student.moringaschool.com'
@@ -28,3 +38,4 @@ class Config:
     # Firebase Configuration
     FIREBASE_SERVICE_ACCOUNT_KEY = os.getenv('FIREBASE_SERVICE_ACCOUNT_KEY')  # Path to service account JSON
     FIREBASE_PROJECT_ID = os.getenv('FIREBASE_PROJECT_ID')
+    FIREBASE_STORAGE_BUCKET = os.getenv('FIREBASE_STORAGE_BUCKET', f"{os.getenv('FIREBASE_PROJECT_ID')}.firebasestorage.app")

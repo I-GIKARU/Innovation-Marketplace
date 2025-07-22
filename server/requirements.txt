@@ -1,7 +1,6 @@
 Flask
 Flask-SQLAlchemy
 Flask-JWT-Extended
-Flask-Bcrypt
 Flask-CORS
 Flask-Mail
 Flask-Migrate

@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from sqlalchemy_serializer import SerializerMixin
-from . import db,bcrypt
+from . import db
 
 class Merchandise(db.Model, SerializerMixin):
     __tablename__ = 'merchandise'
@@ -9,7 +9,9 @@ class Merchandise(db.Model, SerializerMixin):
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
     price = db.Column(db.Integer)
-    image_url = db.Column(db.String(255))
+    image_url = db.Column(db.String(255))  # Keep for backward compatibility
+    image_urls = db.Column(db.Text)  # JSON string of multiple image URLs
+    thumbnail_url = db.Column(db.String(500))  # Main product image
     is_in_stock = db.Column(db.Boolean, default=True)
 
     order_items = db.relationship('OrderItem', back_populates='merchandise')

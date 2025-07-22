@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin
-from . import db,bcrypt
+from . import db
 
 class Role(db.Model, SerializerMixin):
     __tablename__ = 'roles'
@@ -49,7 +49,8 @@ class Category(db.Model, SerializerMixin):
     
     projects = db.relationship('Project', back_populates='category')
     
-    serialize_rules = ('-projects.category',)
+    # Don't include projects in category serialization to avoid data mixup
+    serialize_rules = ('-projects',)
 
 class Project(db.Model, SerializerMixin):
     __tablename__ = 'projects'
@@ -68,6 +69,11 @@ class Project(db.Model, SerializerMixin):
     views = db.Column( db.Integer, default=0)
     clicks = db.Column(db.Integer, default=0)
     downloads = db.Column(db.Integer, default=0)
+    
+    # Media fields
+    image_urls = db.Column(db.Text)  # JSON string of image URLs
+    video_urls = db.Column(db.Text)  # JSON string of video URLs
+    thumbnail_url = db.Column(db.String(500))  # Main project thumbnail
     
     # Relationships
     category = db.relationship('Category', back_populates='projects')

@@ -6,7 +6,7 @@ from flask_migrate import Migrate
 from flask_restful import Api
 from dotenv import load_dotenv
 from config import Config
-from models import db, bcrypt, User, Role
+from models import db, User, Role
 import firebase_admin
 from firebase_admin import credentials, auth
 
@@ -21,7 +21,6 @@ def create_app():
     app.config.from_object(Config)
 
     db.init_app(app)
-    bcrypt.init_app(app)
     jwt.init_app(app)
     migrate.init_app(app, db)
     CORS(app,
@@ -36,12 +35,18 @@ def create_app():
     try:
         if not firebase_admin._apps:
             service_account_key = app.config.get('FIREBASE_SERVICE_ACCOUNT_KEY')
-            if service_account_key and os.path.exists(service_account_key):
+            project_id = app.config.get('FIREBASE_PROJECT_ID')
+            
+            if service_account_key and os.path.exists(service_account_key) and project_id:
                 cred = credentials.Certificate(service_account_key)
-                firebase_admin.initialize_app(cred)
-                print("✅ Firebase Admin SDK initialized")
+                storage_bucket = app.config.get('FIREBASE_STORAGE_BUCKET', f'{project_id}.firebasestorage.app')
+                firebase_admin.initialize_app(cred, {
+                    'storageBucket': storage_bucket
+                })
+                print(f"✅ Firebase Admin SDK initialized with Storage bucket: {storage_bucket}")
             else:
-                print("⚠️ Firebase service account key not found")
+                print("⚠️ Firebase service account key or project ID not found")
+                print("Make sure FIREBASE_SERVICE_ACCOUNT_KEY and FIREBASE_PROJECT_ID are set in your .env file")
     except Exception as e:
         print(f"⚠️ Firebase initialization failed: {e}")
 
@@ -62,40 +67,51 @@ def create_app():
     orders_setup_routes(api)
     user_projects_setup_routes(api)
     
-    # Debug route
     # ✅ Create default roles on app startup  
-    with app.app_context():
-        try:
-            # Check if tables exist before querying
-            from sqlalchemy import inspect
-            inspector = inspect(db.engine)
-            if 'roles' in inspector.get_table_names():
-                # Create all roles if they don't exist
-                roles_to_create = [
-                    {'name': 'admin', 'desc': 'Administrator role'},
-                    {'name': 'student', 'desc': 'Student developer'},
-                    {'name': 'client', 'desc': 'clients'}
-                ]
+    # Use a background function to avoid blocking the main thread
+    def setup_default_roles():
+        with app.app_context():
+            try:
+                # Quick check if database is accessible
+                from sqlalchemy import text
+                db.session.execute(text('SELECT 1')).fetchone()
                 
-                created_roles = []
-                for role_data in roles_to_create:
-                    existing_role = Role.query.filter_by(name=role_data['name']).first()
-                    if not existing_role:
-                        new_role = Role(name=role_data['name'], desc=role_data['desc'])
-                        db.session.add(new_role)
-                        created_roles.append(role_data['name'])
-                
-                if created_roles:
-                    db.session.commit()
-                    print(f"✅ Created roles: {', '.join(created_roles)}")
-                
-                print("ℹ️ Admin users must be created through Firebase Console and then registered via the app")
-            else:
-                print("⚠️ Database tables don't exist yet.")
+                # Check if tables exist before querying
+                from sqlalchemy import inspect
+                inspector = inspect(db.engine)
+                if 'roles' in inspector.get_table_names():
+                    # Create all roles if they don't exist
+                    roles_to_create = [
+                        {'name': 'admin', 'desc': 'Administrator role'},
+                        {'name': 'student', 'desc': 'Student developer'},
+                        {'name': 'client', 'desc': 'clients'}
+                    ]
+                    
+                    created_roles = []
+                    for role_data in roles_to_create:
+                        existing_role = Role.query.filter_by(name=role_data['name']).first()
+                        if not existing_role:
+                            new_role = Role(name=role_data['name'], desc=role_data['desc'])
+                            db.session.add(new_role)
+                            created_roles.append(role_data['name'])
+                    
+                    if created_roles:
+                        db.session.commit()
+                        print(f"✅ Created roles: {', '.join(created_roles)}")
+                    else:
+                        print("ℹ️ Default roles already exist")
+                    
+                    print("ℹ️ Admin users must be created through Firebase Console and then registered via the app")
+                else:
+                    print("⚠️ Database tables don't exist yet.")
+                    print("Run 'flask db init', 'flask db migrate', and 'flask db upgrade' to set up the database.")
+            except Exception as e:
+                print(f"⚠️ Database not ready: {e}")
                 print("Run 'flask db init', 'flask db migrate', and 'flask db upgrade' to set up the database.")
-        except Exception as e:
-            print(f"⚠️ Database not ready: {e}")
-            print("Run 'flask db init', 'flask db migrate', and 'flask db upgrade' to set up the database.")
+    
+    # Setup roles in background to avoid blocking server startup
+    import threading
+    threading.Thread(target=setup_default_roles, daemon=True).start()
 
     return app
 
