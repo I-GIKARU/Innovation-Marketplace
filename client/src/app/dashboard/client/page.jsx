@@ -34,6 +34,8 @@ export default function ClientDashboard() {
 
         <h2 className="text-lg font-bold mb-2">Client Dashboard</h2>
         <p>Manage your orders</p>
+
+        
       </main>
     </div>
   );
