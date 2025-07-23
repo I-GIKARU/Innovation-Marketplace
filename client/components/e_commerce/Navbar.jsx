@@ -22,7 +22,7 @@ const Navbar = () => {
                   alt="Moringa Marketplace Logo"
                   width={60}
                   height={60}
-                  className="rounded-lg object-contain"
+                  className="rounded-full object-cover"
               />
             </Link>
           </div>

@@ -140,7 +140,7 @@ const FeaturedProjects = () => {
         >
           <a
               href="/projects"
-              className="inline-block bg-blue-600 text-white font-semibold px-6 py-3 rounded-full hover:bg-blue-500 transition"
+              className="inline-block bg-orange-500 text-white px-6 py-3 rounded-full hover:bg-orange-600 transition-colors duration-300"
           >
             Explore All Projects
           </a>
