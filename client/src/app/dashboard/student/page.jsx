@@ -20,9 +20,9 @@ export default function StudentDashboard() {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push('/');
-    } else if (!authLoading && user && user.role !== 'student') {
-      router.push('/');
+      router.push("/");
+    } else if (!authLoading && user && user.role !== "student") {
+      router.push("/");
     }
   }, [authLoading, user, router]);
 
@@ -35,7 +35,7 @@ export default function StudentDashboard() {
   };
 
   const handleUploadComplete = (newProject) => {
-    setProjects(prev => [newProject, ...prev]);
+    setProjects((prev) => [newProject, ...prev]);
     setShowUploadModal(false);
   };
 
@@ -58,16 +58,19 @@ export default function StudentDashboard() {
     );
   }
 
-  if (!user || user.role !== 'student') {
+  if (!user || user.role !== "student") {
     return null;
   }
 
   return (
-    <div className="flex">
+    <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
       <Sidebar />
-      <div className="flex-1 p-4">
-        <div className="flex items-center justify-between p-4 bg-white shadow-md rounded-lg mb-4">
-          <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-full w-1/2">
+
+      <div className="flex-1 p-4 overflow-auto">
+        {/* Sticky topbar */}
+        <div className="sticky top-0 z-10 bg-white p-4 shadow-md rounded-lg mb-6 flex items-center justify-between gap-4">
+          {/* Search input */}
+          <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-full w-full md:w-1/2 transition-all duration-200">
             <Search className="w-5 h-5 text-gray-500" />
             <input
               type="text"
@@ -77,24 +80,32 @@ export default function StudentDashboard() {
               className="bg-gray-100 outline-none flex-1 text-sm"
             />
           </div>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={handleAddProject}
-              className="bg-black text-white p-2 rounded-full hover:bg-gray-800"
-            >
-              <Plus className="w-5 h-5" />
-            </button>
-          </div>
+
+          {/* + Button */}
+          <button
+            onClick={handleAddProject}
+            className="bg-black text-white p-2 rounded-full hover:bg-gray-800 transition-transform hover:scale-105"
+            title="Add Project"
+          >
+            <Plus className="w-5 h-5" />
+          </button>
         </div>
-        <div className="mb-4 p-4 bg-blue-50 rounded shadow">
-          <h1 className="text-xl font-bold">Welcome, Student</h1>
-          <p className="text-gray-700">Email: {user.email}</p>
+
+        {/* Welcome Message */}
+        <div className="mb-4 p-4 bg-blue-50 rounded-lg shadow-sm">
+          <h1 className="text-2xl font-bold text-blue-800">Welcome, Student</h1>
+          <p className="text-gray-700 text-sm">Email: {user.email}</p>
         </div>
-        <div className="flex gap-6 mt-6">
-          <div className="flex-1">
+
+        {/* Main content */}
+        <div className="flex flex-col lg:flex-row gap-6 mt-4">
+          {/* My Projects */}
+          <div className="w-full lg:w-1/2">
             <MyProjectsPanel />
           </div>
-          <div className="grid grid-cols-2 gap-4 flex-1">
+
+          {/* Project Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full lg:w-1/2">
             {authLoading ? (
               <p>Loading projects...</p>
             ) : filteredProjects.length === 0 ? (
@@ -107,7 +118,7 @@ export default function StudentDashboard() {
                   title={proj.title}
                   description={proj.description}
                   image="/images/default.jpg"
-                  bgColor="bg-gray-100"
+                  bgColor="bg-white hover:bg-gray-50 transition-colors duration-300"
                   onAddToCart={() => handleAddToCart(proj)}
                 />
               ))
@@ -115,6 +126,8 @@ export default function StudentDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Upload Modal */}
       {showUploadModal && (
         <ProjectUpload
           isOpen={showUploadModal}
