@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Trash2, Edit, Eye, Download, ExternalLink, AlertCircle, CheckCircle, Clock, X } from 'lucide-react'
+import { Trash2, Edit, Eye, Download, ExternalLink, AlertCircle, CheckCircle, Clock, X, MessageCircle, Star } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useProjects } from '@/hooks/useProjects'
+import ProjectMedia from '@/components/common/ProjectMedia'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api'
 
@@ -186,6 +187,11 @@ const MyProjectsPanel = () => {
                 </div>
               </div>
 
+              {/* Project Media */}
+              <div className="mt-3 pt-3 border-t border-gray-100">
+                <ProjectMedia project={project} compact={true} />
+              </div>
+
               {/* Project Details */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3 pt-3 border-t border-gray-100 text-sm text-gray-500">
                 <div className="flex items-center gap-1">
@@ -209,6 +215,67 @@ const MyProjectsPanel = () => {
                   )}
                 </div>
               </div>
+
+              {/* Rejection Reason */}
+              {project.status === 'rejected' && project.rejection_reason && (
+                <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-xs font-medium text-red-800 mb-1">Rejection Feedback:</p>
+                      <p className="text-sm text-red-700">{project.rejection_reason}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Project Reviews */}
+              {project.reviews && project.reviews.length > 0 && (
+                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-start gap-2 mb-2">
+                    <MessageCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <p className="text-xs font-medium text-blue-800">
+                      Reviews ({project.reviews.length})
+                    </p>
+                  </div>
+                  <div className="space-y-2 max-h-32 overflow-y-auto">
+                    {project.reviews.slice(0, 3).map((review, index) => (
+                      <div key={index} className="border-l-2 border-blue-300 pl-2">
+                        <div className="flex items-center gap-1 mb-1">
+                          <div className="flex">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-3 h-3 ${
+                                  i < (review.rating || 0)
+                                    ? 'text-yellow-400 fill-current'
+                                    : 'text-gray-300'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-xs text-blue-600 font-medium">
+                            {review.user?.email ? review.user.email.split('@')[0] : 'Anonymous'}
+                          </span>
+                          {review.date && (
+                            <span className="text-xs text-gray-500">
+                              {new Date(review.date).toLocaleDateString()}
+                            </span>
+                          )}
+                        </div>
+                        {review.comment && (
+                          <p className="text-sm text-blue-700 line-clamp-2">{review.comment}</p>
+                        )}
+                      </div>
+                    ))}
+                    {project.reviews.length > 3 && (
+                      <p className="text-xs text-blue-600 font-medium">
+                        +{project.reviews.length - 3} more reviews
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* For Sale Badge */}
               {project.is_for_sale && (

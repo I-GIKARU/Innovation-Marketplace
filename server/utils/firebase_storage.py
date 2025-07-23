@@ -7,63 +7,63 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Allowed file extensions
-ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+# Allowed file extensions (Firebase is for videos and documents only, images go to Cloudinary)
 ALLOWED_VIDEO_EXTENSIONS = {'mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv'}
-ALL_ALLOWED_EXTENSIONS = ALLOWED_IMAGE_EXTENSIONS | ALLOWED_VIDEO_EXTENSIONS
+ALLOWED_DOCUMENT_EXTENSIONS = {'pdf', 'zip', 'rar', '7z', 'tar', 'gz'}
+ALL_ALLOWED_EXTENSIONS = ALLOWED_VIDEO_EXTENSIONS | ALLOWED_DOCUMENT_EXTENSIONS
 
-# Maximum file sizes (in bytes)
-MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB
+# Maximum file sizes (in bytes) - Images handled by Cloudinary
 MAX_VIDEO_SIZE = 100 * 1024 * 1024  # 100MB
+MAX_DOCUMENT_SIZE = 50 * 1024 * 1024  # 50MB
 
 def allowed_file(filename, file_type='all'):
-    """Check if file has allowed extension"""
+    """Check if file has allowed extension (Firebase is for videos and documents only)"""
     if not filename or '.' not in filename:
         return False
     
     extension = filename.rsplit('.', 1)[1].lower()
     
-    if file_type == 'image':
-        return extension in ALLOWED_IMAGE_EXTENSIONS
-    elif file_type == 'video':
+    if file_type == 'video':
         return extension in ALLOWED_VIDEO_EXTENSIONS
+    elif file_type == 'document':
+        return extension in ALLOWED_DOCUMENT_EXTENSIONS
     else:
         return extension in ALL_ALLOWED_EXTENSIONS
 
 def validate_file_size(file, file_type='all'):
-    """Validate file size based on type"""
+    """Validate file size based on type (Firebase is for videos and documents only)"""
     file.seek(0, 2)  # Move to end of file
     size = file.tell()
     file.seek(0)  # Reset file pointer
     
-    if file_type == 'image':
-        return size <= MAX_IMAGE_SIZE
-    elif file_type == 'video':
+    if file_type == 'video':
         return size <= MAX_VIDEO_SIZE
+    elif file_type == 'document':
+        return size <= MAX_DOCUMENT_SIZE
     else:
-        return size <= MAX_VIDEO_SIZE  # Use video limit as default max
+        return size <= MAX_DOCUMENT_SIZE  # Use document limit as default max
 
 def get_file_type(filename):
-    """Determine if file is image or video"""
+    """Determine if file is video or document (Firebase doesn't handle images)"""
     if not filename or '.' not in filename:
         return None
     
     extension = filename.rsplit('.', 1)[1].lower()
     
-    if extension in ALLOWED_IMAGE_EXTENSIONS:
-        return 'image'
-    elif extension in ALLOWED_VIDEO_EXTENSIONS:
+    if extension in ALLOWED_VIDEO_EXTENSIONS:
         return 'video'
+    elif extension in ALLOWED_DOCUMENT_EXTENSIONS:
+        return 'document'
     else:
         return None
 
 def upload_file_to_firebase(file, folder_path, filename_prefix=''):
     """
-    Upload file to Firebase Storage
+    Upload file to Firebase Storage (videos and documents only, images go to Cloudinary)
     
     Args:
         file: File object from request
-        folder_path: Path in Firebase Storage (e.g., 'projects', 'merchandise')
+        folder_path: Path in Firebase Storage (e.g., 'projects')
         filename_prefix: Optional prefix for filename
     
     Returns:
@@ -86,7 +86,12 @@ def upload_file_to_firebase(file, folder_path, filename_prefix=''):
         # Determine file type and validate size
         file_type = get_file_type(file.filename)
         if not validate_file_size(file, file_type):
-            max_size = MAX_IMAGE_SIZE if file_type == 'image' else MAX_VIDEO_SIZE
+            if file_type == 'video':
+                max_size = MAX_VIDEO_SIZE
+            elif file_type == 'document':
+                max_size = MAX_DOCUMENT_SIZE
+            else:
+                max_size = MAX_DOCUMENT_SIZE
             max_size_mb = max_size // (1024 * 1024)
             return False, f"File too large. Maximum size for {file_type}s: {max_size_mb}MB"
         
@@ -106,6 +111,9 @@ def upload_file_to_firebase(file, folder_path, filename_prefix=''):
         # Upload file to Firebase Storage
         blob = bucket.blob(storage_path)
         
+        # Reset file stream position to beginning
+        file.stream.seek(0)
+        
         # Set content type based on file extension
         content_type = get_content_type(file_extension)
         blob.upload_from_file(
@@ -116,8 +124,16 @@ def upload_file_to_firebase(file, folder_path, filename_prefix=''):
         # Make the file publicly accessible
         blob.make_public()
         
-        # Get the public URL
-        download_url = blob.public_url
+        # Generate the correct Firebase Storage URL for .firebasestorage.app domains
+        bucket_name = bucket.name
+        if bucket_name.endswith('.firebasestorage.app'):
+            # Use Firebase Storage REST API URL format for .firebasestorage.app domains
+            from urllib.parse import quote
+            encoded_path = quote(storage_path, safe='')
+            download_url = f"https://firebasestorage.googleapis.com/v0/b/{bucket_name}/o/{encoded_path}?alt=media"
+        else:
+            # Use regular public URL for .appspot.com domains
+            download_url = blob.public_url
         
         logger.info(f"File uploaded successfully: {storage_path}")
         
@@ -228,14 +244,8 @@ def sanitize_folder_name(name):
     return sanitized
 
 def get_content_type(file_extension):
-    """Get content type based on file extension"""
+    """Get content type based on file extension (Firebase handles videos and documents only)"""
     content_types = {
-        # Images
-        'png': 'image/png',
-        'jpg': 'image/jpeg',
-        'jpeg': 'image/jpeg',
-        'gif': 'image/gif',
-        'webp': 'image/webp',
         # Videos
         'mp4': 'video/mp4',
         'avi': 'video/x-msvideo',
@@ -243,14 +253,63 @@ def get_content_type(file_extension):
         'wmv': 'video/x-ms-wmv',
         'flv': 'video/x-flv',
         'webm': 'video/webm',
-        'mkv': 'video/x-matroska'
+        'mkv': 'video/x-matroska',
+        # Documents
+        'pdf': 'application/pdf',
+        'zip': 'application/zip',
+        'rar': 'application/x-rar-compressed',
+        '7z': 'application/x-7z-compressed',
+        'tar': 'application/x-tar',
+        'gz': 'application/gzip'
     }
     
     return content_types.get(file_extension.lower(), 'application/octet-stream')
 
+def get_file_download_url(storage_path):
+    """
+    Get a secure download URL for a file in Firebase Storage
+    
+    Args:
+        storage_path: Path to file in Firebase Storage (e.g., 'projects/my-project/document.pdf')
+    
+    Returns:
+        tuple: (success: bool, result: str|dict)
+        - If success: (True, {'url': download_url, 'exists': True})
+        - If error: (False, error_message)
+    """
+    try:
+        bucket = storage.bucket()
+        blob = bucket.blob(storage_path)
+        
+        # Check if file exists
+        if not blob.exists():
+            return False, "File not found"
+        
+        # Generate the correct Firebase Storage URL for .firebasestorage.app domains
+        bucket_name = bucket.name
+        if bucket_name.endswith('.firebasestorage.app'):
+            # Use Firebase Storage REST API URL format for .firebasestorage.app domains
+            from urllib.parse import quote
+            encoded_path = quote(storage_path, safe='')
+            download_url = f"https://firebasestorage.googleapis.com/v0/b/{bucket_name}/o/{encoded_path}?alt=media"
+        else:
+            # Use regular public URL for .appspot.com domains
+            download_url = blob.public_url
+        
+        logger.info(f"Generated download URL for: {storage_path}")
+        
+        return True, {
+            'url': download_url,
+            'exists': True
+        }
+        
+    except Exception as e:
+        logger.error(f"Error generating download URL: {str(e)}")
+        return False, f"URL generation failed: {str(e)}"
+
 def upload_multiple_files(files, folder_path, filename_prefix=''):
     """
-    Upload multiple files to Firebase Storage
+    Upload multiple files to Firebase Storage (videos and documents only)
     
     Args:
         files: List of file objects

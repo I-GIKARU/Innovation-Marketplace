@@ -67,7 +67,7 @@ const NavBar = () => {
             {showClientContent && !isAuthenticated && (
                 <li>
                   <Link
-                      href="pages/auth"
+                      href="/pages/auth"
                       className="text-orange-600 hover:underline font-semibold"
                   >
                     Portal
@@ -98,7 +98,7 @@ const NavBar = () => {
               {showClientContent && !isAuthenticated && (
                   <li>
                     <Link
-                        href="pages/auth"
+                        href="/pages/auth"
                         className="text-white bg-orange-500 px-4 py-2 rounded hover:bg-orange-600 transition"
                         onClick={() => setIsOpen(false)}
                     >

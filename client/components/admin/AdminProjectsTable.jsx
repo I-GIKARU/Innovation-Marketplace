@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect } from "react";
 import { useProjects } from "@/hooks/useProjects";
+import ProjectMedia from '@/components/common/ProjectMedia';
 
 const ProjectsTable = ({ query = "" }) => {
   const { projects, fetchProjects, loading, error } = useProjects();
@@ -70,6 +71,7 @@ const ProjectsTable = ({ query = "" }) => {
           <tr>
             <th className="px-4 py-2">Student</th>
             <th className="px-4 py-2">Project</th>
+            <th className="px-4 py-2">Media</th>
             <th className="px-4 py-2">Status</th>
             <th className="px-4 py-2">Actions</th>
           </tr>
@@ -78,7 +80,19 @@ const ProjectsTable = ({ query = "" }) => {
           {filtered.map((project, index) => (
             <tr key={index} className="border-t">
               <td className="px-4 py-2">{project.student_name || "N/A"}</td>
-              <td className="px-4 py-2">{project.title || "Untitled"}</td>
+              <td className="px-4 py-2">
+                <div>
+                  <div className="font-medium">{project.title || "Untitled"}</div>
+                  {project.description && (
+                    <div className="text-sm text-gray-500 mt-1 line-clamp-2">
+                      {project.description}
+                    </div>
+                  )}
+                </div>
+              </td>
+              <td className="px-4 py-2">
+                <ProjectMedia project={project} compact={true} />
+              </td>
               <td
                 className={`px-4 py-2 font-medium ${
                   project.status === "approved"

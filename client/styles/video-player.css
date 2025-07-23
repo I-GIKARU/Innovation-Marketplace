@@ -1,0 +1,145 @@
+/* Video Player Slider Styles */
+.video-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 5px;
+  background: #374151;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.video-slider:hover {
+  height: 8px;
+}
+
+.video-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #8b5cf6;
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.video-slider::-webkit-slider-thumb:hover {
+  width: 20px;
+  height: 20px;
+  background: #7c3aed;
+}
+
+.video-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #8b5cf6;
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.video-slider::-moz-range-thumb:hover {
+  width: 20px;
+  height: 20px;
+  background: #7c3aed;
+}
+
+/* Volume Slider */
+.volume-slider {
+  -webkit-appearance: none;
+  width: 80px;
+  height: 4px;
+  border-radius: 5px;
+  background: #374151;
+  outline: none;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #8b5cf6;
+  cursor: pointer;
+  border: 1px solid #ffffff;
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #8b5cf6;
+  cursor: pointer;
+  border: 1px solid #ffffff;
+}
+
+/* Progress Bar Animation */
+.progress-bar {
+  background: linear-gradient(to right, #8b5cf6 0%, #8b5cf6 var(--progress, 0%), #374151 var(--progress, 0%), #374151 100%);
+  transition: background 0.1s ease;
+}
+
+/* Custom scrollbar for fullscreen */
+.video-container:fullscreen {
+  scrollbar-width: thin;
+  scrollbar-color: #8b5cf6 #374151;
+}
+
+.video-container:fullscreen::-webkit-scrollbar {
+  width: 8px;
+}
+
+.video-container:fullscreen::-webkit-scrollbar-track {
+  background: #374151;
+}
+
+.video-container:fullscreen::-webkit-scrollbar-thumb {
+  background: #8b5cf6;
+  border-radius: 4px;
+}
+
+/* Loading animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+/* Video controls fade in/out */
+.video-controls {
+  transition: opacity 0.3s ease;
+}
+
+.video-controls.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Responsive video container */
+@media (max-width: 768px) {
+  .video-modal {
+    margin: 1rem;
+    max-height: calc(100vh - 2rem);
+  }
+  
+  .video-controls {
+    padding: 0.75rem;
+  }
+  
+  .control-button {
+    padding: 0.5rem;
+  }
+  
+  .volume-slider {
+    width: 60px;
+  }
+}

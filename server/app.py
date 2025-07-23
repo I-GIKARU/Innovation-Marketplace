@@ -9,6 +9,7 @@ from config import Config
 from models import db, User, Role
 import firebase_admin
 from firebase_admin import credentials, auth
+from utils.cloudinary_storage import init_cloudinary
 
 load_dotenv()
 
@@ -49,6 +50,13 @@ def create_app():
                 print("Make sure FIREBASE_SERVICE_ACCOUNT_KEY and FIREBASE_PROJECT_ID are set in your .env file")
     except Exception as e:
         print(f"⚠️ Firebase initialization failed: {e}")
+
+    # Initialize Cloudinary
+    try:
+        init_cloudinary(app)
+        print(f"✅ Cloudinary initialized")
+    except Exception as e:
+        print(f"⚠️ Cloudinary initialization failed: {e}")
 
     api = Api(app)
 

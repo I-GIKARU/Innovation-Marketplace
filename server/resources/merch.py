@@ -3,7 +3,7 @@ from flask_restful import Resource
 from flask_jwt_extended import jwt_required
 from models import db, Merchandise
 from resources.auth.decorators import role_required
-from utils.firebase_storage import upload_file_to_firebase, upload_multiple_files, delete_file_from_firebase
+from utils.cloudinary_storage import upload_file_to_cloudinary, upload_multiple_files, delete_file_from_cloudinary
 import json
 import logging
 
@@ -14,13 +14,16 @@ class MerchandiseList(Resource):
         try:
             page = request.args.get('page', 1, type=int)
             per_page = request.args.get('per_page', 10, type=int)
-            in_stock_param = request.args.get('in_stock', 'true').lower()
+            in_stock_filter = request.args.get('in_stock', '')  # Optional filter
             
+            # Start with all merchandise
             query = Merchandise.query
             
-            # Only filter by in_stock if parameter is explicitly 'true' (default behavior)
-            if in_stock_param == 'true':
+            # Filter by stock status if specified
+            if in_stock_filter.lower() == 'true':
                 query = query.filter(Merchandise.is_in_stock == True)
+            elif in_stock_filter.lower() == 'false':
+                query = query.filter(Merchandise.is_in_stock == False)
             
             merchandise = query.paginate(
                 page=page,
@@ -148,7 +151,7 @@ class MerchandiseMediaUpload(Resource):
             
             # Upload thumbnail
             if thumbnail and thumbnail.filename:
-                success, result = upload_file_to_firebase(thumbnail, folder_path, "merch_thumbnail")
+                success, result = upload_file_to_cloudinary(thumbnail, folder_path, "merch_thumbnail")
                 if success:
                     uploaded_thumbnail = result
                 else:
@@ -204,8 +207,8 @@ class MerchandiseMediaDelete(Resource):
             storage_path = media_url.split('/')[-1] if '/' in media_url else media_url
             storage_path = f"merchandise/{merchandise_id}/{storage_path}"
             
-            # Delete from Firebase Storage
-            success, message = delete_file_from_firebase(storage_path)
+            # Delete from Cloudinary
+            success, message = delete_file_from_cloudinary(storage_path)
             
             if success:
                 # Remove from merchandise media URLs

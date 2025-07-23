@@ -6,7 +6,7 @@ import {
     onAuthStateChanged,
     updateProfile
 } from 'firebase/auth';
-import { auth } from '../lib/firebase';
+import { auth } from '@/lib/firebase';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
 

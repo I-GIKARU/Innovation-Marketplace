@@ -16,7 +16,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 
 const AdminProjectManagement = () => {
-  const { user, token } = useAuth();
+  const { user, authFetch, isAuthenticated, loading: authLoading } = useAuth();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -24,14 +24,16 @@ const AdminProjectManagement = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [actionLoading, setActionLoading] = useState({});
   const [notification, setNotification] = useState({ show: false, type: '', message: '' });
+  const [rejectModal, setRejectModal] = useState({ show: false, project: null });
+  const [rejectionReason, setRejectionReason] = useState('');
 
-  // Fetch all projects
+  // Fetch all projects using simplified endpoint
   const fetchProjects = async () => {
     try {
       setLoading(true);
       setError(null);
       const apiBase = process.env.NEXT_PUBLIC_API_URL || '/api';
-      const response = await fetch(`${apiBase}/projects?approved=false&per_page=50`, {
+      const response = await fetch(`${apiBase}/projects?per_page=50`, {
         credentials: 'include'
       });
 
@@ -59,9 +61,9 @@ const AdminProjectManagement = () => {
     setTimeout(() => setNotification({ show: false, type: '', message: '' }), 4000);
   };
 
-  // Handle project approval
+  // Handle project approval using simplified PUT endpoint
   const handleApprove = async (projectId) => {
-    if (!token) {
+    if (authLoading || !isAuthenticated) {
       showNotification('error', 'Authentication required');
       return;
     }
@@ -69,22 +71,13 @@ const AdminProjectManagement = () => {
     setActionLoading(prev => ({ ...prev, [`approve-${projectId}`]: true }));
 
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || '/api';
-      const response = await fetch(`${apiBase}/admin/projects/${projectId}/approve`, {
-        method: 'POST',
+      const data = await authFetch(`/projects/${projectId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
-        credentials: 'include',
+        body: JSON.stringify({ status: 'approved' }),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to approve project');
-      }
-
-      const data = await response.json();
       
       // Update local state
       setProjects(prev => 
@@ -104,46 +97,50 @@ const AdminProjectManagement = () => {
     }
   };
 
-  // Handle project rejection
-  const handleReject = async (projectId) => {
-    if (!token) {
+  // Open rejection modal
+  const openRejectModal = (project) => {
+    setRejectModal({ show: true, project });
+    setRejectionReason('');
+  };
+
+  // Close rejection modal
+  const closeRejectModal = () => {
+    setRejectModal({ show: false, project: null });
+    setRejectionReason('');
+  };
+
+  // Handle project rejection with reason
+  const handleRejectWithReason = async () => {
+    if (authLoading || !isAuthenticated || !rejectModal.project) {
       showNotification('error', 'Authentication required');
       return;
     }
 
-    const reason = prompt('Please provide a reason for rejection (optional):');
-    
+    const projectId = rejectModal.project.id;
     setActionLoading(prev => ({ ...prev, [`reject-${projectId}`]: true }));
 
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || '/api';
-      const response = await fetch(`${apiBase}/admin/projects/${projectId}/reject`, {
+      const data = await authFetch(`/admin/projects/${projectId}/reject`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
-        credentials: 'include',
-        body: JSON.stringify({ reason: reason || 'Project rejected' }),
+        body: JSON.stringify({ 
+          reason: rejectionReason.trim() || 'Project rejected without specific reason'
+        }),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to reject project');
-      }
-
-      const data = await response.json();
       
       // Update local state
       setProjects(prev => 
         prev.map(project => 
           project.id === projectId 
-            ? { ...project, status: 'rejected' }
+            ? { ...project, status: 'rejected', rejection_reason: rejectionReason.trim() || 'Project rejected without specific reason' }
             : project
         )
       );
 
       showNotification('success', 'Project rejected successfully!');
+      closeRejectModal();
     } catch (err) {
       console.error('Error rejecting project:', err);
       showNotification('error', err.message);
@@ -154,7 +151,7 @@ const AdminProjectManagement = () => {
 
   // Handle feature/unfeature project
   const handleFeature = async (projectId, currentFeatured) => {
-    if (!token) {
+    if (authLoading || !isAuthenticated) {
       showNotification('error', 'Authentication required');
       return;
     }
@@ -162,22 +159,12 @@ const AdminProjectManagement = () => {
     setActionLoading(prev => ({ ...prev, [`feature-${projectId}`]: true }));
 
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || '/api';
-      const response = await fetch(`${apiBase}/admin/projects/${projectId}/feature`, {
+      const data = await authFetch(`/admin/projects/${projectId}/feature`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
         },
-        credentials: 'include',
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update featured status');
-      }
-
-      const data = await response.json();
       
       // Update local state
       setProjects(prev => 
@@ -371,10 +358,11 @@ const AdminProjectManagement = () => {
                   <>
                     <button
                       onClick={() => handleApprove(project.id)}
-                      disabled={actionLoading[`approve-${project.id}`]}
+                      disabled={authLoading || actionLoading[`approve-${project.id}`]}
                       className="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      title={authLoading ? "Authenticating..." : "Approve project"}
                     >
-                      {actionLoading[`approve-${project.id}`] ? (
+                      {authLoading || actionLoading[`approve-${project.id}`] ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
                         <CheckCircle className="w-4 h-4" />
@@ -382,15 +370,12 @@ const AdminProjectManagement = () => {
                       Approve
                     </button>
                     <button
-                      onClick={() => handleReject(project.id)}
-                      disabled={actionLoading[`reject-${project.id}`]}
+                      onClick={() => openRejectModal(project)}
+                      disabled={authLoading}
                       className="flex-1 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      title={authLoading ? "Authenticating..." : "Reject project"}
                     >
-                      {actionLoading[`reject-${project.id}`] ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <XCircle className="w-4 h-4" />
-                      )}
+                      <XCircle className="w-4 h-4" />
                       Reject
                     </button>
                   </>
@@ -399,14 +384,15 @@ const AdminProjectManagement = () => {
                 {project.status === 'approved' && (
                   <button
                     onClick={() => handleFeature(project.id, project.featured)}
-                    disabled={actionLoading[`feature-${project.id}`]}
+                    disabled={authLoading || actionLoading[`feature-${project.id}`]}
                     className={`flex-1 px-3 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed ${
                       project.featured
                         ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
                         : 'bg-gray-600 hover:bg-gray-700 text-white'
                     }`}
+                    title={authLoading ? "Authenticating..." : project.featured ? "Unfeature project" : "Feature project"}
                   >
-                    {actionLoading[`feature-${project.id}`] ? (
+                    {authLoading || actionLoading[`feature-${project.id}`] ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : project.featured ? (
                       <StarOff className="w-4 h-4" />
@@ -419,6 +405,74 @@ const AdminProjectManagement = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+      
+      {/* Rejection Modal */}
+      {rejectModal.show && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                <XCircle className="w-5 h-5 text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">Reject Project</h3>
+                <p className="text-sm text-gray-500">Provide feedback to the student</p>
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <p className="text-gray-700 mb-2">
+                You are about to reject "{rejectModal.project?.title}". Please provide a reason that will help the student understand what needs to be improved.
+              </p>
+            </div>
+
+            <div className="mb-6">
+              <label htmlFor="rejection-reason" className="block text-sm font-medium text-gray-700 mb-2">
+                Reason for rejection *
+              </label>
+              <textarea
+                id="rejection-reason"
+                rows={4}
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                placeholder="Please explain what needs to be improved or why the project was rejected..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 resize-none"
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                This message will be visible to the student in their dashboard.
+              </p>
+            </div>
+
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={closeRejectModal}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                disabled={actionLoading[`reject-${rejectModal.project?.id}`]}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRejectWithReason}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 flex items-center gap-2 transition-colors"
+                disabled={actionLoading[`reject-${rejectModal.project?.id}`] || !rejectionReason.trim()}
+              >
+                {actionLoading[`reject-${rejectModal.project?.id}`] ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Rejecting...
+                  </>
+                ) : (
+                  <>
+                    <XCircle className="w-4 h-4" />
+                    Reject Project
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

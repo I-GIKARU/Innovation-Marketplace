@@ -60,12 +60,14 @@ class RejectProject(Resource):
             reason = data.get('reason', 'Project rejected')
             
             project.status = 'rejected'
+            project.rejection_reason = reason  # Store the rejection reason
             
             db.session.commit()
             
             return {
                 'message': 'Project rejected',
-                'project': project.to_dict()
+                'project': project.to_dict(),
+                'rejection_reason': reason
             }, 200
             
         except Exception as exc:

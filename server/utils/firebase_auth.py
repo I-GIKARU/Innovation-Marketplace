@@ -87,7 +87,7 @@ def create_or_get_user_from_firebase(firebase_user_data, role_name=None, additio
             role = Role.query.filter_by(name=role_name).first()
         elif email.endswith('@student.moringaschool.com'):
             role = Role.query.filter_by(name='student').first()
-        elif email == 'admin@example.com':  # Special case for admin
+        elif email == 'admin@innovation.marketplace.com':  # Special case for admin
             role = Role.query.filter_by(name='admin').first()
         else:
             role = Role.query.filter_by(name='client').first()  # Default to client

@@ -24,9 +24,9 @@ const Projects = () => {
             {loading && <p className="text-center text-gray-700">Loading projects...</p>}
             {error && <p className="text-center text-red-500">Error: {error}</p>}
 
-            <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                {projects.length === 0 && !loading && (
-                    <p className="col-span-full text-center text-gray-600">No featured projects found.</p>
+            <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-3 gap-y-4">
+            {projects.length === 0 && !loading && (
+                    <p className="col-span-full text-center text-gray-600">No approved projects found.</p>
                 )}
 
                 {projects.map((project) =>

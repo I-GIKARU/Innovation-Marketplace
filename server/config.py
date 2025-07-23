@@ -39,3 +39,9 @@ class Config:
     FIREBASE_SERVICE_ACCOUNT_KEY = os.getenv('FIREBASE_SERVICE_ACCOUNT_KEY')  # Path to service account JSON
     FIREBASE_PROJECT_ID = os.getenv('FIREBASE_PROJECT_ID')
     FIREBASE_STORAGE_BUCKET = os.getenv('FIREBASE_STORAGE_BUCKET', f"{os.getenv('FIREBASE_PROJECT_ID')}.firebasestorage.app")
+    
+    # Cloudinary Configuration
+    CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME')
+    CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY')
+    CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET')
+    CLOUDINARY_FOLDER = os.getenv('CLOUDINARY_FOLDER', 'Innovation-Marketplace')

@@ -1,8 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Upload, X, Image, Video, FileText, AlertCircle, CheckCircle, FolderOpen } from 'lucide-react'
+import { X, Upload } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+
+// Import our smaller components
+import ProjectInfoForm from './project-upload/ProjectInfoForm'
+import CollaboratorsForm from './project-upload/CollaboratorsForm'
+import MediaUpload from './project-upload/MediaUpload'
+import UploadProgress from './project-upload/UploadProgress'
 
 const ProjectUpload = ({ isOpen, onClose, onUploadComplete }) => {
   const { authFetch } = useAuth()
@@ -17,15 +23,20 @@ const ProjectUpload = ({ isOpen, onClose, onUploadComplete }) => {
     is_for_sale: false
   })
   
+  const [collaborators, setCollaborators] = useState([{ name: '', github: '' }])
+  
+  // Remove images from media state - only keep videos, pdfs, zips, and thumbnail
   const [media, setMedia] = useState({
-    images: [],
     videos: [],
+    pdfs: [],
+    zips: [],
     thumbnail: null
   })
   
   const [previews, setPreviews] = useState({
-    images: [],
     videos: [],
+    pdfs: [],
+    zips: [],
     thumbnail: null
   })
   
@@ -58,56 +69,6 @@ const ProjectUpload = ({ isOpen, onClose, onUploadComplete }) => {
     }
   }, [isOpen])
 
-  // Handle file selection
-  const handleFileSelect = (files, type) => {
-    const fileArray = Array.from(files)
-    
-    // Validate files
-    const validFiles = fileArray.filter(file => {
-      if (type === 'images') {
-        return file.type.startsWith('image/') && file.size <= 10 * 1024 * 1024 // 10MB
-      } else if (type === 'videos') {
-        return file.type.startsWith('video/') && file.size <= 100 * 1024 * 1024 // 100MB
-      } else if (type === 'thumbnail') {
-        return file.type.startsWith('image/') && file.size <= 10 * 1024 * 1024 // 10MB
-      }
-      return false
-    })
-
-    // Create previews
-    const newPreviews = validFiles.map(file => ({
-      file,
-      url: URL.createObjectURL(file),
-      name: file.name,
-      size: file.size
-    }))
-
-    if (type === 'thumbnail') {
-      setMedia(prev => ({ ...prev, thumbnail: validFiles[0] }))
-      setPreviews(prev => ({ ...prev, thumbnail: newPreviews[0] }))
-    } else {
-      setMedia(prev => ({ ...prev, [type]: [...prev[type], ...validFiles] }))
-      setPreviews(prev => ({ ...prev, [type]: [...prev[type], ...newPreviews] }))
-    }
-  }
-
-  // Remove file
-  const removeFile = (index, type) => {
-    if (type === 'thumbnail') {
-      setMedia(prev => ({ ...prev, thumbnail: null }))
-      setPreviews(prev => ({ ...prev, thumbnail: null }))
-    } else {
-      setMedia(prev => ({
-        ...prev,
-        [type]: prev[type].filter((_, i) => i !== index)
-      }))
-      setPreviews(prev => ({
-        ...prev,
-        [type]: prev[type].filter((_, i) => i !== index)
-      }))
-    }
-  }
-
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -116,25 +77,34 @@ const ProjectUpload = ({ isOpen, onClose, onUploadComplete }) => {
 
     try {
       // Step 1: Create project
+      const projectPayload = {
+        ...projectData,
+        collaborators: collaborators.filter(collab => collab.name.trim() !== '' || collab.github.trim() !== '')
+      }
       const projectResult = await authFetch('/projects/create', {
         method: 'POST',
-        body: JSON.stringify(projectData)
+        body: JSON.stringify(projectPayload)
       })
       const projectId = projectResult.project.id
       setUploadProgress({ stage: 'Project created! Uploading media...', progress: 40 })
 
-      // Step 2: Upload media if any
-      if (media.images.length > 0 || media.videos.length > 0 || media.thumbnail) {
+      // Step 2: Upload media if any (removed images from check)
+      if (media.videos.length > 0 || media.pdfs.length > 0 || media.zips.length > 0 || media.thumbnail) {
         const formData = new FormData()
-        
-        // Add images
-        media.images.forEach(image => {
-          formData.append('images', image)
-        })
         
         // Add videos
         media.videos.forEach(video => {
           formData.append('videos', video)
+        })
+        
+        // Add PDFs
+        media.pdfs.forEach(pdf => {
+          formData.append('pdfs', pdf)
+        })
+        
+        // Add ZIPs
+        media.zips.forEach(zip => {
+          formData.append('zip_files', zip)
         })
         
         // Add thumbnail
@@ -185,9 +155,11 @@ const ProjectUpload = ({ isOpen, onClose, onUploadComplete }) => {
       technical_mentor: '',
       is_for_sale: false
     })
-    setMedia({ images: [], videos: [], thumbnail: null })
-    setPreviews({ images: [], videos: [], thumbnail: null })
+    // Updated to remove images
+    setMedia({ videos: [], pdfs: [], zips: [], thumbnail: null })
+    setPreviews({ videos: [], pdfs: [], zips: [], thumbnail: null })
     setUploadProgress({ stage: '', progress: 0 })
+    setCollaborators([{ name: '', github: '' }])
     onClose()
   }
 
@@ -208,256 +180,30 @@ const ProjectUpload = ({ isOpen, onClose, onUploadComplete }) => {
         </div>
 
         {/* Upload Progress */}
-        {uploading && (
-          <div className="p-6 border-b bg-blue-50">
-            <div className="flex items-center gap-3 mb-2">
-              <CheckCircle className="w-5 h-5 text-blue-600" />
-              <span className="text-sm font-medium">{uploadProgress.stage}</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${uploadProgress.progress}%` }}
-              />
-            </div>
-          </div>
-        )}
+        <UploadProgress uploadProgress={uploadProgress} uploading={uploading} />
 
         <form onSubmit={handleSubmit} className="p-6">
           {/* Project Information */}
-          <div className="space-y-4 mb-6">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <FileText className="w-5 h-5" />
-              Project Information
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Project Title *</label>
-                <input
-                  type="text"
-                  value={projectData.title}
-                  onChange={(e) => setProjectData(prev => ({ ...prev, title: e.target.value }))}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter project title"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium mb-2">Tech Stack</label>
-                <input
-                  type="text"
-                  value={projectData.tech_stack}
-                  onChange={(e) => setProjectData(prev => ({ ...prev, tech_stack: e.target.value }))}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="React, Node.js, Python..."
-                />
-              </div>
-            </div>
+          <ProjectInfoForm 
+            projectData={projectData}
+            setProjectData={setProjectData}
+            categories={categories}
+            loadingCategories={loadingCategories}
+          />
 
-            <div>
-              <label className="block text-sm font-medium mb-2">Category *</label>
-              {loadingCategories ? (
-                <div className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
-                  <span className="text-gray-500">Loading categories...</span>
-                </div>
-              ) : (
-                <select
-                  value={projectData.category_id}
-                  onChange={(e) => setProjectData(prev => ({ ...prev, category_id: parseInt(e.target.value) }))}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                >
-                  <option value="">Select a category</option>
-                  {categories.map(category => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Description *</label>
-              <textarea
-                value={projectData.description}
-                onChange={(e) => setProjectData(prev => ({ ...prev, description: e.target.value }))}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-24"
-                placeholder="Describe your project..."
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">GitHub Link</label>
-                <input
-                  type="url"
-                  value={projectData.github_link}
-                  onChange={(e) => setProjectData(prev => ({ ...prev, github_link: e.target.value }))}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="https://github.com/username/repo"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium mb-2">Demo Link</label>
-                <input
-                  type="url"
-                  value={projectData.demo_link}
-                  onChange={(e) => setProjectData(prev => ({ ...prev, demo_link: e.target.value }))}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="https://yourproject.demo.com"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2">Technical Mentor</label>
-              <input
-                type="text"
-                value={projectData.technical_mentor}
-                onChange={(e) => setProjectData(prev => ({ ...prev, technical_mentor: e.target.value }))}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Mentor name"
-              />
-            </div>
-
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="is_for_sale"
-                checked={projectData.is_for_sale}
-                onChange={(e) => setProjectData(prev => ({ ...prev, is_for_sale: e.target.checked }))}
-                className="rounded"
-              />
-              <label htmlFor="is_for_sale" className="text-sm font-medium">
-                This project is for sale
-              </label>
-            </div>
-          </div>
+          {/* Collaborators Section */}
+          <CollaboratorsForm 
+            collaborators={collaborators}
+            setCollaborators={setCollaborators}
+          />
 
           {/* Media Upload Section */}
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold">Project Media</h3>
-            
-            {/* Thumbnail Upload */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Thumbnail Image</label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-                {previews.thumbnail ? (
-                  <div className="relative">
-                    <img
-                      src={previews.thumbnail.url}
-                      alt="Thumbnail"
-                      className="w-32 h-32 object-cover rounded-lg mx-auto"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeFile(0, 'thumbnail')}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <label className="cursor-pointer block text-center">
-                    <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                    <span className="text-sm text-gray-500">Click to upload thumbnail</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileSelect(e.target.files, 'thumbnail')}
-                      className="hidden"
-                    />
-                  </label>
-                )}
-              </div>
-            </div>
-
-            {/* Images Upload */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Project Images</label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-                <label className="cursor-pointer block text-center">
-                  <Image className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                  <span className="text-sm text-gray-500">Click to upload images (Max 10MB each)</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={(e) => handleFileSelect(e.target.files, 'images')}
-                    className="hidden"
-                  />
-                </label>
-              </div>
-              
-              {previews.images.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                  {previews.images.map((preview, index) => (
-                    <div key={index} className="relative">
-                      <img
-                        src={preview.url}
-                        alt={`Preview ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-lg"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeFile(index, 'images')}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                      <span className="text-xs text-gray-500 block mt-1 truncate">
-                        {preview.name}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Videos Upload */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Project Videos</label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-                <label className="cursor-pointer block text-center">
-                  <Video className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                  <span className="text-sm text-gray-500">Click to upload videos (Max 100MB each)</span>
-                  <input
-                    type="file"
-                    accept="video/*"
-                    multiple
-                    onChange={(e) => handleFileSelect(e.target.files, 'videos')}
-                    className="hidden"
-                  />
-                </label>
-              </div>
-              
-              {previews.videos.length > 0 && (
-                <div className="space-y-2 mt-4">
-                  {previews.videos.map((preview, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                      <span className="text-sm truncate flex-1">{preview.name}</span>
-                      <span className="text-xs text-gray-500 mx-2">
-                        {(preview.size / (1024 * 1024)).toFixed(1)} MB
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => removeFile(index, 'videos')}
-                        className="text-red-500 hover:bg-red-100 p-1 rounded"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+          <MediaUpload 
+            media={media}
+            setMedia={setMedia}
+            previews={previews}
+            setPreviews={setPreviews}
+          />
 
           {/* Submit Button */}
           <div className="flex justify-end gap-4 mt-8 pt-6 border-t">

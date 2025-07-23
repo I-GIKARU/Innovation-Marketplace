@@ -3,9 +3,9 @@ import { useState } from "react";
 import { Search, Plus } from "lucide-react";
 import Image from "next/image";
 import Form from "./AddModal";
-import AvatarDropdown from "./AvatarDropdown";
+import AvatarDropdown from "@/components/AvatarDropdown";
 
-export default function Navbar({onsearch}) {
+export default function Navbar({onSearch}) {
   const [showForm, setShowForm] = useState(false);
   const [query, setQuery] = useState("");
 

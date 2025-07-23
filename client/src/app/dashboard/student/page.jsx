@@ -3,17 +3,16 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Search, Plus, LogOut, ShoppingCart } from "lucide-react";
+import { Search, Plus, ShoppingCart } from "lucide-react";
 
 import { useAuth } from "@/hooks/useAuth";
-import Sidebar from "@/components/Sidebar";
-import SkillsPanel from "@/components/SkillsPanel";
+import Sidebar from "@/components/student/Sidebar";
 import ProjectCard from "@/components/ProjectCard";
 import ProjectUpload from "@/components/student/ProjectUpload";
 import MyProjectsPanel from "@/components/student/MyProjectsPanel";
 
 export default function StudentDashboard() {
-  const { user, loading: authLoading, logout } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [projects, setProjects] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -21,7 +20,7 @@ export default function StudentDashboard() {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push('/login');
+      router.push('/');
     } else if (!authLoading && user && user.role !== 'student') {
       router.push('/');
     }
@@ -38,11 +37,6 @@ export default function StudentDashboard() {
   const handleUploadComplete = (newProject) => {
     setProjects(prev => [newProject, ...prev]);
     setShowUploadModal(false);
-  };
-
-  const handleLogout = () => {
-    alert("Logging out...");
-    logout();
   };
 
   const handleAddToCart = (project) => {
@@ -89,12 +83,6 @@ export default function StudentDashboard() {
               className="bg-black text-white p-2 rounded-full hover:bg-gray-800"
             >
               <Plus className="w-5 h-5" />
-            </button>
-            <button
-              onClick={handleLogout}
-              className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600"
-            >
-              <LogOut className="w-5 h-5" />
             </button>
           </div>
         </div>

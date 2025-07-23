@@ -43,16 +43,27 @@ export function useProjects() {
         if (category_id) params.append("category_id", category_id.toString());
         if (featured !== null) params.append("featured", featured.toString());
 
-        const response = await fetch(`${API_BASE}/projects?${params}`);
+        const fullUrl = `${API_BASE}/projects/approved?${params}`;
+        console.log('🔍 Fetching projects from:', fullUrl);
+        const response = await fetch(fullUrl);
 
         if (!response.ok) {
+          console.error('❌ Response not OK:', response.status, response.statusText);
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
+        console.log('✅ API Response data:', data);
+        console.log('🔢 Projects count:', data.projects?.length || 0);
 
         setProjects(data.projects || []);
         setPagination({
+          total: data.total || 0,
+          pages: data.pages || 0,
+          current_page: data.current_page || 1,
+        });
+        
+        console.log('📊 State updated - Projects:', data.projects?.length || 0, 'Pagination:', {
           total: data.total || 0,
           pages: data.pages || 0,
           current_page: data.current_page || 1,
@@ -97,7 +108,7 @@ export function useProjects() {
     []
   );
 
-  // NEW: Fetch projects by category
+  // NEW: Fetch approved projects by category
   const fetchProjectsByCategory = useCallback(
     async (categoryId, { page = 1, per_page = 12 } = {}) => {
       setLoading(true);
@@ -107,9 +118,10 @@ export function useProjects() {
         const params = new URLSearchParams({
           page: page.toString(),
           per_page: per_page.toString(),
+          category_id: categoryId.toString(), // Filter by category using query parameter
         });
 
-        const response = await fetch(`${API_BASE}/projects/category/${categoryId}?${params}`);
+        const response = await fetch(`${API_BASE}/projects/approved?${params}`);
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -123,7 +135,7 @@ export function useProjects() {
           pages: data.pages || 0,
           current_page: data.current_page || 1,
         });
-        return { success: true, category: data.category, projects: data.projects };
+        return { success: true, projects: data.projects };
       } catch (err) {
         setError(err.message || "Failed to fetch projects by category");
         console.error("Error fetching projects by category:", err);
@@ -421,18 +433,25 @@ export function useProjects() {
   );
 
   const submitReview = useCallback(
-    async (userProjectId, rating, comment, token) => {
+    async (projectId, rating, comment, token) => {
       setLoading(true);
       setError(null);
       try {
+        // Build headers object conditionally
+        const headers = {
+          "Content-Type": "application/json",
+        };
+        
+        // Only add Authorization header if token is provided
+        if (token) {
+          headers.Authorization = `Bearer ${token}`;
+        }
+        
         const response = await fetch(
-          `${API_BASE}/user-projects/${userProjectId}/review`,
+          `${API_BASE}/projects/${projectId}/reviews`,
           {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
+            headers,
             body: JSON.stringify({ rating, comment }),
           }
         );

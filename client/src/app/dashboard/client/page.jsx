@@ -3,7 +3,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/student/Sidebar";
-import AvatarDropdown from "@/components/student/AvatarDropdown";
+import AvatarDropdown from "@/components/AvatarDropdown";
 
 export default function ClientDashboard() {
   const { user, logout } = useAuth();
@@ -11,7 +11,7 @@ export default function ClientDashboard() {
 
   if (user === null) return <p>Loading...</p>;
   if (user === undefined) {
-    router.push("/login");
+    router.push("/");
     return null;
   }
 

@@ -151,9 +151,43 @@ class UserProjectDetail(Resource):
         except Exception as e:
             return {'error': str(e)}, 500
 
+class CreateProjectReview(Resource):
+    def post(self, project_id):
+        try:
+            # Check if project exists
+            project = Project.query.get_or_404(project_id)
+            data = request.get_json()
+            
+            if not data.get('rating'):
+                return {'error': 'Rating is required'}, 400
+            
+            rating = data['rating']
+            if not isinstance(rating, int) or rating < 1 or rating > 5:
+                return {'error': 'Rating must be an integer between 1 and 5'}, 400
+            
+            # Create review without user authentication
+            review = Review(
+                project_id=project_id,
+                user_id=None,  # Allow anonymous reviews
+                rating=rating,
+                comment=data.get('comment', '')
+            )
+            
+            db.session.add(review)
+            db.session.commit()
+            
+            return {
+                'message': 'Review created successfully',
+                'review': review.to_dict()
+            }, 201
+            
+        except Exception as exc:
+            db.session.rollback()
+            return {'error': str(exc)}, 500
+
 class CreateReview(Resource):
     @jwt_required()
-    @role_required('client') # Only clients can create reviews for now
+    @role_required('client') # Only clients can create reviews for now - LEGACY ENDPOINT
     def post(self, id):
         try:
             current_user = get_current_user()
@@ -171,18 +205,22 @@ class CreateReview(Resource):
             if user_project.user_id != user_id:
                 return {'error': 'You can only review your own interactions'}, 403
             
-            # Check if review already exists for this user_project
-            existing_review = Review.query.filter_by(user_project_id=id).first()
+            # Check if review already exists for this project by this user
+            existing_review = Review.query.filter_by(
+                project_id=user_project.project_id,
+                user_id=user_id
+            ).first()
             if existing_review:
-                return {'error': 'Review already exists for this interaction'}, 400
+                return {'error': 'You have already reviewed this project'}, 400
             
             rating = data['rating']
             if not isinstance(rating, int) or rating < 1 or rating > 5:
                 return {'error': 'Rating must be an integer between 1 and 5'}, 400
             
-            # Create review
+            # Create review - now using new direct relationship
             review = Review(
-                user_project_id=id,
+                project_id=user_project.project_id,
+                user_id=user_id,
                 rating=rating,
                 comment=data.get('comment', '')
             )
@@ -202,9 +240,9 @@ class CreateReview(Resource):
 class ProjectReviews(Resource):
     def get(self, id):
         try:
-            # Get all reviews for a project through UserProject
-            reviews = db.session.query(Review).join(UserProject).filter(
-                UserProject.project_id == id
+            # Get all reviews for a project directly
+            reviews = Review.query.filter_by(
+                project_id=id
             ).order_by(Review.date.desc()).all()
             
             return {
@@ -218,4 +256,5 @@ def setuser_project_routes(api):
     api.add_resource(UserProjectList, '/api/user-projects')
     api.add_resource(UserProjectDetail, '/api/user-projects/<int:id>')
     api.add_resource(CreateReview, '/api/user-projects/<int:id>/review')
+    api.add_resource(CreateProjectReview, '/api/projects/<int:project_id>/reviews')
     api.add_resource(ProjectReviews, '/api/projects/<int:id>/reviews')

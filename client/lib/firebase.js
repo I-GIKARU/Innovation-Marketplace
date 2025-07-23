@@ -23,13 +23,4 @@ const app = initializeApp(firebaseConfig);
 // Initialize Firebase Authentication and get a reference to the service
 export const auth = getAuth(app);
 
-// Initialize Cloud Firestore and get a reference to the service
-export const db = getFirestore(app);
-
-// Initialize Cloud Storage and get a reference to the service
-export const storage = getStorage(app);
-
-// Initialize Analytics (only in browser environment)
-export const analytics = typeof window !== 'undefined' && isSupported() ? getAnalytics(app) : null;
-
 export default app;
