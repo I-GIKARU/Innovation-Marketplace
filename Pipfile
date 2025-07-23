@@ -20,6 +20,7 @@ requests = "*"
 cloudinary = "*"
 gunicorn = "*"
 flask-jwt-extended = "*"
+firebase-admin = "*"
 
 [dev-packages]
 
