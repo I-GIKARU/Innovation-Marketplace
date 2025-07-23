@@ -14,7 +14,7 @@ const AdminDashboard = () => {
 
         <div className="flex-1 overflow-y-auto p-4 space-y-6">
           <OverviewPage />
-          {/* <AdminChart /> */}
+          <AdminChart />
         </div>
       </div>
     </div>
