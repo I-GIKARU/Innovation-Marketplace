@@ -1,10 +1,13 @@
+'use client';
+
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { useOrders } from "@/hooks/useOrders";
 import Sidebar from "@/components/student/Sidebar";
-import AvatarDropdown from "@/components/student/AvatarDropdown";
+import AvatarDropdown from "@/components/AvatarDropdown";
 import OrderFilters from "./OrderFilters";
 import OrderTable from "./OrderTable";
+import { useState,useEffect } from "react";
 
 export default function OrderList() {
   const { user, logout } = useAuth();
@@ -12,16 +15,22 @@ export default function OrderList() {
   const [activeTab, setActiveTab] = useState("all");
   const { orders, loading, pagination, setPagination, cancelOrder } = useOrders(user);
 
-  if (user === null) return <p>Loading...</p>;
-  if (user === undefined) {
-    router.push("/login");
-    return null;
-  }
+  // if (user === null) return <p>Loading...</p>;
+  // if (user === undefined) {
+  //   router.push("/login");
+  //   return null;
+  // }
+  useEffect(() => {
+    if (user === undefined) {
+      router.push("/login");
+    }
+  }, [user, router]);
 
   const handleLogout = async () => {
     await logout();
     router.replace("/");
   };
+  if (!user) return null;
 
   const filteredOrders = activeTab === "all" 
     ? orders 
