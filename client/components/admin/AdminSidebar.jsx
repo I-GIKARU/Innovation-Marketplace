@@ -11,10 +11,10 @@ import {Menu, House,
 import { useAuth } from "@/hooks/useAuth";
 
 const menu = [
-  { name: "Dashboard", href: "/admin/AdminDashboard", icon: House },
-  { name: "Products", href: "/admin/Products", icon: ShoppingBag },
-  { name: "Projects", href: "/admin/Projects", icon: BriefcaseBusiness },
-  { name: "Categories", href: "/AdminCategories", icon: ChartColumnStacked },
+  { name: "Dashboard", href: "/", icon: House },
+  { name: "Products", href: "/products", icon: ShoppingBag },
+  { name: "Projects", href: "/projects", icon: BriefcaseBusiness },
+  { name: "Categories", href: "/categories", icon: ChartColumnStacked },
 
 ];
 
@@ -34,7 +34,7 @@ function Sidebar() {
     <div className={`relative z-10 transition-all duration-300 ease-in-out flex-shrink-0 ${isSideBarOpen? "w-64": "w-20"}`}>
       <div className="h-full bg-[#1e1e1e]backdrop-blur-md p-4 flex flex-col border-r">
         <button onClick={()=> setSideBarIsOpen(!isSideBarOpen)} 
-            className="p-2 rounded-full hover:bg-[#2f2f2f] transition-colors max-w-fit cursor-pointer">
+            className="p-2 rounded-full hover:bg-[#2f2f2f] hover:text-white transition-colors max-w-fit cursor-pointer">
             <Menu size={24}  />
         </button>
         <nav className="mt-8 flex-grow">
@@ -43,7 +43,7 @@ function Sidebar() {
             return (
               <Link key={item.name} href={item.href}>
                 <div
-                  className={`flex items-center p-4 text-sm font-medium rounded-lg hover:bg-[#2f2f2f] transition-colors mb-2 ${
+                  className={`flex items-center p-4 text-sm font-medium rounded-lg hover:bg-[#2f2f2f] hover:text-white transition-colors mb-2 ${
                     pathname === item.href ? "bg-[#2f2f2f]" : ""
                   }`}
                 >
@@ -54,15 +54,12 @@ function Sidebar() {
             );
           })}
    </nav>
-
-
    {user && (
     <button
   onClick={handleLogout}
   className="w-full mt-4 px-3 py-2 md:px-4 md:py-2 text-sm md:text-base rounded-md bg-red-500 text-white hover:bg-red-600 transition"
->
-  Logout
-  
+   >
+  Logout  
 </button>
    ) 
 }
