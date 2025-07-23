@@ -7,7 +7,7 @@ import Sidebar from "@/components/student/Sidebar";
 import AvatarDropdown from "@/components/AvatarDropdown";
 import OrderFilters from "./OrderFilters";
 import OrderTable from "./OrderTable";
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 
 export default function OrderList() {
   const { user, logout } = useAuth();
