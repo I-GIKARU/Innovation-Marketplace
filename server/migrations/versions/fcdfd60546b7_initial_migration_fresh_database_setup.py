@@ -1,8 +1,8 @@
-"""Initial migration - fresh start
+"""Initial migration - fresh database setup
 
-Revision ID: 9c1c209a0a41
+Revision ID: fcdfd60546b7
 Revises: 
-Create Date: 2025-07-25 14:13:11.065496
+Create Date: 2025-07-26 01:39:00.982468
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '9c1c209a0a41'
+revision = 'fcdfd60546b7'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -29,10 +29,10 @@ def upgrade():
     sa.Column('name', sa.String(length=100), nullable=False),
     sa.Column('description', sa.Text(), nullable=True),
     sa.Column('price', sa.Integer(), nullable=True),
+    sa.Column('quantity', sa.Integer(), nullable=True),
     sa.Column('image_url', sa.String(length=255), nullable=True),
     sa.Column('image_urls', sa.Text(), nullable=True),
     sa.Column('thumbnail_url', sa.String(length=500), nullable=True),
-    sa.Column('is_in_stock', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('roles',
@@ -89,6 +89,7 @@ def upgrade():
     sa.Column('date', sa.DateTime(), nullable=True),
     sa.Column('status', sa.String(length=50), nullable=True),
     sa.Column('amount', sa.Integer(), nullable=True),
+    sa.Column('hidden_from_user', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
