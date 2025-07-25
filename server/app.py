@@ -84,6 +84,7 @@ def create_app():
     from resources.merch import setup_routes as merchandise_setup_routes
     from resources.orders import setup_routes as orders_setup_routes
     from resources.user_projects import setuser_project_routes as user_projects_setup_routes
+    from resources.migrate import setup_routes as migrate_setup_routes
 
     
     auth_setup_routes(api)
@@ -92,6 +93,7 @@ def create_app():
     merchandise_setup_routes(api)
     orders_setup_routes(api)
     user_projects_setup_routes(api)
+    migrate_setup_routes(api)
     
     # ✅ Create default roles on app startup  
     # Use a background function to avoid blocking the main thread
