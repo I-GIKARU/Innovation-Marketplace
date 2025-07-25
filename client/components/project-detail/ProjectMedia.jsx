@@ -7,8 +7,7 @@ import ProjectMediaComponent from '@/components/common/ProjectMedia';
 
 const ProjectMedia = ({ project }) => {
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6">
-      <h2 className="text-xl font-semibold mb-4">Project Media</h2>
+    <div>
       <ProjectMediaComponent project={project} compact={false} />
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 
 export function useMerchandise() {
@@ -12,18 +12,44 @@ export function useMerchandise() {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [isCached, setIsCached] = useState(false);
+    const cacheRef = useRef(new Map()); // Cache for different parameter combinations
 
-    const fetchMerchandise = useCallback(async ({ page = 1, perPage = 10, inStock = true } = {}) => {
+    const fetchMerchandise = useCallback(async ({ page = 1, perPage = 10, inStock = true, forceRefresh = false } = {}) => {
+        // Create cache key based on parameters
+        const cacheKey = `${page}-${perPage}-${inStock}`;
+        
+        // Check if we have cached data and don't force refresh
+        if (!forceRefresh && cacheRef.current.has(cacheKey)) {
+            const cachedData = cacheRef.current.get(cacheKey);
+            setMerchandise(cachedData.merchandise);
+            setPagination(cachedData.pagination);
+            setIsCached(true);
+            return;
+        }
+        
         setLoading(true);
         setError(null);
+        setIsCached(false);
         try {
             const res = await authFetch(`/merchandise?page=${page}&per_page=${perPage}&in_stock=${inStock}`);
-            setMerchandise(res.merchandise);
-            setPagination({
+            const merchandiseData = res.merchandise;
+            const paginationData = {
                 total: res.total,
                 pages: res.pages,
                 current_page: res.current_page,
+            };
+            
+            // Cache the result
+            cacheRef.current.set(cacheKey, {
+                merchandise: merchandiseData,
+                pagination: paginationData,
+                timestamp: Date.now()
             });
+            
+            setMerchandise(merchandiseData);
+            setPagination(paginationData);
+            setIsCached(true);
         } catch (err) {
             setError(err.message || "Failed to fetch merchandise");
         } finally {
@@ -94,16 +120,30 @@ export function useMerchandise() {
         }
     }, [authFetch]);
 
+    // Helper function to clear cache
+    const clearCache = useCallback(() => {
+        cacheRef.current.clear();
+        setIsCached(false);
+    }, []);
+    
+    // Helper function to refresh data (force refetch)
+    const refreshMerchandise = useCallback(async (params = {}) => {
+        return await fetchMerchandise({ ...params, forceRefresh: true });
+    }, [fetchMerchandise]);
+
     return {
         merchandise,
         singleItem,
         pagination,
         loading,
         error,
+        isCached,
         fetchMerchandise,
         fetchMerchandiseById,
         createMerchandise,
         updateMerchandise,
         deleteMerchandise,
+        clearCache,
+        refreshMerchandise,
     };
 }

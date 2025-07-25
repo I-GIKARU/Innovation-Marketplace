@@ -1,3 +1,298 @@
+# Innovation Marketplace
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Next.js](https://img.shields.io/badge/Next.js-15.4.1-black?logo=next.js)](https://nextjs.org/)
+[![Flask](https://img.shields.io/badge/Flask-3.1.1-blue?logo=flask)](https://flask.palletsprojects.com/)
+[![Firebase](https://img.shields.io/badge/Firebase-12.0.0-orange?logo=firebase)](https://firebase.google.com/)
+
+> A modern full-stack marketplace platform connecting innovative student projects with potential clients and collaborators.
+
+## 🚀 Overview
+
+Innovation Marketplace is a comprehensive web application designed to bridge the gap between student innovators and industry clients. The platform enables:
+
+- **Students** to showcase their innovative projects and connect with potential collaborators
+- **Clients** to discover cutting-edge projects and express interest in partnerships
+- **Administrators** to manage the ecosystem and maintain quality standards
+- **E-commerce functionality** for project-related merchandise and services
+
+## 🏗️ Architecture
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Next.js       │◄──►│   Flask API     │◄──►│   Firebase      │
+│   Frontend      │    │   Backend       │    │   Auth/Storage  │
+│   (Port 3000)   │    │   (Port 5000)   │    │                 │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         ▼                       ▼                       ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│ Tailwind CSS    │    │     SQLite      │    │   Cloudinary    │
+│ Framer Motion   │    │   Database      │    │ Media Storage   │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
+
+## ✨ Key Features
+
+### 🎯 Core Functionality
+- **Multi-role authentication** with Firebase + JWT
+- **Project showcase** with media upload and categorization
+- **Interest matching** between students and clients
+- **Review and rating system** for projects
+- **E-commerce store** with cart and checkout functionality
+- **Admin dashboard** for content and user management
+
+### 🔧 Technical Features
+- **Server-Side Rendering (SSR)** with Next.js
+- **RESTful API** with Flask-RESTful
+- **Real-time data** with optimized caching
+- **Responsive design** with Tailwind CSS
+- **Smooth animations** with Framer Motion
+- **File upload** to Cloudinary and Firebase Storage
+- **Database migrations** with Alembic
+- **Docker containerization** for easy deployment
+
+## 🛠️ Tech Stack
+
+### Frontend (Client)
+- **Framework**: Next.js 15.4.1 with App Router
+- **UI Library**: React 19.1.0
+- **Styling**: Tailwind CSS 4.1.11
+- **Animations**: Framer Motion 12.23.6
+- **Icons**: Heroicons & React Icons
+- **Charts**: Recharts 2.15.4
+- **Authentication**: Firebase 12.0.0
+
+### Backend (Server)
+- **Framework**: Flask 3.1.1
+- **API**: Flask-RESTful 0.3.10
+- **Database**: SQLAlchemy 2.0.29 + SQLite
+- **Authentication**: Flask-JWT-Extended 4.7.1 + Firebase Admin
+- **Migrations**: Flask-Migrate 4.1.0 + Alembic
+- **Storage**: Cloudinary + Firebase Storage
+- **WSGI Server**: Gunicorn 23.0.0
+
+### DevOps & Deployment
+- **Containerization**: Docker
+- **Environment**: Python 3.11+ & Node.js 18+
+- **Package Management**: npm & pip
+- **Version Control**: Git
+
+## 🚀 Quick Start
+
+### Prerequisites
+- **Node.js** 18+ and npm
+- **Python** 3.11+ and pip
+- **Firebase** project with Authentication enabled
+- **Cloudinary** account for media storage
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/yourusername/innovation-marketplace.git
+cd innovation-marketplace
+```
+
+### 2. Backend Setup
+```bash
+cd server
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your configuration
+
+# Initialize database
+flask db upgrade
+
+# Start the server
+python app.py
+```
+
+### 3. Frontend Setup
+```bash
+cd ../client
+npm install
+
+# Set up environment variables
+cp .env.local.example .env.local
+# Edit .env.local with your configuration
+
+# Start the development server
+npm run dev
+```
+
+### 4. Access the Application
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:5000
+- **API Documentation**: http://localhost:5000/api/docs
+
+## 📁 Project Structure
+
+### Frontend Structure
+```
+client/
+├── src/app/                    # Next.js App Router
+│   ├── layout.js              # Root layout
+│   ├── page.js                # Homepage
+│   ├── dashboard/             # Role-based dashboards
+│   ├── e_commerce/            # Shopping features
+│   └── projects/              # Project showcase
+├── components/                # UI components
+│   ├── admin/                 # Admin components
+│   ├── student/               # Student components
+│   ├── client/                # Client components
+│   └── common/                # Shared components
+├── hooks/                     # Custom React hooks
+├── contexts/                  # React Context providers
+└── lib/                       # Utilities & config
+```
+
+### Backend Structure
+```
+server/
+├── app.py                     # Flask application
+├── config.py                  # Configuration
+├── models/                    # Database models
+├── resources/                 # API endpoints
+│   ├── auth/                  # Authentication
+│   ├── projects.py            # Project management
+│   ├── merch.py              # E-commerce
+│   └── admin.py              # Admin functions
+├── utils/                     # Utilities
+├── migrations/                # Database migrations
+└── tests/                     # API tests
+```
+
+## 🎯 User Roles
+
+### 👨‍🎓 Students
+- Upload and manage innovative projects
+- Add project media, descriptions, and team members
+- Track project analytics and engagement
+- Respond to client interests
+- View project reviews and feedback
+
+### 🏢 Clients
+- Browse approved projects by category
+- Express interest in specific projects
+- Purchase project-related merchandise
+- Leave reviews and ratings
+- Manage order history
+
+### 👨‍💼 Administrators
+- Review and approve/reject student projects
+- Manage user accounts and roles
+- Oversee e-commerce operations
+- Monitor platform analytics
+- Handle content moderation
+
+## 🔐 Authentication & Security
+
+- **Firebase Authentication** for user management
+- **JWT tokens** for stateless sessions
+- **Role-based access control (RBAC)**
+- **Input validation** on all endpoints
+- **CORS protection** for API security
+- **SQL injection prevention** via ORM
+
+## 📊 API Documentation
+
+The API follows RESTful conventions with comprehensive endpoint documentation available at `/api/docs` when running the server.
+
+### Key Endpoints
+- `POST /api/auth/login` - User authentication
+- `GET /api/projects` - List projects
+- `POST /api/projects` - Create project
+- `GET /api/merchandise` - List products
+- `POST /api/orders` - Place order
+
+For complete API documentation, see [API_DOCUMENTATION.md](./server/API_DOCUMENTATION.md)
+
+## 🐳 Docker Deployment
+
+### Build and Run with Docker
+```bash
+# Build and run backend
+cd server
+docker build -t innovation-marketplace-server .
+docker run -p 5000:8080 innovation-marketplace-server
+
+# Build and run frontend
+cd ../client
+docker build -t innovation-marketplace-client .
+docker run -p 3000:3000 innovation-marketplace-client
+```
+
+### Docker Compose (Recommended)
+```bash
+docker-compose up --build
+```
+
+## 🧪 Testing
+
+### Run Backend Tests
+```bash
+cd server
+python -m pytest tests/
+```
+
+### Run Frontend Tests
+```bash
+cd client
+npm test
+```
+
+## 📝 Environment Variables
+
+### Backend (.env)
+```env
+SECRET_KEY=your_secret_key
+DATABASE_URL=sqlite:///moringa_marketplace.db
+JWT_SECRET_KEY=jwt_secret_key
+FIREBASE_SERVICE_ACCOUNT_KEY=path/to/firebase-key.json
+FIREBASE_PROJECT_ID=your_project_id
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+```
+
+### Frontend (.env.local)
+```env
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **Firebase** for authentication and storage services
+- **Cloudinary** for media management
+- **Tailwind CSS** for styling framework
+- **Next.js** and **Flask** communities for excellent documentation
+
+## 📞 Support
+
+For support, email support@innovationmarketplace.com or join our [Discord community](https://discord.gg/innovation-marketplace).
+
+---
+
+**Built with ❤️ by the Innovation Marketplace Team**
+
 # 🧠 Moringa Innovation Marketplace
 
 A web-based platform that empowers Moringa School students to showcase, monetize, and scale their final capstone projects. It also allows external users to discover talent, purchase innovative solutions, and buy Moringa-branded merchandise.

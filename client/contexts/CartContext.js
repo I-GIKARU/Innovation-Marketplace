@@ -80,21 +80,48 @@ export const CartProvider = ({ children }) => {
         );
     };
 
-    const updateQuantity = (product, quantity) => {
-        if (quantity < 1) return;
+    const updateQuantity = (productId, quantity) => {
+        if (quantity < 1) {
+            // Remove item if quantity is 0 or less
+            setCart(prev => prev.filter(item => item.id !== productId));
+            return;
+        }
         setCart(prev =>
             prev.map(item =>
-                item.id === product.id &&
-                item.selectedSize === product.selectedSize &&
-                item.selectedColor === product.selectedColor
+                item.id === productId
                     ? { ...item, quantity }
                     : item
             )
         );
     };
 
+    const removeFromCartById = (productId) => {
+        setCart(prev => prev.filter(item => item.id !== productId));
+    };
+
+    const getCartCount = () => {
+        return cart.reduce((total, item) => total + item.quantity, 0);
+    };
+
+    const getCartTotal = () => {
+        return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+    };
+
+    const clearCart = () => {
+        setCart([]);
+    };
+
     return (
-        <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity }}>
+        <CartContext.Provider value={{ 
+            cart, 
+            addToCart, 
+            removeFromCart, 
+            removeFromCartById,
+            updateQuantity, 
+            getCartCount, 
+            getCartTotal, 
+            clearCart 
+        }}>
             {children}
         </CartContext.Provider>
     );

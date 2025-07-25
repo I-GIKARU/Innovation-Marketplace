@@ -1,112 +1,355 @@
 'use client';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { HiMenu, HiX } from "react-icons/hi";
+import { RiDashboardLine, RiLoginCircleLine } from "react-icons/ri";
+import { FiChevronDown, FiUpload, FiLogOut, FiSettings, FiUser, FiShoppingBag, FiFolder, FiHeart } from "react-icons/fi";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import dynamic from "next/dynamic";
 
-const NavBar = () => {
+// Dynamically import ProjectUpload
+const ProjectUpload = dynamic(() => import('@/components/student/ProjectUpload'), {
+  ssr: false
+});
+
+const NavBar = ({ onNavigate }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showClientContent, setShowClientContent] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const pathname = usePathname();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user, logout, loading } = useAuth();
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     setShowClientContent(true);
   }, []);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/projects", label: "Projects" },
-    { href: "/e_commerce", label: "Merchandise" },
+    { href: "/e_commerce", label: "Marketplace" },
   ];
 
+
   const toggleMenu = () => setIsOpen(!isOpen);
+  const toggleUserMenu = () => setIsUserMenuOpen(!isUserMenuOpen);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setIsUserMenuOpen(false);
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
+  const handleUploadClick = () => {
+    setIsUploadModalOpen(true);
+    setIsUserMenuOpen(false);
+  };
+
+  const getDashboardItems = () => {
+    if (!user?.role) return [];
+
+    const baseItems = [
+      { href: getDashboardUrl(), label: 'Dashboard', icon: RiDashboardLine }
+    ];
+
+    switch (user.role) {
+      case 'student':
+        return [
+          ...baseItems,
+          { action: handleUploadClick, label: 'Upload Project', icon: FiUpload },
+          { href: '/dashboard/student', section: 'projects', label: 'My Projects', icon: FiFolder },
+          { href: '/dashboard/student', section: 'reviews', label: 'Reviews', icon: FiHeart }
+        ];
+      case 'client':
+        return [
+          ...baseItems,
+          { href: '/dashboard/client', section: 'orders', label: 'My Orders', icon: FiShoppingBag }
+        ];
+      case 'admin':
+        return [
+          ...baseItems,
+          { href: '/dashboard/admin', section: 'products', label: 'Products', icon: FiShoppingBag },
+          { href: '/dashboard/admin', section: 'orders', label: 'Orders', icon: FiFolder },
+          { href: '/dashboard/admin', section: 'projects', label: 'Projects', icon: FiFolder }
+        ];
+      default:
+        return baseItems;
+    }
+  };
+
+  // Helper function to get the correct dashboard URL based on user role
+  const getDashboardUrl = () => {
+    if (!user || !user.role) return '/pages/auth';
+    
+    switch (user.role) {
+      case 'admin':
+        return '/dashboard/admin';
+      case 'student':
+        return '/dashboard/student';
+      case 'client':
+        return '/dashboard/client';
+      default:
+        return '/pages/auth';
+    }
+  };
+
+  // Helper function to get dashboard label based on user role
+  const getDashboardLabel = () => {
+    if (!user || !user.role) return 'Portal';
+    
+    switch (user.role) {
+      case 'admin':
+        return 'Admin Dashboard';
+      case 'student':
+        return 'Student Dashboard';
+      case 'client':
+        return 'Client Dashboard';
+      default:
+        return 'Dashboard';
+    }
+  };
 
   return (
-      <nav className="bg-white shadow-md px-6 md:px-10 py-4">
-        <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Image
-                src="/images/marketlogo.JPG"
-                alt="Moringa Marketplace Logo"
-                width={60}
-                height={60}
-                className="rounded-full h-10 w-10 object-cover"
-            />
-            <div className="text-orange-600">
-              <span className="text-xl font-bold font-serif">M</span>oringa
-              <br />
-              <span className="text-xs font-light text-gray-700">marketplace</span>
-            </div>
-          </Link>
+      <nav className="bg-gradient-to-r from-[#0a1128]/95 via-slate-900/95 to-[#0a1128]/95 backdrop-blur-xl border-b border-white/10 sticky top-0 z-50 shadow-2xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-20">
+            {/* Logo */}
+            <Link href="/" className="flex items-center group">
+              <div className="relative">
+                <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-300">
+                  <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-orange-500/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </div>
+              <div className="ml-4 hidden sm:block">
+                <div className="flex items-baseline">
+                  <span className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-orange-400 bg-clip-text text-transparent">Innovation</span>
+                  <span className="text-xl font-bold text-white ml-1">Market</span>
+                </div>
+                <div className="text-xs font-medium text-gray-300 -mt-1 tracking-wider">CREATIVE MARKETPLACE</div>
+              </div>
+            </Link>
 
-          <button
-              onClick={toggleMenu}
-              className="md:hidden text-orange-600 focus:outline-none"
-          >
-            {isOpen ? <HiX size={28} /> : <HiMenu size={28} />}
-          </button>
-
-          <ul className="hidden md:flex gap-6 text-sm text-gray-800 font-medium">
-            {navLinks.map((link) => (
-                <li key={link.href}>
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-2">
+              {navLinks.map((link) => (
                   <Link
+                      key={link.href}
                       href={link.href}
-                      className={`pb-1 border-b-2 ${
+                      className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 relative group backdrop-blur-sm ${
                           pathname === link.href
-                              ? "border-orange-500 text-orange-600"
-                              : "border-transparent hover:border-orange-300"
+                              ? "text-white bg-gradient-to-r from-orange-500 to-orange-600 shadow-lg shadow-orange-500/25"
+                              : "text-gray-300 hover:text-white hover:bg-white/10 border border-transparent hover:border-white/20"
                       }`}
                   >
                     {link.label}
+                    {pathname === link.href && (
+                        <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
+                    )}
                   </Link>
-                </li>
-            ))}
-            {showClientContent && !isAuthenticated && (
-                <li>
+              ))}
+            </div>
+
+            {/* Desktop Auth Section */}
+            <div className="hidden md:flex items-center space-x-3">
+              {loading && (
+                <div className="w-10 h-10 flex items-center justify-center">
+                  <div className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
+              
+              {showClientContent && !loading && !isAuthenticated && (
                   <Link
                       href="/pages/auth"
-                      className="text-orange-600 hover:underline font-semibold"
+                      className="group relative inline-flex items-center justify-center px-6 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-orange-500/30 font-semibold"
+                      title="Access Portal"
                   >
-                    Portal
+                    <RiLoginCircleLine size={20} className="mr-2 group-hover:rotate-12 transition-transform duration-300" />
+                    <span>Login</span>
                   </Link>
-                </li>
-            )}
-          </ul>
+              )}
+              
+              {showClientContent && !loading && isAuthenticated && (
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={toggleUserMenu}
+                    className="group flex items-center space-x-3 px-4 py-3 rounded-xl bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-all duration-300 border border-white/20 hover:border-orange-400/50"
+                  >
+                    <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+                      <FiUser size={18} className="text-white" />
+                    </div>
+                    <span className="text-sm font-semibold max-w-32 truncate">{user?.email}</span>
+                    <FiChevronDown size={16} className={`transition-transform duration-300 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {/* User Dropdown Menu */}
+                  {isUserMenuOpen && (
+                    <div className="absolute right-0 mt-3 w-64 bg-gradient-to-b from-slate-900 via-gray-900 to-slate-800 backdrop-blur-xl rounded-2xl shadow-2xl border border-orange-500/30 py-3 z-50">
+                      {/* Dashboard Link */}
+                      <Link
+                        href={getDashboardUrl()}
+                        onClick={() => setIsUserMenuOpen(false)}
+                        className="flex items-center px-6 py-4 text-sm text-white hover:bg-gradient-to-r hover:from-orange-500/20 hover:to-orange-600/20 hover:text-orange-400 transition-all duration-300 font-medium rounded-lg mx-2"
+                      >
+                        <RiDashboardLine size={18} className="mr-4 text-orange-400" />
+                        {getDashboardLabel()}
+                      </Link>
+
+                      {/* User Email Display */}
+                      <div className="px-6 py-4 border-t border-b border-orange-500/20 mx-2">
+                        <p className="text-sm text-gray-300 font-medium truncate max-w-full" title={user?.email}>{user?.email}</p>
+                      </div>
+
+                      {/* Logout */}
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center w-full px-6 py-4 text-sm text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-all duration-300 font-medium rounded-lg mx-2"
+                      >
+                        <FiLogOut size={18} className="mr-4" />
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+              
+            {/* Mobile menu button */}
+            <button
+                onClick={toggleMenu}
+                className="md:hidden inline-flex items-center justify-center p-3 rounded-xl text-white hover:text-orange-400 hover:bg-white/10 transition-all duration-300 border border-white/20"
+                aria-expanded={isOpen}
+            >
+              <span className="sr-only">Open main menu</span>
+              {isOpen ? (
+                  <HiX size={24} className="transform rotate-180 transition-transform duration-300" />
+              ) : (
+                  <HiMenu size={24} className="transition-transform duration-300" />
+              )}
+            </button>
+          </div>
         </div>
 
-        {/* Mobile Nav */}
-        {isOpen && (
-            <ul className="flex flex-col mt-4 gap-4 md:hidden text-sm text-gray-800 font-medium">
-              {navLinks.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                        href={link.href}
-                        className={`block pb-1 border-b-2 ${
-                            pathname === link.href
-                                ? "border-orange-500 text-orange-600"
-                                : "border-transparent hover:border-orange-300"
-                        }`}
-                        onClick={() => setIsOpen(false)}
+        {/* Mobile Navigation */}
+        <div className={`md:hidden transition-all duration-500 ease-in-out ${
+            isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
+        }`}>
+          <div className="px-4 pt-4 pb-6 space-y-2 bg-gradient-to-b from-[#0a1128] to-slate-900 border-t border-white/10">
+            {navLinks.map((link) => (
+                <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`block px-6 py-4 rounded-xl text-base font-semibold transition-all duration-300 ${
+                        pathname === link.href
+                            ? "text-white bg-gradient-to-r from-orange-500 to-orange-600 shadow-lg border-l-4 border-orange-400"
+                            : "text-gray-300 hover:text-white hover:bg-white/10 border border-transparent hover:border-white/20"
+                    }`}
+                    onClick={() => setIsOpen(false)}
+                >
+                  {link.label}
+                </Link>
+            ))}
+            
+            {loading && (
+              <div className="flex items-center justify-center px-4 py-3 mt-4">
+                <div className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                <span className="ml-2 text-gray-600">Loading...</span>
+              </div>
+            )}
+            
+            {showClientContent && !loading && !isAuthenticated && (
+                <Link
+                    href="/pages/auth"
+                    className="flex items-center gap-3 px-4 py-3 mt-4 text-white bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all duration-200 font-medium"
+                    onClick={() => setIsOpen(false)}
+                >
+                  <RiLoginCircleLine size={20} />
+                </Link>
+            )}
+            
+            {showClientContent && !loading && isAuthenticated && (
+              <div className="space-y-2">
+                <Link
+                    href={getDashboardUrl()}
+                    className="flex items-center gap-3 px-4 py-3 mt-4 text-gray-700 bg-gray-100 rounded-lg hover:bg-orange-50 hover:text-orange-600 transition-all duration-200 font-medium"
+                    onClick={() => setIsOpen(false)}
+                >
+                  <RiDashboardLine size={20} />
+                  <span>{getDashboardLabel()}</span>
+                </Link>
+                
+                {/* Mobile Dashboard Quick Actions */}
+                {getDashboardItems().map((item, index) => (
+                  item.action ? (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        item.action();
+                        setIsOpen(false);
+                      }}
+                      className="flex items-center gap-3 px-4 py-2 w-full text-gray-700 hover:bg-gray-50 hover:text-orange-600 transition-colors"
                     >
-                      {link.label}
-                    </Link>
-                  </li>
-              ))}
-              {showClientContent && !isAuthenticated && (
-                  <li>
+                      <item.icon size={16} />
+                      {item.label}
+                    </button>
+                  ) : (
                     <Link
-                        href="/pages/auth"
-                        className="text-white bg-orange-500 px-4 py-2 rounded hover:bg-orange-600 transition"
-                        onClick={() => setIsOpen(false)}
+                      key={index}
+                      href={item.href}
+                      onClick={() => setIsOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-orange-600 transition-colors"
                     >
-                      Portal
+                      <item.icon size={16} />
+                      {item.label}
                     </Link>
-                  </li>
-              )}
-            </ul>
+                  )
+                ))}
+                
+                {/* Mobile Logout */}
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setIsOpen(false);
+                  }}
+                  className="flex items-center gap-3 px-4 py-2 w-full text-red-600 hover:bg-red-50 transition-colors"
+                >
+                  <FiLogOut size={16} />
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+        
+        {/* ProjectUpload Modal */}
+        {isUploadModalOpen && (
+          <ProjectUpload
+            isOpen={isUploadModalOpen}
+            onClose={() => setIsUploadModalOpen(false)}
+          />
         )}
       </nav>
   );

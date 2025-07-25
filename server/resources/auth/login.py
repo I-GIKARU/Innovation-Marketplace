@@ -69,7 +69,8 @@ class FirebaseLogin(Resource):
             
             response = make_response(jsonify({
                 'user': user_identity,
-                'message': 'Firebase login successful'
+                'message': 'Firebase login successful',
+                'token': access_token  # Include token in response for localStorage
             }), 200)
             
             # Set JWT cookie for session management

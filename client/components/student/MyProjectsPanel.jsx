@@ -8,33 +8,13 @@ import ProjectMedia from '@/components/common/ProjectMedia'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api'
 
-const MyProjectsPanel = () => {
+const MyProjectsPanel = ({ projects, loading, onProjectUpdate }) => {
   const { user, authFetch } = useAuth()
-  const [myProjects, setMyProjects] = useState([])
-  const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(false)
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, project: null })
 
-  // Fetch student's own projects using cookie-based auth
-  useEffect(() => {
-    const loadMyProjects = async () => {
-      if (user) {
-        try {
-          setLoading(true)
-          const data = await authFetch('/projects/my')
-          setMyProjects(data.projects || [])
-        } catch (error) {
-          console.error('Failed to load my projects:', error)
-          setMyProjects([])
-        } finally {
-          setLoading(false)
-        }
-      } else {
-        setLoading(false)
-      }
-    }
-    loadMyProjects()
-  }, [user]) // Removed authFetch to prevent infinite loop
+  // Use projects from props (dashboard data) or fallback to empty array
+  const myProjects = projects || []
 
   // Handle project deletion using cookie-based auth
   const handleDeleteProject = async (projectId) => {
@@ -46,9 +26,10 @@ const MyProjectsPanel = () => {
       
       alert('Project and associated media deleted successfully')
       
-      // Refresh the projects list
-      const data = await authFetch('/projects/my')
-      setMyProjects(data.projects || [])
+      // Trigger dashboard data refresh if callback provided
+      if (onProjectUpdate) {
+        onProjectUpdate()
+      }
       
     } catch (error) {
       console.error('Error deleting project:', error)

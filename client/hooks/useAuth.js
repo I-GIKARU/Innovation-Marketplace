@@ -15,9 +15,12 @@ export function useAuth() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const fetchUser = useCallback(async () => {
+    const fetchUser = useCallback(async (preserveUser = false) => {
         try {
-            setLoading(true);
+            // Only set loading if we don't want to preserve the current user state
+            if (!preserveUser) {
+                setLoading(true);
+            }
             
             // Add timeout to prevent getting stuck
             const controller = new AbortController();
@@ -36,7 +39,10 @@ export function useAuth() {
             setUser(typeof data.user === 'string' ? { id: data.user } : data.user);
         } catch (error) {
             console.log('Auth check failed:', error.message);
-            setUser(null);
+            // Only clear user if this is not a background refresh
+            if (!preserveUser) {
+                setUser(null);
+            }
         } finally {
             setLoading(false);
         }
@@ -49,10 +55,14 @@ export function useAuth() {
     // Monitor Firebase auth state changes
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-            setLoading(true);
             if (firebaseUser) {
                 // User is signed in to Firebase, check backend sync
-                await fetchUser();
+                // If we already have a user, do a background refresh to avoid flickering
+                const shouldPreserveUser = !!user;
+                if (!shouldPreserveUser) {
+                    setLoading(true);
+                }
+                await fetchUser(shouldPreserveUser);
             } else {
                 // User is signed out from Firebase
                 setUser(null);
@@ -62,8 +72,8 @@ export function useAuth() {
         
         return unsubscribe;
     }, [fetchUser]);
-
-    const login = async ({ email, password }) => {
+    
+    const login = async (email, password) => {
         setLoading(true);
         setError(null);
         try {
@@ -83,6 +93,11 @@ export function useAuth() {
 
             const data = await res.json();
             if (!res.ok) throw new Error(data.message || 'Backend login failed');
+
+            // Store JWT token if provided
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+            }
 
             await fetchUser();
             return { success: true, user: data.user };
@@ -148,6 +163,9 @@ export function useAuth() {
             
             // 2. Sign out from Firebase
             await firebaseSignOut(auth);
+            
+            // 3. Clear localStorage token
+            localStorage.removeItem('token');
         } finally {
             setUser(null);
         }

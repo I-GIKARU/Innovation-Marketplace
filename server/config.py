@@ -1,4 +1,5 @@
 import os
+import json
 from datetime import timedelta
 from dotenv import load_dotenv
 
@@ -10,12 +11,13 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///moringa_marketplace.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
-    # Connection pool settings for better stability
+    # Connection pool settings for SQLite
     SQLALCHEMY_ENGINE_OPTIONS = {
-        'pool_size': 10,
-        'pool_recycle': 300,
         'pool_pre_ping': True,
-        'max_overflow': 20
+        'connect_args': {
+            'check_same_thread': False,  # Allow SQLite to be used in multi-threaded app
+            'timeout': 20  # SQLite lock timeout
+        }
     }
 
     # JWT Configuration
@@ -35,10 +37,38 @@ class Config:
     # Custom domain validation
     STUDENT_EMAIL_DOMAIN = '@student.moringaschool.com'
     
-    # Firebase Configuration
+    # Firebase/Google Cloud Configuration
     FIREBASE_SERVICE_ACCOUNT_KEY = os.getenv('FIREBASE_SERVICE_ACCOUNT_KEY')  # Path to service account JSON
+    GOOGLE_CREDENTIALS_JSON = os.getenv('GOOGLE_CREDENTIALS_JSON')  # JSON string for deployment
     FIREBASE_PROJECT_ID = os.getenv('FIREBASE_PROJECT_ID')
     FIREBASE_STORAGE_BUCKET = os.getenv('FIREBASE_STORAGE_BUCKET', f"{os.getenv('FIREBASE_PROJECT_ID')}.firebasestorage.app")
+    
+    @staticmethod
+    def get_firebase_credentials():
+        """
+        Get Firebase credentials from either file path or JSON string
+        Returns credentials object or None if not found
+        """
+        from firebase_admin import credentials
+        
+        # Try JSON string first (for deployment)
+        if Config.GOOGLE_CREDENTIALS_JSON:
+            try:
+                cred_dict = json.loads(Config.GOOGLE_CREDENTIALS_JSON)
+                return credentials.Certificate(cred_dict)
+            except json.JSONDecodeError as e:
+                print(f"⚠️ Invalid JSON in GOOGLE_CREDENTIALS_JSON: {e}")
+                return None
+        
+        # Try file path (for local development)
+        if Config.FIREBASE_SERVICE_ACCOUNT_KEY and os.path.exists(Config.FIREBASE_SERVICE_ACCOUNT_KEY):
+            try:
+                return credentials.Certificate(Config.FIREBASE_SERVICE_ACCOUNT_KEY)
+            except Exception as e:
+                print(f"⚠️ Invalid service account key file: {e}")
+                return None
+        
+        return None
     
     # Cloudinary Configuration
     CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME')

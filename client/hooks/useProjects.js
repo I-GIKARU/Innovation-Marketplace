@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api";
 
@@ -20,8 +20,10 @@ export function useProjects() {
   const [error, setError] = useState(null);
   const [projectReviews, setProjectReviews] = useState([]);
   const [statusCounts, setStatusCounts] = useState({}); // For admin dashboard
+  const [isCached, setIsCached] = useState(false);
+  const cacheRef = useRef(new Map()); // Cache for different parameter combinations
 
-  // NEW: Fetch public projects (approved only)
+  // NEW: Fetch public projects (approved only) with caching
   const fetchPublicProjects = useCallback(
     async ({
       page = 1,
@@ -29,9 +31,24 @@ export function useProjects() {
       search = "",
       category_id = null,
       featured = null,
+      forceRefresh = false,
     } = {}) => {
+      // Create cache key based on parameters
+      const cacheKey = `${page}-${per_page}-${search}-${category_id}-${featured}`;
+      
+      // Check if we have cached data and don't force refresh
+      if (!forceRefresh && cacheRef.current.has(cacheKey)) {
+        const cachedData = cacheRef.current.get(cacheKey);
+        setProjects(cachedData.projects);
+        setPagination(cachedData.pagination);
+        setIsCached(true);
+        console.log('✅ Using cached data for:', cacheKey);
+        return;
+      }
+      
       setLoading(true);
       setError(null);
+      setIsCached(false);
 
       try {
         const params = new URLSearchParams({
@@ -56,18 +73,25 @@ export function useProjects() {
         console.log('✅ API Response data:', data);
         console.log('🔢 Projects count:', data.projects?.length || 0);
 
-        setProjects(data.projects || []);
-        setPagination({
+        const projectsData = data.projects || [];
+        const paginationData = {
           total: data.total || 0,
           pages: data.pages || 0,
           current_page: data.current_page || 1,
-        });
+        };
         
-        console.log('📊 State updated - Projects:', data.projects?.length || 0, 'Pagination:', {
-          total: data.total || 0,
-          pages: data.pages || 0,
-          current_page: data.current_page || 1,
+        // Cache the result
+        cacheRef.current.set(cacheKey, {
+          projects: projectsData,
+          pagination: paginationData,
+          timestamp: Date.now()
         });
+
+        setProjects(projectsData);
+        setPagination(paginationData);
+        setIsCached(true);
+        
+        console.log('📊 State updated - Projects:', projectsData.length, 'Pagination:', paginationData);
       } catch (err) {
         setError(err.message || "Failed to fetch projects");
         console.error("Error fetching projects:", err);
@@ -201,7 +225,7 @@ export function useProjects() {
         if (search) params.append("search", search);
         if (category_id) params.append("category_id", category_id.toString());
 
-        const response = await fetch(`${API_BASE}/admin/projects?${params}`, {
+        const response = await fetch(`${API_BASE}/projects?${params}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -496,6 +520,17 @@ export function useProjects() {
     }
   }, []);
 
+  // Helper function to clear cache
+  const clearCache = useCallback(() => {
+    cacheRef.current.clear();
+    setIsCached(false);
+  }, []);
+  
+  // Helper function to refresh data (force refetch)
+  const refreshProjects = useCallback(async (params = {}) => {
+    return await fetchPublicProjects({ ...params, forceRefresh: true });
+  }, [fetchPublicProjects]);
+
   return {
     // State
     projects,
@@ -509,6 +544,7 @@ export function useProjects() {
     error,
     projectReviews,
     statusCounts,
+    isCached,
     
     // NEW Organized Methods
     fetchPublicProjects,
@@ -528,6 +564,10 @@ export function useProjects() {
     createProjectInteraction,
     submitReview,
     fetchProjectReviews,
+    
+    // Cache management
+    clearCache,
+    refreshProjects,
     
     // LEGACY (for backward compatibility)
     fetchProjects, // Maps to fetchPublicProjects

@@ -37,8 +37,8 @@ class OrderList(Resource):
                 if not merchandise:
                     return {'error': f'Merchandise {item_data["merchandise_id"]} not found'}, 404
                 
-                if not merchandise.is_in_stock:
-                    return {'error': f'Merchandise {merchandise.name} is out of stock'}, 400
+                if merchandise.quantity < item_data['quantity']:
+                    return {'error': f'Merchandise {merchandise.name} is out of stock or insufficient quantity available'}, 400
                 
                 quantity = item_data['quantity']
                 if not isinstance(quantity, int) or quantity <= 0:
@@ -64,15 +64,23 @@ class OrderList(Resource):
             db.session.add(order)
             db.session.flush()  # Get order ID
             
-            # Create order items
+            # Create order items and update stock
             for item_data in order_items_data:
+                # Get merchandise again to update stock
+                merchandise = Merchandise.query.get(item_data['merchandise_id'])
+                
                 order_item = OrderItem(
                     order_id=order.id,
                     merchandise_id=item_data['merchandise_id'],
                     quantity=item_data['quantity'],
                     price=item_data['price']
                 )
+                
+                # Reduce stock quantity
+                merchandise.quantity -= item_data['quantity']
+                
                 db.session.add(order_item)
+                db.session.add(merchandise)
             
             db.session.commit()
             
@@ -97,7 +105,9 @@ class OrderList(Resource):
             
             query = Order.query
             if current_user.role.name != 'admin':
-                query = query.filter_by(user_id=current_user.id)
+                # Regular users only see their own orders that are not hidden
+                query = query.filter_by(user_id=current_user.id, hidden_from_user=False)
+            # Admins see all orders regardless of hidden_from_user flag
             
             orders = query.order_by(Order.date.desc()).paginate(
                 page=page,
@@ -151,6 +161,13 @@ class CancelOrder(Resource):
             if order.status != 'pending':
                 return {'error': 'Only pending orders can be cancelled'}, 400
             
+            # Restore stock quantities for cancelled order
+            for order_item in order.items:
+                merchandise = Merchandise.query.get(order_item.merchandise_id)
+                if merchandise:
+                    merchandise.quantity += order_item.quantity
+                    db.session.add(merchandise)
+            
             order.status = 'cancelled'
             db.session.commit()
             
@@ -163,7 +180,59 @@ class CancelOrder(Resource):
             db.session.rollback()
             return {'error': str(exc)}, 500
 
+class HideOrder(Resource):
+    @jwt_required()
+    @admin_or_role_required(['student', 'client']) # Only regular users can hide their own orders
+    def post(self, id):
+        try:
+            current_user = get_current_user()
+            if not current_user:
+                return {'error': 'User not found'}, 404
+            order = Order.query.get_or_404(id)
+            
+            # Check if user owns the order
+            if order.user_id != current_user.id:
+                return {'error': 'You can only hide your own orders'}, 403
+            
+            order.hidden_from_user = True
+            db.session.commit()
+            
+            return {
+                'message': 'Order hidden from your view successfully',
+                'order': order.to_dict()
+            }, 200
+            
+        except Exception as exc:
+            db.session.rollback()
+            return {'error': str(exc)}, 500
+    
+    @jwt_required()
+    @admin_or_role_required(['student', 'client']) # Allow users to unhide their orders
+    def delete(self, id):
+        try:
+            current_user = get_current_user()
+            if not current_user:
+                return {'error': 'User not found'}, 404
+            order = Order.query.get_or_404(id)
+            
+            # Check if user owns the order
+            if order.user_id != current_user.id:
+                return {'error': 'You can only unhide your own orders'}, 403
+            
+            order.hidden_from_user = False
+            db.session.commit()
+            
+            return {
+                'message': 'Order restored to your view successfully',
+                'order': order.to_dict()
+            }, 200
+            
+        except Exception as exc:
+            db.session.rollback()
+            return {'error': str(exc)}, 500
+
 def setup_routes(api):
     api.add_resource(OrderList, '/api/orders')
     api.add_resource(OrderDetail, '/api/orders/<int:id>')
     api.add_resource(CancelOrder, '/api/orders/<int:id>/cancel')
+    api.add_resource(HideOrder, '/api/orders/<int:id>/hide')

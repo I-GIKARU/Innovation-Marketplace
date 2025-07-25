@@ -9,10 +9,10 @@ class Merchandise(db.Model, SerializerMixin):
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
     price = db.Column(db.Integer)
+    quantity = db.Column(db.Integer, default=0)  # Stock quantity
     image_url = db.Column(db.String(255))  # Keep for backward compatibility
     image_urls = db.Column(db.Text)  # JSON string of multiple image URLs
     thumbnail_url = db.Column(db.String(500))  # Main product image
-    is_in_stock = db.Column(db.Boolean, default=True)
 
     order_items = db.relationship('OrderItem', back_populates='merchandise')
 
@@ -43,6 +43,7 @@ class Order(db.Model, SerializerMixin):
     date = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     status = db.Column(db.String(50))
     amount = db.Column(db.Integer)
+    hidden_from_user = db.Column(db.Boolean, default=False)  # Soft delete for user view
 
     user = db.relationship('User', back_populates='orders')
     items = db.relationship('OrderItem', back_populates='order')

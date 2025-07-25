@@ -16,17 +16,24 @@ const ProjectTeamAndReviews = ({ project, teamMembers, projectReviews, canWriteR
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       {/* Team Members Section */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h3 className="text-xl font-semibold mb-4">Team Members</h3>
+      <div>
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5 0a2.25 2.25 0 01-2.25 2.25H2.25A2.25 2.25 0 010 18.75v-1.5A2.25 2.25 0 012.25 15h15a2.25 2.25 0 012.25 2.25v1.5z" />
+            </svg>
+          </div>
+          <h3 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Team Members</h3>
+        </div>
         
         {teamMembers && teamMembers.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {teamMembers.map((up) => (
               <div
                 key={up.id || up.user.id}
-                className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg"
+                className="flex items-start gap-4 p-6 bg-white/10 backdrop-blur-sm rounded-xl border border-white/10 hover:bg-white/15 transition-all duration-300"
               >
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${
                   up.isExternal ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600'
@@ -38,7 +45,7 @@ const ProjectTeamAndReviews = ({ project, teamMembers, projectReviews, canWriteR
                 </div>
                 
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-medium text-gray-900 truncate">
+                  <h4 className="font-semibold text-white truncate">
                     {up.isExternal 
                       ? up.user.name || 'Collaborator'
                       : up.user.email.split('@')[0]
@@ -57,11 +64,11 @@ const ProjectTeamAndReviews = ({ project, teamMembers, projectReviews, canWriteR
                         </a>
                       )}
                       {up.user.email && (
-                        <p className="text-sm text-gray-600">{up.user.email}</p>
+                        <p className="text-sm text-gray-300">{up.user.email}</p>
                       )}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-600">{up.user.email}</p>
+                    <p className="text-sm text-gray-300">{up.user.email}</p>
                   )}
                   
                   {up.user.role && (
@@ -75,7 +82,7 @@ const ProjectTeamAndReviews = ({ project, teamMembers, projectReviews, canWriteR
                   )}
                   
                   {up.user.bio && (
-                    <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                    <p className="text-sm text-gray-300 mt-2 line-clamp-2">
                       {up.user.bio}
                     </p>
                   )}
@@ -83,7 +90,7 @@ const ProjectTeamAndReviews = ({ project, teamMembers, projectReviews, canWriteR
                   {up.user.email && (
                     <a
                       href={`mailto:${up.user.email}`}
-                      className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm mt-2"
+                      className="inline-flex items-center text-orange-400 hover:text-orange-300 text-sm mt-2"
                     >
                       <FiMail className="w-4 h-4 mr-1" />
                       Contact
@@ -94,22 +101,29 @@ const ProjectTeamAndReviews = ({ project, teamMembers, projectReviews, canWriteR
             ))}
           </div>
         ) : (
-          <p className="text-gray-600 text-center py-8">
+          <p className="text-gray-300 text-center py-8">
             No team members listed for this project.
           </p>
         )}
       </div>
 
       {/* Reviews Section */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-semibold">Reviews & Ratings</h3>
+      <div>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+            </div>
+            <h3 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">Reviews & Ratings</h3>
+          </div>
           
           {/* Write review button */}
           {canWriteReview && (
             <button
               onClick={onWriteReview}
-              className="flex items-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+              className="flex items-center px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-300 shadow-lg font-semibold"
             >
               <FiStar className="w-4 h-4 mr-2" />
               Write a Review
@@ -120,26 +134,26 @@ const ProjectTeamAndReviews = ({ project, teamMembers, projectReviews, canWriteR
         {projectReviews && projectReviews.length > 0 ? (
           <div className="space-y-6">
             {projectReviews.map((review) => (
-              <div key={review.id} className="border-b border-gray-200 last:border-b-0 pb-6 last:pb-0">
+              <div key={review.id} className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <div className="flex">
                       {renderStars(review.rating)}
                     </div>
-                    <span className="font-medium text-gray-900">
+                    <span className="font-medium text-white">
                       {review.rating}/5
                     </span>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-gray-300">
                       by {review.user ? review.user.email.split('@')[0] : 'Anonymous'}
                     </span>
                   </div>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-gray-400">
                     {new Date(review.date).toLocaleDateString()}
                   </span>
                 </div>
                 
                 {review.comment && (
-                  <p className="text-gray-700 leading-relaxed">
+                  <p className="text-gray-200 leading-relaxed mt-3">
                     {review.comment}
                   </p>
                 )}
@@ -147,7 +161,7 @@ const ProjectTeamAndReviews = ({ project, teamMembers, projectReviews, canWriteR
             ))}
           </div>
         ) : (
-          <p className="text-gray-600 text-center py-8">
+          <p className="text-gray-300 text-center py-8">
             No reviews yet. Be the first to review this project!
           </p>
         )}

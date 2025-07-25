@@ -35,19 +35,31 @@ def create_app():
     # Initialize Firebase Admin SDK
     try:
         if not firebase_admin._apps:
-            service_account_key = app.config.get('FIREBASE_SERVICE_ACCOUNT_KEY')
             project_id = app.config.get('FIREBASE_PROJECT_ID')
             
-            if service_account_key and os.path.exists(service_account_key) and project_id:
-                cred = credentials.Certificate(service_account_key)
-                storage_bucket = app.config.get('FIREBASE_STORAGE_BUCKET', f'{project_id}.firebasestorage.app')
-                firebase_admin.initialize_app(cred, {
-                    'storageBucket': storage_bucket
-                })
-                print(f"✅ Firebase Admin SDK initialized with Storage bucket: {storage_bucket}")
+            if project_id:
+                # Use the new credential method from Config
+                cred = Config.get_firebase_credentials()
+                
+                if cred:
+                    storage_bucket = app.config.get('FIREBASE_STORAGE_BUCKET', f'{project_id}.firebasestorage.app')
+                    firebase_admin.initialize_app(cred, {
+                        'storageBucket': storage_bucket
+                    })
+                    
+                    # Determine which credential method was used
+                    cred_method = "JSON string" if Config.GOOGLE_CREDENTIALS_JSON else "service account file"
+                    print(f"✅ Firebase Admin SDK initialized using {cred_method}")
+                    print(f"✅ Storage bucket: {storage_bucket}")
+                    print(f"✅ Project ID: {project_id}")
+                else:
+                    print("⚠️ Firebase credentials not found or invalid")
+                    print("Set either:")
+                    print("  - FIREBASE_SERVICE_ACCOUNT_KEY (path to JSON file) for local development")
+                    print("  - GOOGLE_CREDENTIALS_JSON (JSON string) for deployment")
+                    print("  - Ensure FIREBASE_PROJECT_ID is also set")
             else:
-                print("⚠️ Firebase service account key or project ID not found")
-                print("Make sure FIREBASE_SERVICE_ACCOUNT_KEY and FIREBASE_PROJECT_ID are set in your .env file")
+                print("⚠️ FIREBASE_PROJECT_ID not found in environment variables")
     except Exception as e:
         print(f"⚠️ Firebase initialization failed: {e}")
 

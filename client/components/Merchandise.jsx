@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useMerchandise } from '@/hooks/useMerchandise';
+import { ShoppingBagIcon, HeartIcon, StarIcon } from '@heroicons/react/24/outline';
+import Link from 'next/link';
 
 const Merchandise = () => {
   const { merchandise, fetchMerchandise, loading, error } = useMerchandise();
@@ -14,16 +16,35 @@ const Merchandise = () => {
 
   useEffect(() => {
     if (merchandise.length > 0) {
-      const parsedItems = merchandise.map(item => ({
-        ...item,
-        image: JSON.parse(item.image_urls)[0], // first image
-      }));
+      const parsedItems = merchandise.map(item => {
+        let imageUrl = '/placeholder-image.jpg'; // fallback image
+
+        try {
+          if (item.image_urls) {
+            const parsedUrls = JSON.parse(item.image_urls);
+            if (parsedUrls && parsedUrls.length > 0) {
+              imageUrl = parsedUrls[0];
+            }
+          } else if (item.image_url) {
+            imageUrl = item.image_url;
+          }
+        } catch (error) {
+          console.warn('Failed to parse image URLs for item:', item.name, error);
+          if (item.image_url) {
+            imageUrl = item.image_url;
+          }
+        }
+
+        return {
+          ...item,
+          image: imageUrl,
+        };
+      });
       setDisplayItems(parsedItems.slice(0, 4));
     }
   }, [merchandise]);
 
-  if (loading)
-    return <p className="text-center py-10">Loading merchandise...</p>;
+
   if (error)
     return (
       <p className="text-center py-10 text-red-500">
@@ -31,53 +52,127 @@ const Merchandise = () => {
       </p>
     );
 
-  return (
-    <section className="py-20 bg-white">
-      <h2 className="text-3xl md:text-4xl font-extrabold text-center mb-4">
-        Official Merch
-      </h2>
-      <p className="text-center text-gray-600 mb-12">
-        Wear your journey. Support the community. Rep the code.
-      </p>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto px-6">
-        {displayItems.map((item, index) => (
-          <motion.div
-            key={index}
-            whileHover={{ scale: 1.02, opacity: 0.95 }}
-            className="group relative rounded-2xl overflow-hidden shadow-sm border border-gray-200"
-          >
-            <img
-              src={item.image}
-              alt={item.name}
-              className="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-500 ease-in-out"
-            />
-
-            {/* Overlay */}
-            <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 to-transparent p-4 z-20">
-              <h3 className="text-white text-lg font-semibold">{item.name}</h3>
-              <p className="text-gray-300 mb-3">KES {item.price}</p>
-
-              <a
-                href={item.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block bg-white text-black text-sm px-4 py-2 rounded-lg hover:bg-yellow-400 transition-colors duration-300 z-10"
-              >
-                Buy Now
-              </a>
-            </div>
-          </motion.div>
-         
-        ))}
-      </div>
-      <div className="text-center mt-12">
-        <a
-          href="/e_commerce"
-          className="inline-block bg-orange-500 text-white px-6 py-3 rounded-full hover:bg-orange-600 transition-colors duration-300"
+return (
+    <section className="py-20 bg-[#0a1128] relative overflow-hidden">
+      {/* Background decorative elements removed for simplicity */}
+      <div className="relative z-10">
+        {/* Header */}
+        {loading && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+            <p className="text-white text-2xl">Loading...</p>
+          </div>
+        )}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
         >
-          View All Merchandise
-        </a>
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-100 to-pink-100 px-4 py-2 rounded-full mb-6">
+            <ShoppingBagIcon className="w-5 h-5 text-orange-600" />
+            <span className="text-orange-700 font-medium text-sm">Official Store</span>
+          </div>
+          <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-gray-900 via-orange-800 to-gray-900 bg-clip-text text-transparent mb-4">
+            Premium Merch
+          </h2>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            Elevate your style with our exclusive collection. Quality meets innovation.
+          </p>
+        </motion.div>
+
+        {/* Products Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto px-6 mb-16">
+          {displayItems.map((item, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              whileHover={{ 
+                y: -8,
+                transition: { duration: 0.3, ease: "easeOut" }
+              }}
+              className="group relative bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100"
+            >
+              {/* Product Image */}
+              <div className="relative overflow-hidden">
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                />
+                {/* Image Overlay Gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              </div>
+
+
+                
+                <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors duration-300">
+                  {item.name}
+                </h3>
+                
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex flex-col">
+                    <span className="text-2xl font-black text-orange-600">KES {item.price}</span>
+                    <span className="text-sm text-gray-400 line-through">KES {Math.round(item.price * 1.3)}</span>
+                  </div>
+                  <div className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold">
+                    In Stock
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3">
+                  <Link 
+                    href={`/merchandise/${item.id}`}
+                    className="flex-1 group/btn"
+                  >
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                    >
+                      <ShoppingBagIcon className="w-4 h-4" />
+                      <span>View Product</span>
+                    </motion.button>
+                  </Link>
+                </div>
+
+              {/* Hover Effect Border */}
+              <div className="absolute inset-0 rounded-3xl border-2 border-orange-200/0 group-hover:border-orange-200/50 transition-all duration-500 pointer-events-none"></div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* View All Button */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="text-center"
+        >
+          <Link href="/e_commerce">
+            <motion.button
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              className="group bg-gradient-to-r from-orange-500 via-orange-600 to-pink-600 hover:from-orange-600 hover:via-pink-600 hover:to-purple-600 text-white font-bold px-10 py-4 rounded-2xl shadow-2xl hover:shadow-orange-200/50 transition-all duration-500 relative overflow-hidden"
+            >
+              {/* Button shine effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+              
+              <span className="relative flex items-center gap-3">
+                <ShoppingBagIcon className="w-5 h-5" />
+                Explore Full Collection
+                <motion.span
+                  animate={{ x: [0, 4, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  →
+                </motion.span>
+              </span>
+            </motion.button>
+          </Link>
+        </motion.div>
       </div>
     </section>
   );

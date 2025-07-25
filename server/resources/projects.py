@@ -12,10 +12,14 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Public Projects - All projects (simplified)
+# Public Projects - All projects (handles both public and admin access)
 class PublicProjects(Resource):
     def get(self):
-        """Get all projects with optional filters"""
+        """Get all projects with optional filters
+        
+        For public users: Returns projects with basic filtering
+        For admin users: Returns all projects with status counts and full access
+        """
         try:
             page = request.args.get('page', 1, type=int)
             per_page = request.args.get('per_page', 10, type=int)
@@ -24,12 +28,34 @@ class PublicProjects(Resource):
             featured_only = request.args.get('featured', False, type=bool)
             status_filter = request.args.get('status', '')  # Optional status filter
             
+            # Check if user is authenticated as admin
+            is_admin = False
+            try:
+                from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
+                verify_jwt_in_request(optional=True)
+                current_user = get_current_user()
+                is_admin = current_user and current_user.role.name == 'admin'
+            except Exception:
+                # Not authenticated or not admin - continue as public user
+                pass
+            
             # Start with all projects
             query = Project.query
             
-            # Filter by status if specified
+            # Apply status filtering based on user type
             if status_filter:
-                query = query.filter(Project.status == status_filter)
+                if is_admin:
+                    # Admin can filter by any status
+                    query = query.filter(Project.status == status_filter)
+                else:
+                    # Public users can only see approved projects when status is specified
+                    if status_filter == 'approved':
+                        query = query.filter(Project.status == 'approved')
+                    # Ignore other status filters for public users
+            elif not is_admin:
+                # Public users only see approved projects by default
+                query = query.filter(Project.status == 'approved')
+            # Admin sees all projects by default (no status filter)
             
             # Filter by featured
             if featured_only:
@@ -49,8 +75,13 @@ class PublicProjects(Resource):
             if category_id:
                 query = query.filter(Project.category_id == category_id)
             
-            # Order by featured first, then newest
-            query = query.order_by(Project.featured.desc(), Project.id.desc())
+            # Order projects
+            if is_admin:
+                # Admin sees newest first (management view)
+                query = query.order_by(Project.id.desc())
+            else:
+                # Public sees featured first, then newest
+                query = query.order_by(Project.featured.desc(), Project.id.desc())
             
             projects = query.paginate(
                 page=page, 
@@ -58,13 +89,23 @@ class PublicProjects(Resource):
                 error_out=False
             )
             
-            return {
+            response_data = {
                 'projects': [project.to_dict() for project in projects.items],
                 'total': projects.total,
                 'pages': projects.pages,
                 'current_page': page,
                 'per_page': per_page
-            }, 200
+            }
+            
+            # Add status counts for admin users
+            if is_admin:
+                response_data['status_counts'] = {
+                    'pending': Project.query.filter_by(status='pending').count(),
+                    'approved': Project.query.filter_by(status='approved').count(),
+                    'rejected': Project.query.filter_by(status='rejected').count()
+                }
+            
+            return response_data, 200
             
         except Exception as exc:
             return {'error': str(exc)}, 500
@@ -136,63 +177,6 @@ class ApprovedProjects(Resource):
         except Exception as exc:
             return {'error': str(exc)}, 500
 
-# All Projects - Admin/management view with all statuses
-class AllProjects(Resource):
-    @jwt_required()
-    @role_required('admin')
-    def get(self):
-        """Get all projects regardless of status (admin only)"""
-        try:
-            page = request.args.get('page', 1, type=int)
-            per_page = request.args.get('per_page', 10, type=int)
-            status_filter = request.args.get('status', '')  # pending, approved, rejected
-            search = request.args.get('search', '')
-            category_id = request.args.get('category_id', type=int)
-            
-            query = Project.query
-            
-            # Status filter
-            if status_filter:
-                query = query.filter(Project.status == status_filter)
-            
-            # Search filter
-            if search:
-                query = query.filter(
-                    or_(
-                        Project.title.ilike(f'%{search}%'),
-                        Project.description.ilike(f'%{search}%'),
-                        Project.tech_stack.ilike(f'%{search}%')
-                    )
-                )
-            
-            # Category filter
-            if category_id:
-                query = query.filter(Project.category_id == category_id)
-            
-            # Order by newest first
-            query = query.order_by(Project.id.desc())
-            
-            projects = query.paginate(
-                page=page, 
-                per_page=per_page, 
-                error_out=False
-            )
-            
-            return {
-                'projects': [project.to_dict() for project in projects.items],
-                'total': projects.total,
-                'pages': projects.pages,
-                'current_page': page,
-                'per_page': per_page,
-                'status_counts': {
-                    'pending': Project.query.filter_by(status='pending').count(),
-                    'approved': Project.query.filter_by(status='approved').count(),
-                    'rejected': Project.query.filter_by(status='rejected').count()
-                }
-            }, 200
-            
-        except Exception as exc:
-            return {'error': str(exc)}, 500
 
 # Projects by Category - Simple category-based listing
 class ProjectsByCategory(Resource):
@@ -408,7 +392,7 @@ class ProjectDetail(Resource):
             
             data = request.get_json()
             
-            # Update project fields
+            # Update project fields available to both students and admins
             if 'title' in data: project.title = data['title']
             if 'description' in data: project.description = data['description']
             if 'tech_stack' in data: project.tech_stack = data['tech_stack']
@@ -424,8 +408,18 @@ class ProjectDetail(Resource):
             
             # Admin-only fields
             if role_name == 'admin':
-                if 'status' in data: project.status = data['status']
-                if 'featured' in data: project.featured = data['featured']
+                if 'status' in data:
+                    new_status = data['status']
+                    project.status = new_status
+                    # Handle rejection reason
+                    if new_status == 'rejected' and 'rejection_reason' in data:
+                        project.rejection_reason = data['rejection_reason']
+                    elif new_status != 'rejected':
+                        # Clear rejection reason if status is not rejected
+                        project.rejection_reason = None
+                        
+                if 'featured' in data: 
+                    project.featured = data['featured']
             
             db.session.commit()
             
@@ -511,8 +505,12 @@ class ProjectDetail(Resource):
             db.session.rollback()
             return {'error': str(exc)}, 500
 
+
+
+
 class ProjectCategories(Resource):
     def get(self):
+        """Get all project categories"""
         try:
             categories = Category.query.all()
             return {
@@ -751,14 +749,15 @@ class ProjectMediaDelete(Resource):
 
 
 def setup_routes(api):
-    # Main endpoints (simplified)
-    api.add_resource(PublicProjects, '/api/projects')  # All projects with optional filters
+    # Main endpoints (unified for public and admin)
+    api.add_resource(PublicProjects, '/api/projects')  # All projects with optional filters (public and admin)
     api.add_resource(ProjectDetail, '/api/projects/<int:id>')  # Individual project details
     api.add_resource(ProjectCategories, '/api/categories')  # Available categories
     
     # Specific project endpoints for common use cases
     api.add_resource(FeaturedProjects, '/api/projects/featured')  # Featured projects (for homepage)
     api.add_resource(ApprovedProjects, '/api/projects/approved')  # Approved projects only (for public listings)
+    api.add_resource(ProjectsByCategory, '/api/projects/category/<int:category_id>')  # Projects by category
     
     # Student endpoints (auth required)
     api.add_resource(CreateProject, '/api/projects/create')  # Create new project

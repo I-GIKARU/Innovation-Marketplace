@@ -21,9 +21,9 @@ class MerchandiseList(Resource):
             
             # Filter by stock status if specified
             if in_stock_filter.lower() == 'true':
-                query = query.filter(Merchandise.is_in_stock == True)
+                query = query.filter(Merchandise.quantity > 0)
             elif in_stock_filter.lower() == 'false':
-                query = query.filter(Merchandise.is_in_stock == False)
+                query = query.filter(Merchandise.quantity <= 0)
             
             merchandise = query.paginate(
                 page=page,
@@ -58,7 +58,8 @@ class MerchandiseList(Resource):
                 name=data['name'],
                 description=data.get('description', ''),
                 price=data['price'],
-                is_in_stock=data.get('is_in_stock', True)
+                quantity=data.get('quantity', 0),
+                image_url=data.get('image_url', '')
             )
             
             db.session.add(merchandise)
@@ -96,8 +97,10 @@ class MerchandiseDetail(Resource):
                 merchandise.description = data['description']
             if 'price' in data:
                 merchandise.price = data['price']
-            if 'is_in_stock' in data:
-                merchandise.is_in_stock = data['is_in_stock']
+            if 'quantity' in data:
+                merchandise.quantity = data['quantity']
+            if 'image_url' in data:
+                merchandise.image_url = data['image_url']
             
             db.session.commit()
             
@@ -240,8 +243,55 @@ class MerchandiseMediaDelete(Resource):
             logger.error(f"Error deleting merchandise media: {str(exc)}")
             return {'error': str(exc)}, 500
 
+class DirectImageUpload(Resource):
+    @jwt_required()
+    @role_required('admin')  # Only admins can upload images directly
+    def post(self):
+        """
+        Direct image upload endpoint for merchandise
+        Stores images in the merchandise folder in Cloudinary
+        """
+        try:
+            # Get the uploaded file
+            image = request.files.get('image')
+            
+            if not image or not image.filename:
+                return {'error': 'No image file provided'}, 400
+            
+            # Get optional filename prefix
+            filename_prefix = request.form.get('prefix', 'merch_img')
+            
+            # Upload to Cloudinary in merchandise folder
+            folder_path = "merchandise"
+            success, result = upload_file_to_cloudinary(
+                image, 
+                folder_path, 
+                filename_prefix
+            )
+            
+            if success:
+                return {
+                    'message': 'Image uploaded successfully',
+                    'url': result['url'],
+                    'image_url': result['url'],  # For backward compatibility
+                    'public_id': result['public_id'],
+                    'filename': result['filename'],
+                    'original_filename': result['original_filename'],
+                    'file_type': result['file_type'],
+                    'width': result.get('width'),
+                    'height': result.get('height'),
+                    'bytes': result.get('bytes', 0)
+                }, 200
+            else:
+                return {'error': result}, 400
+                
+        except Exception as exc:
+            logger.error(f"Error in direct image upload: {str(exc)}")
+            return {'error': str(exc)}, 500
+
 def setup_routes(api):
     api.add_resource(MerchandiseList, '/api/merchandise')
     api.add_resource(MerchandiseDetail, '/api/merchandise/<int:id>')
     api.add_resource(MerchandiseMediaUpload, '/api/merchandise/<int:merchandise_id>/media/upload')
     api.add_resource(MerchandiseMediaDelete, '/api/merchandise/<int:merchandise_id>/media/delete')
+    api.add_resource(DirectImageUpload, '/api/upload')

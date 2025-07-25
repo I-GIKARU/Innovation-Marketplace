@@ -40,9 +40,29 @@ class ClientDashboard(Resource):
         # Get client's expressed interests (UserProject entries where client is the user)
         expressed_interests = UserProject.query.filter_by(user_id=user.id).all()
         
+        # Get client's orders
+        orders = Order.query.filter_by(user_id=user.id).order_by(Order.date.desc()).all()
+        
+        # Calculate statistics
+        total_orders = len(orders)
+        completed_orders = len([o for o in orders if o.status == 'completed'])
+        pending_orders = len([o for o in orders if o.status == 'pending'])
+        cancelled_orders = len([o for o in orders if o.status == 'cancelled'])
+        total_spent = sum(o.amount for o in orders if o.status == 'completed')
+        
+        stats = {
+            'totalOrders': total_orders,
+            'completedOrders': completed_orders,
+            'pendingOrders': pending_orders,
+            'cancelledOrders': cancelled_orders,
+            'totalSpent': total_spent
+        }
+        
         return {
             'user': user.to_dict(),
-            'expressed_interests': [expressed_interest.to_dict() for expressed_interest in expressed_interests]
+            'expressed_interests': [expressed_interest.to_dict() for expressed_interest in expressed_interests],
+            'orders': [order.to_dict() for order in orders],
+            'stats': stats
         }, 200
 
 class AdminDashboard(Resource):

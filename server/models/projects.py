@@ -70,6 +70,7 @@ class Project(db.Model, SerializerMixin):
     clicks = db.Column(db.Integer, default=0)
     downloads = db.Column(db.Integer, default=0)
     rejection_reason = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Media fields
     zip_urls = db.Column(db.Text)  # JSON string of ZIP file URLs
@@ -115,6 +116,7 @@ class Project(db.Model, SerializerMixin):
             'clicks': self.clicks,
             'downloads': self.downloads,
             'rejection_reason': self.rejection_reason,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
             'zip_urls': self.zip_urls,
             'pdf_urls': self.pdf_urls,
             'video_urls': self.video_urls,

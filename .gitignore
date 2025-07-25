@@ -31,8 +31,13 @@ yarn-error.log*
 *.swp
 *.swo
 
-# Firebase credentials
+# Firebase credentials and service accounts
 *firebase-adminsdk*.json
+*service-account*.json
+*gcp-key*.json
+*google-cloud*.json
+service_account.json
+firebase-adminsdk.json
 
 # OS files
 .DS_Store
