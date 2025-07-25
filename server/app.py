@@ -19,8 +19,14 @@ migrate = Migrate()
 
 def create_app():
     app = Flask(__name__, static_folder='static')
-    app.config.from_object(Config)
-
+    
+    # Load config and set dynamic properties
+    config_instance = Config()
+    app.config.from_object(config_instance)
+    
+    # Override with dynamic property
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = config_instance.SQLALCHEMY_ENGINE_OPTIONS
+    
     db.init_app(app)
     jwt.init_app(app)
     migrate.init_app(app, db)

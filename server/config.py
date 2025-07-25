@@ -11,14 +11,34 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///moringa_marketplace.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
-    # Connection pool settings for SQLite
-    SQLALCHEMY_ENGINE_OPTIONS = {
-        'pool_pre_ping': True,
-        'connect_args': {
-            'check_same_thread': False,  # Allow SQLite to be used in multi-threaded app
-            'timeout': 20  # SQLite lock timeout
-        }
-    }
+    # Dynamic database configuration based on database type
+    @property
+    def SQLALCHEMY_ENGINE_OPTIONS(self):
+        database_url = os.getenv('DATABASE_URL', 'sqlite:///moringa_marketplace.db')
+        
+        if database_url.startswith('sqlite'):
+            # SQLite-specific options
+            return {
+                'pool_pre_ping': True,
+                'connect_args': {
+                    'check_same_thread': False,  # Allow SQLite to be used in multi-threaded app
+                    'timeout': 20  # SQLite lock timeout
+                }
+            }
+        elif database_url.startswith('postgres'):
+            # PostgreSQL-specific options
+            return {
+                'pool_pre_ping': True,
+                'pool_size': 10,
+                'pool_timeout': 20,
+                'pool_recycle': -1,
+                'max_overflow': 0
+            }
+        else:
+            # Default options for other databases
+            return {
+                'pool_pre_ping': True
+            }
 
     # JWT Configuration
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'dev-jwt-secret')
