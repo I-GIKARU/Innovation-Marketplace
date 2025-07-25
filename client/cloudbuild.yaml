@@ -1,0 +1,17 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: [
+    'build',
+    '--build-arg', 'NEXT_PUBLIC_API_URL=/api',
+    '--build-arg', 'NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyCILm6KI3G0WtqIBB93S3xw_6nw7GEvLcE',
+    '--build-arg', 'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=innovation-marketplace-6c9b1.firebaseapp.com',
+    '--build-arg', 'NEXT_PUBLIC_FIREBASE_PROJECT_ID=innovation-marketplace-6c9b1',
+    '--build-arg', 'NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=innovation-marketplace-6c9b1.firebasestorage.app',
+    '--build-arg', 'NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=604242171569',
+    '--build-arg', 'NEXT_PUBLIC_FIREBASE_APP_ID=1:604242171569:web:4a84949fa97fe3c0147490',
+    '--build-arg', 'NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-48EV1SD56Z',
+    '-t', 'gcr.io/projects-9edde/innovation-marketplace-client',
+    '.'
+  ]
+images:
+- 'gcr.io/projects-9edde/innovation-marketplace-client'
