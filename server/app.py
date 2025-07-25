@@ -30,6 +30,15 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
     migrate.init_app(app, db)
+    
+    # Auto-run migrations on startup for production deployments
+    with app.app_context():
+        try:
+            from flask_migrate import upgrade
+            upgrade()
+            print("✅ Database migrations completed successfully")
+        except Exception as e:
+            print(f"⚠️ Migration failed: {e}")
     CORS(app,
          supports_credentials=True,
          origins=['*'],
