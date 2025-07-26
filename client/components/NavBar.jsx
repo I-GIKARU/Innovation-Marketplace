@@ -259,8 +259,8 @@ const NavBar = ({ onNavigate, onShowAuth }) => {
             isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
         }`}>
           <div className="px-4 pt-4 pb-6 space-y-2 bg-gradient-to-b from-[#0a1128] to-slate-900 border-t border-white/10">
-            {/* Show general nav links only when NOT authenticated */}
-            {!isAuthenticated && navLinks.map((link) => (
+            {/* Show general nav links for all users */}
+            {navLinks.map((link) => (
                 <Link
                     key={link.href}
                     href={link.href}
