@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     BarChart3,
     ShoppingCart,
@@ -21,6 +21,23 @@ const menu = [
 function ClientSidebar({ onSelect }) {
     const [isSideBarOpen, setSideBarIsOpen] = useState(true);
     const [activeItem, setActiveItem] = useState("dashboard");
+    
+    // Check if we're on mobile and set sidebar state accordingly
+    useEffect(() => {
+        const checkScreenSize = () => {
+            const isMobile = window.innerWidth < 768;
+            setSideBarIsOpen(!isMobile); // Closed on mobile, open on desktop
+        };
+        
+        // Check on mount
+        checkScreenSize();
+        
+        // Add event listener for screen size changes
+        window.addEventListener('resize', checkScreenSize);
+        
+        // Cleanup
+        return () => window.removeEventListener('resize', checkScreenSize);
+    }, []);
 
     const handleSelect = (key) => {
         setActiveItem(key);
