@@ -41,11 +41,11 @@ const slideInFromLeft = {
 
 const AboutSection = () => {
   return (
-    <section className="relative py-24 bg-gradient-to-br from-slate-50 via-white to-orange-50 text-gray-800 overflow-hidden">
+    <section className="relative py-8 sm:py-12 md:py-16 lg:py-20 bg-gradient-to-br from-slate-50 via-white to-orange-50 text-gray-800 overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-orange-400 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400 rounded-full blur-3xl"></div>
+        <div className="absolute top-10 sm:top-20 left-5 sm:left-10 w-48 sm:w-72 h-48 sm:h-72 bg-orange-400 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-10 sm:bottom-20 right-5 sm:right-10 w-64 sm:w-96 h-64 sm:h-96 bg-blue-400 rounded-full blur-3xl"></div>
       </div>
       
       <div className="relative z-10">
@@ -54,16 +54,17 @@ const AboutSection = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-12 sm:mb-16 px-4 sm:px-6"
         >
           <motion.h2
-            className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-gray-900 via-orange-600 to-gray-900 bg-clip-text text-transparent mb-6 leading-tight"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-orange-600 to-gray-900 bg-clip-text text-transparent mb-3 sm:mb-5 leading-tight"
           >
-            More Than Just a Demo Day
+            <span className="block sm:inline">More Than Just</span>
+            <span className="block sm:inline"> a Demo Day</span>
           </motion.h2>
           
           <motion.div 
-            className="w-24 h-1 bg-gradient-to-r from-orange-400 to-orange-600 mx-auto mb-8 rounded-full"
+            className="w-16 sm:w-24 h-1 bg-gradient-to-r from-orange-400 to-orange-600 mx-auto mb-6 sm:mb-8 rounded-full"
             variants={scaleIn}
             custom={1}
           ></motion.div>
@@ -71,14 +72,14 @@ const AboutSection = () => {
           <motion.p
             variants={fadeInUp}
             custom={2}
-            className="text-center max-w-3xl mx-auto text-xl md:text-2xl text-gray-600 leading-relaxed font-light px-6"
+            className="text-center max-w-3xl mx-auto text-lg sm:text-xl md:text-2xl text-gray-600 leading-relaxed font-light px-2"
           >
             We're building a launchpad where ideas from the classroom become real-world innovations.  
             A home for future startups, side-hustles, and standout portfolios — all born at Moringa.
           </motion.p>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-8 lg:gap-12 max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 lg:gap-12 max-w-7xl mx-auto px-4 sm:px-6">
           {[
             {
               icon: '🚀',

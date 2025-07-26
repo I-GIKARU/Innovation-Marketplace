@@ -233,10 +233,10 @@ const FeaturedProjects = () => {
   }, [projects]);
 
   return (
-    <section className="py-20 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
+    <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
       {/* Background Decorations */}
-      <div className="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-orange-100/30 to-transparent rounded-full blur-3xl transform -translate-x-32 -translate-y-32" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-blue-100/20 to-transparent rounded-full blur-3xl transform translate-x-32 translate-y-32" />
+      <div className="absolute top-0 left-0 w-48 sm:w-64 h-48 sm:h-64 bg-gradient-to-br from-orange-100/30 to-transparent rounded-full blur-3xl transform -translate-x-24 sm:-translate-x-32 -translate-y-24 sm:-translate-y-32" />
+      <div className="absolute bottom-0 right-0 w-64 sm:w-96 h-64 sm:h-96 bg-gradient-to-tl from-blue-100/20 to-transparent rounded-full blur-3xl transform translate-x-24 sm:translate-x-32 translate-y-24 sm:translate-y-32" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         {/* Header */}
@@ -326,14 +326,14 @@ const FeaturedProjects = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
               viewport={{ once: true }}
-              className="text-5xl md:text-7xl lg:text-8xl font-black text-gray-900 mb-8 relative"
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl font-black text-gray-900 mb-4 sm:mb-6 relative px-4"
               style={{
                 fontFamily: 'system-ui, -apple-system, sans-serif',
                 letterSpacing: '-0.02em',
                 lineHeight: '0.9'
               }}
             >
-              <span className="block mb-2">Innovative</span>
+              <span className="block mb-1 sm:mb-2">Innovative</span>
               <span className="block bg-gradient-to-r from-orange-600 via-orange-500 to-red-500 bg-clip-text text-transparent relative">
                 Solutions
                 <motion.div
@@ -347,7 +347,7 @@ const FeaturedProjects = () => {
                     ease: "easeInOut",
                     times: [0, 0.3, 0.7, 1]
                   }}
-                  className="absolute -bottom-2 left-0 h-1 bg-gradient-to-r from-orange-500 to-red-500 rounded-full origin-left"
+                  className="absolute -bottom-1 sm:-bottom-2 left-0 h-0.5 sm:h-1 bg-gradient-to-r from-orange-500 to-red-500 rounded-full origin-left"
                   style={{ width: '100%' }}
                 />
               </span>
@@ -356,10 +356,11 @@ const FeaturedProjects = () => {
                 whileInView={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.8, duration: 0.6 }}
                 viewport={{ once: true }}
-                className="block text-4xl md:text-5xl lg:text-6xl font-light text-gray-600 mt-4"
+                className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-light text-gray-600 mt-2 sm:mt-4"
                 style={{ letterSpacing: '0.02em' }}
               >
-                from Tomorrow's <em className="not-italic bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-bold">Developers</em>
+                <span className="block sm:inline">from Tomorrow's</span>{' '}
+                <em className="not-italic bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent font-bold block sm:inline">Developers</em>
               </motion.span>
             </motion.h2>
 

@@ -96,7 +96,8 @@ const ProjectCard = ({ project, title, description, image, bgColor, onAddToCart,
 
                 {/* Card Content */}
                 <div className="p-6 flex flex-col h-full">
-                    <div className="mb-4">
+                    {/* Main Content - Stays at top */}
+                    <div className="flex flex-col sm:flex-1">
                         {/* Category Label */}
                         <div className="mb-2">
                             <span className="text-xs text-[#0a1128] font-semibold uppercase tracking-wider">
@@ -122,9 +123,54 @@ const ProjectCard = ({ project, title, description, image, bgColor, onAddToCart,
                             {project.description || description || 'Innovative project with exceptional design and functionality.'}
                         </p>
 
+                        {/* Tech Stack, Mentor, and Stats - Hidden on mobile, shown on larger screens */}
+                        <div className="hidden sm:block">
+                            {/* Tech Stack */}
+                            {project.tech_stack && (
+                                <div className="flex flex-wrap gap-1 mb-4">
+                                    {project.tech_stack.split(',').slice(0, 3).map((tech, index) => (
+                                        <span key={index} className="bg-orange-50 text-orange-700 px-2 py-1 rounded-full text-xs font-medium">
+                                            {tech.trim()}
+                                        </span>
+                                    ))}
+                                    {project.tech_stack.split(',').length > 3 && (
+                                        <span className="text-gray-400 text-xs self-center font-medium">
+                                            +{project.tech_stack.split(',').length - 3} more
+                                        </span>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Mentor */}
+                            {project.technical_mentor && (
+                                <div className="px-3 py-2 bg-blue-50 rounded-xl mb-4">
+                                    <p className="text-sm text-blue-700 font-medium">
+                                        👨‍🏫 Mentored by {project.technical_mentor}
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Stats Row */}
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="flex gap-4 items-center text-sm text-gray-500">
+                                    <div className="flex items-center gap-1">
+                                        <FiEye className="w-4 h-4" />
+                                        <span className="font-medium">{project.views || 0}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <Users className="w-4 h-4" />
+                                        <span className="font-medium">{getTeamMembersCount(project)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Mobile-only bottom section for Tech Stack, Mentor, and Stats */}
+                    <div className="sm:hidden mb-4 space-y-3">
                         {/* Tech Stack */}
                         {project.tech_stack && (
-                            <div className="flex flex-wrap gap-1 mb-4">
+                            <div className="flex flex-wrap gap-1">
                                 {project.tech_stack.split(',').slice(0, 3).map((tech, index) => (
                                     <span key={index} className="bg-orange-50 text-orange-700 px-2 py-1 rounded-full text-xs font-medium">
                                         {tech.trim()}
@@ -140,7 +186,7 @@ const ProjectCard = ({ project, title, description, image, bgColor, onAddToCart,
 
                         {/* Mentor */}
                         {project.technical_mentor && (
-                            <div className="px-3 py-2 bg-blue-50 rounded-xl mb-4">
+                            <div className="px-3 py-2 bg-blue-50 rounded-xl">
                                 <p className="text-sm text-blue-700 font-medium">
                                     👨‍🏫 Mentored by {project.technical_mentor}
                                 </p>
@@ -148,7 +194,7 @@ const ProjectCard = ({ project, title, description, image, bgColor, onAddToCart,
                         )}
 
                         {/* Stats Row */}
-                        <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center justify-between">
                             <div className="flex gap-4 items-center text-sm text-gray-500">
                                 <div className="flex items-center gap-1">
                                     <FiEye className="w-4 h-4" />

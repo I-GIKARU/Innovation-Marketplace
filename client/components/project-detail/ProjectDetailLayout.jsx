@@ -55,10 +55,10 @@ const ProjectDetailLayout = ({
               )}
             </div>
           </div>
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-12">
+          <div className="flex flex-col xl:grid xl:grid-cols-4 gap-12">
             
             {/* Left Column - Main Content */}
-            <div className="xl:col-span-3 space-y-16">
+            <div className="xl:col-span-3 space-y-16 order-1">
               
               {/* Project Media Section */}
               <section className="relative">
@@ -107,9 +107,9 @@ const ProjectDetailLayout = ({
               </section>
             </div>
 
-            {/* Right Column - Sidebar (Desktop Only) */}
-            <div className="xl:col-span-1 space-y-6 hidden xl:block">
-              <div className="sticky top-8">
+            {/* Right Column - Sidebar */}
+            <div className="xl:col-span-1 space-y-6 order-2">
+              <div className="xl:sticky xl:top-8">
                 <ProjectSidebar
                   project={project}
                   isEditing={isEditing}

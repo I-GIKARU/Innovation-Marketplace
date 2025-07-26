@@ -10,6 +10,7 @@ import StatsSection from "@/components/statSection";
 import AboutSection from "@/components/About";
 import Merchandise from "@/components/Merchandise"
 import FeaturedProjects from "@/components/projects/FeaturedProjects";
+import Auth from "@/components/auth/Auth";
 
 // Modern Loading Component
 const LoadingScreen = () => (
@@ -59,6 +60,7 @@ const PageWrapper = ({ children }) => (
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
+  const [showAuth, setShowAuth] = useState(false);
   const [componentsLoaded, setComponentsLoaded] = useState({
     hero: false,
     about: false,
@@ -93,7 +95,7 @@ export default function Home() {
       
       {!loading && (
         <PageWrapper>
-          <NavBar />
+          <NavBar onShowAuth={() => setShowAuth(true)} />
           
           {/* Staggered component loading */}
           <motion.div
@@ -143,6 +145,35 @@ export default function Home() {
           >
             <Footer />
           </motion.div>
+
+        {/* Auth Overlay */}
+        <AnimatePresence>
+          {showAuth && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+              onClick={() => setShowAuth(false)}
+            >
+              {/* Backdrop */}
+              <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
+              
+              {/* Auth Modal */}
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="relative z-10 w-full max-w-md mx-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Auth onClose={() => setShowAuth(false)} />
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
         </PageWrapper>
       )}
     </>

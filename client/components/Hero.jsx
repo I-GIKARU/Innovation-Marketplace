@@ -14,11 +14,10 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="relative h-[90vh] text-white flex flex-col items-center justify-center text-center px-4 overflow-hidden">
+    <section className="relative min-h-[70vh] sm:h-[80vh] md:h-[85vh] text-white flex flex-col items-center justify-center text-center px-4 sm:px-6 lg:px-8 overflow-hidden">
       
       <div className="absolute inset-0 bg-black/50 z-10" />
 
-  
       <div className="absolute inset-0 z-0 h-full w-full">
         {images.map((src, index) => (
           <motion.div
@@ -35,37 +34,49 @@ const Hero = () => {
         ))}
       </div>
 
-
-      <div className="relative z-20">
+      <div className="relative z-20 max-w-5xl mx-auto">
         <motion.h1
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-2xl md:text-4xl font-extrabold mb-4 leading-tight"
+          className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-extrabold mb-3 sm:mb-5 leading-tight px-2"
         >
-          Turn Your Capstone Project  
-          Into Your First Opportunity
+          <span className="block sm:inline">Turn Your Capstone Project</span>{' '}
+          <span className="block sm:inline">Into Your First Opportunity</span>
         </motion.h1>
 
        <motion.p
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-base md:text-lg font-light text-white/80 max-w-4xl mx-auto mb-6 px-4 md:px-0"
+          className="text-base sm:text-lg md:text-xl lg:text-2xl font-light text-white/90 max-w-4xl mx-auto mb-6 sm:mb-8 px-2 leading-relaxed"
         >
-          Build it. Launch it. Get hired. Get paid.
-          <br className="block sm:hidden" />
-          Your Moringa project deserves more than just a demo day.
+          <span className="block sm:inline">Build it. Launch it. Get hired. Get paid.</span>
+          <br className="hidden sm:block" />
+          <span className="block sm:inline mt-2 sm:mt-0">Your Moringa project deserves more than just a demo day.</span>
         </motion.p>
 
-
-        <a
-          href="#/projects"
-          className="bg-orange-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-yellow-400 transition"
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8"
         >
-          Explore Projects
-        </a>
-
+          <motion.a
+            href="#/projects"
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full sm:w-auto bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-center inline-flex items-center justify-center gap-2"
+          >
+            <span>Explore Projects</span>
+            <motion.span
+              animate={{ x: [0, 4, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            >
+              →
+            </motion.span>
+          </motion.a>
+        </motion.div>
       </div>
     </section>
   );

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Menu } from "@headlessui/react";
 import { ChevronDownIcon, EyeIcon, EyeSlashIcon, XMarkIcon } from "@heroicons/react/20/solid";
-import { RiLoginCircleLine, RiUserAddLine, RiMailLine, RiLockLine, RiUser3Line, RiShieldUserLine } from "react-icons/ri";
+import { RiLoginCircleLine, RiUserAddLine, RiMailLine, RiLockLine, RiUser3Line, RiShieldUserLine, RiGraduationCapLine, RiBriefcaseLine } from "react-icons/ri";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -49,83 +49,64 @@ const Auth = ({ initialTab = "login", onClose }) => {
     };
 
     return (
-        <div className="w-full max-w-lg mx-auto">
-            {/* Background with glassmorphism */}
-            <div className="relative bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/20">
-                {/* Decorative gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-orange-600/5 rounded-3xl"></div>
-                
-                {/* Decorative elements */}
-                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-orange-400/30 to-orange-600/30 rounded-full blur-2xl transform translate-x-10 -translate-y-10"></div>
-                <div className="absolute bottom-0 left-0 w-20 h-20 bg-gradient-to-tr from-orange-500/25 to-orange-300/25 rounded-full blur-xl transform -translate-x-8 translate-y-8"></div>
+        <div className="w-full max-w-md mx-auto">
+            {/* Simplified background */}
+            <div className="relative bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl border border-white/20">
+                {/* Minimal decorative overlay */}
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/3 to-orange-600/3 rounded-2xl"></div>
                 
                 {/* Close Button */}
                 {onClose && (
                     <button
                         onClick={onClose}
-                        className="absolute top-6 right-6 z-20 p-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-xl shadow-lg transition-all duration-300 hover:scale-110 group border border-white/20"
+                        className="absolute top-4 right-4 z-20 p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200 group"
                     >
-                        <XMarkIcon className="w-6 h-6 text-white group-hover:text-orange-300 transition-colors duration-300" />
+                        <XMarkIcon className="w-5 h-5 text-white group-hover:text-orange-300 transition-colors duration-200" />
                     </button>
                 )}
                 
-                <div className="relative z-10 p-10">
-                    {/* Header */}
-                    <div className="text-center mb-10">
-                        <motion.div
-                            initial={{ scale: 0.3, opacity: 0, rotate: -180 }}
-                            animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                            transition={{ duration: 0.6, type: "spring", stiffness: 200 }}
-                            className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-2xl border border-orange-400/30"
-                        >
+                <div className="relative z-10 p-4 sm:p-6">
+                    {/* Simplified Header */}
+                    <div className="text-center mb-4">
+                        <div className="w-12 h-12 mx-auto mb-3 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
                             {activeTab === "login" ? (
-                                <RiLoginCircleLine className="w-10 h-10 text-white" />
+                                <RiLoginCircleLine className="w-6 h-6 text-white" />
                             ) : (
-                                <RiUserAddLine className="w-10 h-10 text-white" />
+                                <RiUserAddLine className="w-6 h-6 text-white" />
                             )}
-                        </motion.div>
-                        <motion.h2 
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2, duration: 0.5 }}
-                            className="text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-3"
-                        >
-                            {activeTab === "login" ? "Welcome Back" : "Join Innovation Market"}
-                        </motion.h2>
-                        <motion.p 
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3, duration: 0.5 }}
-                            className="text-gray-300 text-base"
-                        >
+                        </div>
+                        <h2 className="text-2xl font-bold text-white mb-2">
+                            {activeTab === "login" ? "Welcome Back" : "Join InnoMarket"}
+                        </h2>
+                        <p className="text-gray-300 text-sm">
                             {activeTab === "login" 
-                                ? "Sign in to access your creative dashboard" 
-                                : "Join our innovation marketplace and showcase your creativity"}
-                        </motion.p>
+                                ? "Sign in to your account" 
+                                : "Create your account"}
+                        </p>
                     </div>
 
                     {/* Tab Switcher */}
-                    <div className="flex bg-white/10 backdrop-blur-sm rounded-2xl p-2 mb-8 border border-white/20">
+                    <div className="flex bg-white/10 backdrop-blur-sm rounded-xl p-1 mb-4 border border-white/20">
                         <button
                             onClick={() => setActiveTab("login")}
-                            className={`flex-1 py-4 px-6 rounded-xl font-semibold text-base transition-all duration-300 flex items-center justify-center gap-3 ${
+                            className={`flex-1 py-3 px-4 rounded-lg font-medium text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
                                 activeTab === "login"
                                     ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/25"
                                     : "text-gray-300 hover:text-white hover:bg-white/10"
                             }`}
                         >
-                            <RiLoginCircleLine className="w-5 h-5" />
+                            <RiLoginCircleLine className="w-4 h-4" />
                             Login
                         </button>
                         <button
                             onClick={() => setActiveTab("register")}
-                            className={`flex-1 py-4 px-6 rounded-xl font-semibold text-base transition-all duration-300 flex items-center justify-center gap-3 ${
+                            className={`flex-1 py-3 px-4 rounded-lg font-medium text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
                                 activeTab === "register"
                                     ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-500/25"
                                     : "text-gray-300 hover:text-white hover:bg-white/10"
                             }`}
                         >
-                            <RiUserAddLine className="w-5 h-5" />
+                            <RiUserAddLine className="w-4 h-4" />
                             Register
                         </button>
                     </div>
@@ -154,7 +135,7 @@ const Auth = ({ initialTab = "login", onClose }) => {
                                             value={formData.email}
                                             onChange={handleChange}
                                             placeholder="Enter your email"
-                                            className="w-full pl-12 pr-4 py-4 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-400/50 transition-all duration-300 bg-white/10 backdrop-blur-sm text-white placeholder-gray-400 hover:bg-white/15"
+                                            className="w-full pl-10 pr-4 py-3 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-400/50 transition-all duration-200 bg-white/10 backdrop-blur-sm text-white placeholder-gray-400 hover:bg-white/15 text-sm"
                                             required
                                         />
                                     </div>
@@ -193,18 +174,18 @@ const Auth = ({ initialTab = "login", onClose }) => {
                                 <motion.button
                                     type="submit"
                                     disabled={loading}
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                    className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-4 px-6 rounded-xl shadow-xl shadow-orange-500/25 hover:from-orange-600 hover:to-orange-700 hover:shadow-2xl hover:shadow-orange-500/30 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 text-lg"
+                                    whileHover={{ scale: 1.01 }}
+                                    whileTap={{ scale: 0.99 }}
+                                    className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold py-3 px-4 rounded-lg shadow-lg shadow-orange-500/20 hover:from-orange-600 hover:to-orange-700 hover:shadow-xl hover:shadow-orange-500/25 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
                                 >
                                     {loading ? (
                                         <>
-                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                                             Signing in...
                                         </>
                                     ) : (
                                         <>
-                                            <RiLoginCircleLine className="w-5 h-5" />
+                                            <RiLoginCircleLine className="w-4 h-4" />
                                             Sign In
                                         </>
                                     )}
@@ -228,7 +209,7 @@ const Auth = ({ initialTab = "login", onClose }) => {
                                 exit={{ opacity: 0, x: -20 }}
                                 transition={{ duration: 0.3 }}
                                 onSubmit={handleRegister}
-                                className="space-y-5"
+                                className="space-y-4"
                             >
                                 {/* Name Fields */}
                                 <div className="grid grid-cols-2 gap-3">
@@ -242,7 +223,7 @@ const Auth = ({ initialTab = "login", onClose }) => {
                                             value={formData.firstName}
                                             onChange={handleChange}
                                             placeholder="First name"
-                                            className="w-full pl-12 pr-4 py-4 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-400/50 transition-all duration-300 bg-white/10 backdrop-blur-sm text-white placeholder-gray-400 hover:bg-white/15"
+                                            className="w-full pl-10 pr-3 py-3 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-400/50 transition-all duration-200 bg-white/10 backdrop-blur-sm text-white placeholder-gray-400 hover:bg-white/15 text-sm"
                                             required
                                         />
                                     </div>
@@ -256,7 +237,7 @@ const Auth = ({ initialTab = "login", onClose }) => {
                                             value={formData.lastName}
                                             onChange={handleChange}
                                             placeholder="Last name"
-                                            className="w-full pl-12 pr-4 py-4 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-400/50 transition-all duration-300 bg-white/10 backdrop-blur-sm text-white placeholder-gray-400 hover:bg-white/15"
+                                            className="w-full pl-10 pr-3 py-3 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-400/50 transition-all duration-200 bg-white/10 backdrop-blur-sm text-white placeholder-gray-400 hover:bg-white/15 text-sm"
                                             required
                                         />
                                     </div>
@@ -273,7 +254,7 @@ const Auth = ({ initialTab = "login", onClose }) => {
                                         value={formData.email}
                                         onChange={handleChange}
                                         placeholder="Enter your email"
-                                        className="w-full pl-12 pr-4 py-4 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-400/50 transition-all duration-300 bg-white/10 backdrop-blur-sm text-white placeholder-gray-400 hover:bg-white/15"
+                                        className="w-full pl-10 pr-4 py-3 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-400/50 transition-all duration-200 bg-white/10 backdrop-blur-sm text-white placeholder-gray-400 hover:bg-white/15 text-sm"
                                         required
                                     />
                                 </div>
@@ -321,18 +302,18 @@ const Auth = ({ initialTab = "login", onClose }) => {
                                 <motion.button
                                     type="submit"
                                     disabled={loading}
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                    className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-4 px-6 rounded-xl shadow-xl shadow-orange-500/25 hover:from-orange-600 hover:to-orange-700 hover:shadow-2xl hover:shadow-orange-500/30 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 text-lg"
+                                    whileHover={{ scale: 1.01 }}
+                                    whileTap={{ scale: 0.99 }}
+                                    className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold py-3 px-4 rounded-lg shadow-lg shadow-orange-500/20 hover:from-orange-600 hover:to-orange-700 hover:shadow-xl hover:shadow-orange-500/25 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
                                 >
                                     {loading ? (
                                         <>
-                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                                             Creating account...
                                         </>
                                     ) : (
                                         <>
-                                            <RiUserAddLine className="w-5 h-5" />
+                                            <RiUserAddLine className="w-4 h-4" />
                                             Create Account
                                         </>
                                     )}
@@ -356,37 +337,100 @@ const Auth = ({ initialTab = "login", onClose }) => {
     );
 };
 
-const ModernRoleMenu = ({ selectedRole, setSelectedRole, roles }) => (
-    <Menu as="div" className="relative w-full">
-        <Menu.Button className="w-full pl-12 pr-4 py-4 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-400/50 transition-all duration-300 bg-white/10 backdrop-blur-sm text-left flex items-center justify-between hover:bg-white/15">
-            <span className="text-white font-medium">
-                {selectedRole === "student" ? "Student" : "Client"}
-            </span>
-            <ChevronDownIcon className="h-5 w-5 text-gray-400" />
-        </Menu.Button>
-        <Menu.Items className="absolute z-20 mt-2 w-full bg-white/10 backdrop-blur-xl rounded-xl shadow-2xl border border-white/20 focus:outline-none overflow-hidden">
-            <div className="py-2">
-                {roles.map((role) => (
-                    <Menu.Item key={role}>
-                        {({ active }) => (
-                            <button
-                                type="button"
-                                onClick={() => setSelectedRole(role)}
-                                className={`w-full text-left px-6 py-4 text-sm transition-all duration-300 flex items-center gap-3 font-medium ${
-                                    active 
-                                        ? "bg-orange-500/20 text-orange-300" 
-                                        : "text-white hover:bg-white/10"
-                                }`}
-                            >
-                                <RiShieldUserLine className="h-5 w-5" />
-                                {role.charAt(0).toUpperCase() + role.slice(1)}
-                            </button>
-                        )}
-                    </Menu.Item>
-                ))}
-            </div>
-        </Menu.Items>
-    </Menu>
-);
+const roleConfig = {
+    student: {
+        icon: RiGraduationCapLine,
+        label: "Student",
+        description: "Looking for projects and learning opportunities",
+        color: "text-blue-400"
+    },
+    client: {
+        icon: RiBriefcaseLine,
+        label: "Client",
+        description: "Seeking innovative solutions for your business",
+        color: "text-green-400"
+    }
+};
+
+const ModernRoleMenu = ({ selectedRole, setSelectedRole, roles }) => {
+    const selectedConfig = roleConfig[selectedRole];
+    const SelectedIcon = selectedConfig.icon;
+    
+    return (
+        <Menu as="div" className="relative w-full">
+            <Menu.Button className="w-full pl-12 pr-4 py-4 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-400/50 transition-all duration-300 bg-white/10 backdrop-blur-sm text-left flex items-center justify-between hover:bg-white/15 group">
+                <div className="flex items-center gap-3">
+                    <SelectedIcon className={`h-5 w-5 ${selectedConfig.color} group-hover:text-orange-400 transition-colors duration-200`} />
+                    <div>
+                        <span className="text-white font-medium text-sm">
+                            {selectedConfig.label}
+                        </span>
+                        <p className="text-gray-400 text-xs mt-0.5 leading-tight">
+                            {selectedConfig.description}
+                        </p>
+                    </div>
+                </div>
+                <ChevronDownIcon className="h-5 w-5 text-gray-400 group-hover:text-orange-400 transition-colors duration-200" />
+            </Menu.Button>
+            
+            <Menu.Items className="absolute z-50 mt-2 w-full bg-gray-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-white/30 focus:outline-none overflow-hidden bottom-full left-0 mb-2">
+                <div className="py-2">
+                    {roles.map((role) => {
+                        const config = roleConfig[role];
+                        const RoleIcon = config.icon;
+                        const isSelected = selectedRole === role;
+                        
+                        return (
+                            <Menu.Item key={role}>
+                                {({ active }) => (
+                                    <button
+                                        type="button"
+                                        onClick={() => setSelectedRole(role)}
+                                        className={`w-full text-left px-4 py-4 transition-all duration-200 flex items-center gap-4 relative group ${
+                                            active 
+                                                ? "bg-orange-500/20 text-orange-300" 
+                                                : "text-white hover:bg-white/10"
+                                        } ${isSelected ? "bg-orange-500/10 border-l-2 border-orange-500" : ""}`}
+                                    >
+                                        <div className={`p-2 rounded-lg transition-all duration-200 ${
+                                            active ? "bg-orange-500/20" : "bg-white/10"
+                                        }`}>
+                                            <RoleIcon className={`h-5 w-5 ${
+                                                active ? "text-orange-300" : config.color
+                                            } transition-colors duration-200`} />
+                                        </div>
+                                        
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2">
+                                                <span className={`font-medium text-sm ${
+                                                    active ? "text-orange-300" : "text-white"
+                                                } transition-colors duration-200`}>
+                                                    {config.label}
+                                                </span>
+                                                {isSelected && (
+                                                    <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                                                )}
+                                            </div>
+                                            <p className={`text-xs leading-tight mt-1 ${
+                                                active ? "text-orange-200/80" : "text-gray-400"
+                                            } transition-colors duration-200`}>
+                                                {config.description}
+                                            </p>
+                                        </div>
+                                        
+                                        {/* Subtle hover indicator */}
+                                        <div className={`w-1 h-8 rounded-full transition-all duration-200 ${
+                                            active ? "bg-gradient-to-b from-orange-400 to-orange-600" : "bg-transparent"
+                                        }`}></div>
+                                    </button>
+                                )}
+                            </Menu.Item>
+                        );
+                    })}
+                </div>
+            </Menu.Items>
+        </Menu>
+    );
+};
 
 export default Auth;

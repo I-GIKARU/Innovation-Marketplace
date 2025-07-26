@@ -104,30 +104,30 @@ const StatsSection = () => {
   };
 
   return (
-    <section className="relative py-20 overflow-hidden">
+    <section className="relative py-8 sm:py-12 md:py-16 overflow-hidden">
       {/* Modern gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.1)_0%,transparent_50%)]" />
       
       {/* Decorative elements */}
-      <div className="absolute top-20 left-10 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 right-10 w-40 h-40 bg-orange-500/10 rounded-full blur-3xl" />
+      <div className="absolute top-10 sm:top-20 left-5 sm:left-10 w-24 sm:w-32 h-24 sm:h-32 bg-blue-500/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-10 sm:bottom-20 right-5 sm:right-10 w-32 sm:w-40 h-32 sm:h-40 bg-orange-500/10 rounded-full blur-3xl" />
       
-      <div className="relative max-w-7xl mx-auto px-6">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-center mb-16"
+          className="text-center mb-12 sm:mb-16"
         >
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-            <span className="bg-gradient-to-r from-orange-400 via-orange-500 to-red-500 bg-clip-text text-transparent">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-5">
+            <span className="bg-gradient-to-r from-orange-400 via-orange-500 to-red-500 bg-clip-text text-transparent block">
               Our Impact
             </span>
-            <span className="text-white block mt-2">So Far</span>
+            <span className="text-white block mt-1 sm:mt-2">So Far</span>
           </h2>
-          <p className="text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed px-4">
             Proof that student innovation, industry collaboration, and community support are shaping the future — together.
           </p>
         </motion.div>
@@ -138,7 +138,7 @@ const StatsSection = () => {
           variants={containerVariants}
           initial="hidden"
           animate={inView ? "visible" : "hidden"}
-          className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8"
         >
           {stats.map((stat, i) => {
             const Icon = stat.icon;

@@ -52,8 +52,8 @@ const Merchandise = () => {
       </p>
     );
 
-return (
-    <section className="py-20 bg-[#0a1128] relative overflow-hidden">
+  return (
+    <section className="py-8 sm:py-12 md:py-16 bg-[#0a1128] relative overflow-hidden">
       {/* Background decorative elements removed for simplicity */}
       <div className="relative z-10">
         {/* Header */}
@@ -66,22 +66,22 @@ return (
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-12 sm:mb-16"
         >
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-100 to-pink-100 px-4 py-2 rounded-full mb-6">
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-100 to-pink-100 px-4 py-2 rounded-full mb-4 sm:mb-6">
             <ShoppingBagIcon className="w-5 h-5 text-orange-600" />
             <span className="text-orange-700 font-medium text-sm">Official Store</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-gray-900 via-orange-800 to-gray-900 bg-clip-text text-transparent mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black bg-gradient-to-r from-gray-900 via-orange-800 to-gray-900 bg-clip-text text-transparent mb-3 px-4">
             Premium Merch
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg sm:text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed">
             Elevate your style with our exclusive collection. Quality meets innovation.
           </p>
         </motion.div>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto px-6 mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 max-w-7xl mx-auto px-4 sm:px-6 mb-12 sm:mb-16">
           {displayItems.map((item, index) => (
             <motion.div
               key={index}
@@ -99,14 +99,13 @@ return (
                 <img
                   src={item.image}
                   alt={item.name}
-                  className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                  className="w-full h-64 sm:h-72 object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                 />
                 {/* Image Overlay Gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               </div>
 
-
-                
+              <div className="p-4 sm:p-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors duration-300">
                   {item.name}
                 </h3>
@@ -122,7 +121,7 @@ return (
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex gap-3">
+                <div className="flex gap-2">
                   <Link 
                     href={`/merchandise/${item.id}`}
                     className="flex-1 group/btn"
@@ -137,6 +136,7 @@ return (
                     </motion.button>
                   </Link>
                 </div>
+              </div>
 
               {/* Hover Effect Border */}
               <div className="absolute inset-0 rounded-3xl border-2 border-orange-200/0 group-hover:border-orange-200/50 transition-all duration-500 pointer-events-none"></div>
@@ -155,7 +155,7 @@ return (
             <motion.button
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
-              className="group bg-gradient-to-r from-orange-500 via-orange-600 to-pink-600 hover:from-orange-600 hover:via-pink-600 hover:to-purple-600 text-white font-bold px-10 py-4 rounded-2xl shadow-2xl hover:shadow-orange-200/50 transition-all duration-500 relative overflow-hidden"
+              className="group bg-gradient-to-r from-orange-500 via-orange-600 to-pink-600 hover:from-orange-600 hover:via-pink-600 hover:to-purple-600 text-white font-bold px-8 sm:px-10 py-3 sm:py-4 rounded-2xl shadow-2xl hover:shadow-orange-200/50 transition-all duration-500 relative overflow-hidden"
             >
               {/* Button shine effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
