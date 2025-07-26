@@ -74,10 +74,45 @@ class Config:
         # Try JSON string first (for deployment)
         if Config.GOOGLE_CREDENTIALS_JSON:
             try:
-                cred_dict = json.loads(Config.GOOGLE_CREDENTIALS_JSON)
-                return credentials.Certificate(cred_dict)
-            except json.JSONDecodeError as e:
-                print(f"⚠️ Invalid JSON in GOOGLE_CREDENTIALS_JSON: {e}")
+                # Handle potential double-escaping issues from Cloud Run environment variables
+                json_str = Config.GOOGLE_CREDENTIALS_JSON
+                
+                # Debug: print first 100 chars to see what we're getting
+                print(f"🔍 GOOGLE_CREDENTIALS_JSON first 100 chars: {json_str[:100]}...")
+                
+                # Try to parse the JSON directly first
+                try:
+                    cred_dict = json.loads(json_str)
+                    print(f"✅ Successfully parsed JSON on first attempt")
+                    return credentials.Certificate(cred_dict)
+                except json.JSONDecodeError:
+                    # If that fails, try unescaping double-escaped JSON
+                    print(f"🔄 First parse failed, trying to unescape...")
+                    try:
+                        # Remove extra escaping that might have been added
+                        unescaped_json = json_str.replace('\\"', '"').replace('\\n', '\n')
+                        cred_dict = json.loads(unescaped_json)
+                        print(f"✅ Successfully parsed JSON after unescaping")
+                        return credentials.Certificate(cred_dict)
+                    except json.JSONDecodeError as e2:
+                        print(f"⚠️ JSON parsing failed even after unescaping: {e2}")
+                        # Try one more approach: direct string replacement
+                        try:
+                            # Replace escaped quotes and newlines more aggressively
+                            fixed_json = json_str
+                            if '\\"' in fixed_json:
+                                fixed_json = fixed_json.replace('\\"', '"')
+                            if '\\n' in fixed_json:
+                                fixed_json = fixed_json.replace('\\n', '\n')
+                            cred_dict = json.loads(fixed_json)
+                            print(f"✅ Successfully parsed JSON after aggressive fixing")
+                            return credentials.Certificate(cred_dict)
+                        except json.JSONDecodeError as e3:
+                            print(f"⚠️ All JSON parsing attempts failed: {e3}")
+                            return None
+                        
+            except Exception as e:
+                print(f"⚠️ Error processing GOOGLE_CREDENTIALS_JSON: {e}")
                 return None
         
         # Try file path (for local development)
