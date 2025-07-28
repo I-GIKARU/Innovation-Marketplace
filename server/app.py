@@ -82,18 +82,20 @@ def create_app():
     from resources.projects import setup_routes as projects_setup_routes
     from resources.admin import setup_routes as admin_setup_routes
     from resources.merch import setup_routes as merchandise_setup_routes
-    from resources.orders import setup_routes as orders_setup_routes
+    from resources.sales import setup_routes as sales_setup_routes
     from resources.user_projects import setuser_project_routes as user_projects_setup_routes
     from resources.migrate import setup_routes as migrate_setup_routes
+    from resources.ai_agent import setup_ai_routes
 
     
     auth_setup_routes(api)
     projects_setup_routes(api)
     admin_setup_routes(api)
     merchandise_setup_routes(api)
-    orders_setup_routes(api)
+    sales_setup_routes(api)
     user_projects_setup_routes(api)
     migrate_setup_routes(api)
+    setup_ai_routes(api)
     
     # ✅ Create default roles on app startup  
     # Use a background function to avoid blocking the main thread
@@ -111,8 +113,7 @@ def create_app():
                     # Create all roles if they don't exist
                     roles_to_create = [
                         {'name': 'admin', 'desc': 'Administrator role'},
-                        {'name': 'student', 'desc': 'Student developer'},
-                        {'name': 'client', 'desc': 'clients'}
+                        {'name': 'student', 'desc': 'Student developer'}
                     ]
                     
                     created_roles = []

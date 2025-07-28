@@ -26,17 +26,40 @@ class User(db.Model, SerializerMixin):
     auth_provider = db.Column(db.String(20), default='firebase')  # Only Firebase auth
     bio = db.Column(db.Text)
     socials = db.Column(db.String(255))
-    company = db.Column(db.String(100))
     past_projects = db.Column(db.Text)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable=False)
     
+    # CV-related fields
+    cv_url = db.Column(db.String(500))  # URL to the CV file
+    cv_summary = db.Column(db.Text)  # AI-generated CV summary
+    cv_file_id = db.Column(db.String(100))  # Unique file ID for CV
+    cv_uploaded_at = db.Column(db.DateTime)  # When CV was uploaded
+    
     # Relationships
-    orders = db.relationship('Order', back_populates='user', lazy=True)
+    sales = db.relationship('Sales', back_populates='user', lazy=True)
     user_projects = db.relationship('UserProject', back_populates='user', lazy=True)
     role = db.relationship('Role', back_populates='users')
 
     # Serialization rules
-    serialize_rules = ('-role.users', '-orders.user', '-user_projects.user')
+    serialize_rules = ('-role.users', '-sales.user', '-user_projects.user')
+
+    def to_dict(self):
+        """Custom to_dict method for User serialization"""
+        return {
+            'id': self.id,
+            'email': self.email,
+            'phone': self.phone,
+            # firebase_uid removed for security - should never be exposed to frontend
+            'auth_provider': self.auth_provider,
+            'bio': self.bio,
+            'socials': self.socials,
+            'past_projects': self.past_projects,
+            'role': self.role.name if self.role else None,
+            'cv_url': self.cv_url,
+            'cv_summary': self.cv_summary,
+            'cv_file_id': self.cv_file_id,
+            'cv_uploaded_at': self.cv_uploaded_at.isoformat() if self.cv_uploaded_at else None
+        }
 
 
 
@@ -77,6 +100,10 @@ class Project(db.Model, SerializerMixin):
     pdf_urls = db.Column(db.Text)  # JSON string of PDF file URLs  
     video_urls = db.Column(db.Text)  # JSON string of video URLs
     thumbnail_url = db.Column(db.String(500))  # Main project thumbnail
+    
+    # AI-generated fields
+    project_summary = db.Column(db.Text)  # AI-generated project summary
+    documentation_file_id = db.Column(db.String(100))  # File ID for project documentation
     
     # External collaborators (unregistered users)
     external_collaborators = db.Column(db.Text)  # JSON string of external collaborators with name and github
@@ -121,6 +148,8 @@ class Project(db.Model, SerializerMixin):
             'pdf_urls': self.pdf_urls,
             'video_urls': self.video_urls,
             'thumbnail_url': self.thumbnail_url,
+            'project_summary': self.project_summary,
+            'documentation_file_id': self.documentation_file_id,
             'category': self.category.to_dict() if self.category else None,
             'user_projects': [up.to_dict() for up in self.user_projects] if self.user_projects else [],
             'external_collaborators': external_collabs,
@@ -134,7 +163,7 @@ class UserProject(db.Model, SerializerMixin):
     __tablename__ = 'users_projects'
     
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)  # Allow NULL for external hire requests
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     interested_in = db.Column(db.String(255))
     date = db.Column(db.Date)
@@ -169,6 +198,7 @@ class Review(db.Model, SerializerMixin):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     rating = db.Column(db.Integer)
     comment = db.Column(db.Text)
+    email = db.Column(db.String(120), nullable=True)  # Email field for reviews
     date = db.Column(db.Date, default=datetime.utcnow().date)
     
     # Relationships

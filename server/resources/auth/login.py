@@ -8,29 +8,47 @@ from utils.firebase_auth import verify_firebase_token, create_or_get_user_from_f
 class CurrentUser(Resource):
     @jwt_required(optional=True) # Allow access without token
     def get(self):
-        from flask import request
+        import logging
+        logger = logging.getLogger(__name__)
+        
         try:
             identity = get_jwt_identity()
+            logger.info(f"CurrentUser endpoint called with identity: {identity}")
+            
             if identity:
-                # Convert string identity back to int and fetch user from database
-                user_id = int(identity)
-                user = User.query.get(user_id)
-                if user:
-                    user_data = {
-                        'id': user.id,
-                        'email': user.email,
-                        'role': user.role.name
-                    }
-                    return jsonify({"user": user_data})
+                try:
+                    # Convert string identity back to int and fetch user from database
+                    user_id = int(identity)
+                    logger.info(f"Looking up user with ID: {user_id}")
+                    
+                    user = User.query.get(user_id)
+                    if user:
+                        logger.info(f"Found user: {user.email}")
+                        # Use the to_dict method for proper serialization
+                        user_data = user.to_dict()
+                        return jsonify({"user": user_data})
+                    else:
+                        logger.warning(f"No user found with ID: {user_id}")
+                        return jsonify({"user": None})
+                except ValueError as e:
+                    logger.error(f"Invalid user ID format: {identity}, error: {e}")
+                    return jsonify({"user": None})
+                except Exception as e:
+                    logger.error(f"Error fetching user: {e}")
+                    return {"message": f"Error fetching user: {str(e)}"}, 500
+            else:
+                logger.info("No identity found in JWT token")
                 return jsonify({"user": None})
-            return jsonify({"user": None})
         except Exception as exc:
+            logger.error(f"Unexpected error in CurrentUser endpoint: {exc}")
             return {"message": f"Error verifying user: {str(exc)}"}, 500
 
 class FirebaseLogin(Resource):
     def post(self):
         """
-        Login using Firebase ID token
+        Firebase authentication endpoint
+        Supports both Google Sign-In (students) and email/password (admin)
+        Automatically creates accounts on first login with appropriate roles
         """
         try:
             data = request.get_json()
@@ -45,16 +63,15 @@ class FirebaseLogin(Resource):
             if error:
                 return {'error': error}, 401
             
-            # Create or get user from database with role
-            role = data.get('role')  # Get role from request if provided
-            user, error = create_or_get_user_from_firebase(firebase_user_data, role)
+            # Create or get user from database (automatic registration on first login)
+            user, error = create_or_get_user_from_firebase(firebase_user_data, role_name=None)
             if error:
                 return {'error': error}, 500
             
             if not user:
                 return {'error': 'Failed to authenticate user'}, 500
             
-            # Create our own JWT token for the session
+            # Create JWT token for the session
             access_token = create_access_token(
                 identity=str(user.id),
                 expires_delta=timedelta(hours=24)
@@ -69,7 +86,7 @@ class FirebaseLogin(Resource):
             
             response = make_response(jsonify({
                 'user': user_identity,
-                'message': 'Firebase login successful',
+                'message': 'Google sign-in successful',
                 'token': access_token  # Include token in response for localStorage
             }), 200)
             
@@ -79,7 +96,7 @@ class FirebaseLogin(Resource):
             return response
             
         except Exception as exc:
-            return {'error': f'Firebase login failed: {str(exc)}'}, 500
+            return {'error': f'Google sign-in failed: {str(exc)}'}, 500
 
 class UserLogout(Resource):
     def post(self):

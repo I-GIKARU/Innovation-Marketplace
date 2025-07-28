@@ -1,12 +1,13 @@
 from flask import request
 from flask_restful import Resource
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required
 from models import db, UserProject, Project, Review
-from resources.auth.decorators import role_required, admin_or_role_required, get_current_user
+from resources.auth.decorators import admin_or_role_required, get_current_user
+from datetime import date
 
 class UserProjectList(Resource):
     @jwt_required()
-    @admin_or_role_required(['student', 'client']) # Students and Clients can create/view their own
+    @admin_or_role_required(['student']) # Users can view their saved projects
     def post(self):
         try:
             current_user = get_current_user()
@@ -40,14 +41,8 @@ class UserProjectList(Resource):
                     return {'error': 'For student, "interested_in" field is required (e.g., "collaboration")'}, 400
                 if interested_in not in ['collaboration']: # Extend as needed
                     return {'error': 'Invalid "interested_in" value for student'}, 400
-            elif role_name == 'client':
-                if not interested_in:
-                    return {'error': 'For client, "interested_in" field is required (e.g., "buying", "hiring")'}, 400
-                allowed_client_interests = ['buying', 'hiring']
-                if interested_in not in allowed_client_interests:
-                    return {'error': 'Invalid "interested_in" value for client'}, 400
             else:
-                return {'error': 'Only students and clients can create user-project interactions'}, 403
+                return {'error': 'Only students can create user-project interactions'}, 403
             
             # Create user-project interaction
             user_project = UserProject(
@@ -70,7 +65,7 @@ class UserProjectList(Resource):
             return {'error': str(exc)}, 500
     
     @jwt_required()
-    @admin_or_role_required(['student', 'client'])
+    @admin_or_role_required(['student']) # Users can remove saved projects
     def get(self):
         try:
             current_user = get_current_user()
@@ -83,10 +78,7 @@ class UserProjectList(Resource):
             
             query = UserProject.query
             
-            if role_name == 'client':
-                # Clients see their own interactions
-                query = query.filter_by(user_id=user_id)
-            elif role_name == 'student':
+            if role_name == 'student':
                 # Students see interactions related to their projects
                 # First, find projects where the current student is a contributor
                 student_projects_ids = [
@@ -121,7 +113,7 @@ class UserProjectList(Resource):
 
 class UserProjectDetail(Resource):
     @jwt_required()
-    @admin_or_role_required(['student', 'client'])
+    @admin_or_role_required(['student'])
     def get(self, id):
         try:
             current_user = get_current_user()
@@ -132,9 +124,7 @@ class UserProjectDetail(Resource):
             user_project = UserProject.query.get_or_404(id)
             
             # Check permissions
-            if role_name == 'client' and user_project.user_id != user_id:
-                return {'error': 'You can only view your own interactions'}, 403
-            elif role_name == 'student':
+            if role_name == 'student':
                 # Check if student is part of the project associated with this UserProject
                 is_project_member = UserProject.query.filter_by(
                     user_id=user_id,
@@ -170,6 +160,7 @@ class CreateProjectReview(Resource):
                 project_id=project_id,
                 user_id=None,  # Allow anonymous reviews
                 rating=rating,
+email=data.get('email', None),  # Capture email from review data
                 comment=data.get('comment', '')
             )
             
@@ -185,57 +176,6 @@ class CreateProjectReview(Resource):
             db.session.rollback()
             return {'error': str(exc)}, 500
 
-class CreateReview(Resource):
-    @jwt_required()
-    @role_required('client') # Only clients can create reviews for now - LEGACY ENDPOINT
-    def post(self, id):
-        try:
-            current_user = get_current_user()
-            if not current_user:
-                return {'error': 'User not found'}, 404
-            user_id = current_user.id
-            
-            user_project = UserProject.query.get_or_404(id)
-            data = request.get_json()
-            
-            if not data.get('rating'):
-                return {'error': 'Rating is required'}, 400
-            
-            # Check if client owns the user_project interaction
-            if user_project.user_id != user_id:
-                return {'error': 'You can only review your own interactions'}, 403
-            
-            # Check if review already exists for this project by this user
-            existing_review = Review.query.filter_by(
-                project_id=user_project.project_id,
-                user_id=user_id
-            ).first()
-            if existing_review:
-                return {'error': 'You have already reviewed this project'}, 400
-            
-            rating = data['rating']
-            if not isinstance(rating, int) or rating < 1 or rating > 5:
-                return {'error': 'Rating must be an integer between 1 and 5'}, 400
-            
-            # Create review - now using new direct relationship
-            review = Review(
-                project_id=user_project.project_id,
-                user_id=user_id,
-                rating=rating,
-                comment=data.get('comment', '')
-            )
-            
-            db.session.add(review)
-            db.session.commit()
-            
-            return {
-                'message': 'Review created successfully',
-                'review': review.to_dict()
-            }, 201
-            
-        except Exception as exc:
-            db.session.rollback()
-            return {'error': str(exc)}, 500
 
 class ProjectReviews(Resource):
     def get(self, id):
@@ -252,9 +192,46 @@ class ProjectReviews(Resource):
         except Exception as exc:
             return {'error': str(exc)}, 500
 
+class HireTeam(Resource):
+    def post(self, project_id):
+        try:
+            # Check if project exists
+            project = Project.query.get_or_404(project_id)
+            data = request.get_json()
+            
+            # Validate required fields
+            required_fields = ['name', 'email', 'message']
+            for field in required_fields:
+                if not data.get(field):
+                    return {'error': f'{field.capitalize()} is required'}, 400
+            
+            # Create a special user-project interaction for hire requests
+            hire_request = UserProject(
+                user_id=None,  # No user ID for external hire requests
+                project_id=project_id,
+                interested_in='hire_request',  # Special type for hire requests
+                date=date.today(),  # Set current date
+                message=f"HIRE REQUEST from {data['name']} ({data['email']}):\n\n" +
+                       f"Company: {data.get('company', 'Not specified')}\n" +
+                       f"Phone: {data.get('phone', 'Not provided')}\n\n" +
+                       f"Message: {data['message']}"
+            )
+            
+            db.session.add(hire_request)
+            db.session.commit()
+            
+            return {
+                'message': 'Hire request sent successfully! The team will be notified.',
+                'hire_request_id': hire_request.id
+            }, 201
+            
+        except Exception as exc:
+            db.session.rollback()
+            return {'error': str(exc)}, 500
+
 def setuser_project_routes(api):
     api.add_resource(UserProjectList, '/api/user-projects')
     api.add_resource(UserProjectDetail, '/api/user-projects/<int:id>')
-    api.add_resource(CreateReview, '/api/user-projects/<int:id>/review')
     api.add_resource(CreateProjectReview, '/api/projects/<int:project_id>/reviews')
     api.add_resource(ProjectReviews, '/api/projects/<int:id>/reviews')
+    api.add_resource(HireTeam, '/api/projects/<int:project_id>/hire')

@@ -1,0 +1,206 @@
+from flask import request
+from flask_restful import Resource
+from flask_jwt_extended import jwt_required
+from models import db, Sales, SalesItem, Merchandise
+from resources.auth.decorators import role_required
+import uuid
+
+class BuyEndpoint(Resource):
+    """Public endpoint for purchasing merchandise - no authentication required"""
+    def post(self):
+        try:
+            data = request.get_json()
+            
+            if not data.get('items'):
+                return {'error': 'Items are required'}, 400
+            
+            # Email is required
+            if not data.get('email'):
+                return {'error': 'Email is required'}, 400
+            
+            user_email = data['email']
+            
+            # Calculate total amount
+            total_amount = 0
+            sales_items_data = []
+            
+            for item_data in data['items']:
+                merchandise = Merchandise.query.get(item_data['merchandise_id'])
+                if not merchandise:
+                    return {'error': f'Merchandise {item_data["merchandise_id"]} not found'}, 404
+                
+                if merchandise.quantity < item_data['quantity']:
+                    return {'error': f'Merchandise {merchandise.name} is out of stock or insufficient quantity available'}, 400
+                
+                quantity = item_data['quantity']
+                if not isinstance(quantity, int) or quantity <= 0:
+                    return {'error': 'Quantity must be a positive integer'}, 400
+
+                item_total = merchandise.price * quantity
+                total_amount += item_total
+                
+                sales_items_data.append({
+                    'merchandise_id': merchandise.id,
+                    'quantity': quantity,
+                    'price': merchandise.price # Store price at time of sale
+                })
+            
+            # Create sale with 'completed' status (direct purchase)
+            sale = Sales(
+                user_id=None,  # Guest purchase
+                email=user_email,
+                amount=total_amount,
+                status='completed'  # Direct completion without payment processing
+            )
+            
+            db.session.add(sale)
+            db.session.flush()  # Get sale ID
+            
+            # Create sales items and update stock immediately
+            for item_data in sales_items_data:
+                sales_item = SalesItem(
+                    sales_id=sale.id,
+                    merchandise_id=item_data['merchandise_id'],
+                    quantity=item_data['quantity'],
+                    price=item_data['price']
+                )
+                db.session.add(sales_item)
+                
+                # Update merchandise stock
+                merchandise = Merchandise.query.get(item_data['merchandise_id'])
+                if merchandise:
+                    merchandise.quantity -= item_data['quantity']
+                    db.session.add(merchandise)
+            
+            db.session.commit()
+            
+            return {
+                'message': 'Order placed successfully!',
+                'sale_id': sale.id,
+                'amount': total_amount,
+                'status': 'completed'
+            }, 200
+            
+        except Exception as exc:
+            db.session.rollback()
+            return {'error': str(exc)}, 500
+
+class AdminSalesList(Resource):
+    """Admin endpoint to view all sales"""
+    @jwt_required()
+    @role_required('admin')
+    def get(self):
+        try:
+            page = request.args.get('page', 1, type=int)
+            per_page = request.args.get('per_page', 10, type=int)
+            status = request.args.get('status')  # Filter by status if provided
+            
+            query = Sales.query
+            if status:
+                query = query.filter_by(status=status)
+                
+            sales = query.order_by(Sales.date.desc()).paginate(
+                page=page,
+                per_page=per_page,
+                error_out=False
+            )
+            
+            return {
+                'sales': [sale.to_dict() for sale in sales.items],
+                'total': sales.total,
+                'pages': sales.pages,
+                'current_page': page
+            }, 200
+            
+        except Exception as exc:
+            return {'error': str(exc)}, 500
+
+
+class AdminSaleDetail(Resource):
+    """Admin endpoint to view and manage individual sales"""
+    @jwt_required()
+    @role_required('admin')
+    def get(self, id):
+        try:
+            sale = Sales.query.get_or_404(id)
+            return {'sale': sale.to_dict()}, 200
+        except Exception as exc:
+            return {'error': str(exc)}, 500
+    
+    @jwt_required()
+    @role_required('admin')
+    def put(self, id):
+        """Update sale status"""
+        try:
+            data = request.get_json()
+            sale = Sales.query.get_or_404(id)
+            
+            if 'status' in data:
+                valid_statuses = ['paid', 'completed', 'cancelled']
+                new_status = data['status']
+                
+                if new_status not in valid_statuses:
+                    return {'error': f'Invalid status. Must be one of: {", ".join(valid_statuses)}'}, 400
+                
+                old_status = sale.status
+                sale.status = new_status
+                
+                # If cancelling, restore stock
+                if new_status == 'cancelled' and old_status != 'cancelled':
+                    for sales_item in sale.items:
+                        merchandise = Merchandise.query.get(sales_item.merchandise_id)
+                        if merchandise:
+                            merchandise.quantity += sales_item.quantity
+                            db.session.add(merchandise)
+                
+                db.session.commit()
+                
+                return {
+                    'message': f'Sale status updated to {new_status}',
+                    'sale': sale.to_dict()
+                }, 200
+            
+            return {'error': 'No valid fields to update'}, 400
+            
+        except Exception as exc:
+            db.session.rollback()
+            return {'error': str(exc)}, 500
+
+class AdminCancelSale(Resource):
+    """Admin endpoint to cancel any sale"""
+    @jwt_required()
+    @role_required('admin')
+    def post(self, id):
+        try:
+            sale = Sales.query.get_or_404(id)
+            
+            if sale.status in ['cancelled', 'refunded']:
+                return {'error': 'Sale is already cancelled or refunded'}, 400
+            
+            # Restore stock quantities for cancelled sale
+            for sales_item in sale.items:
+                merchandise = Merchandise.query.get(sales_item.merchandise_id)
+                if merchandise:
+                    merchandise.quantity += sales_item.quantity
+                    db.session.add(merchandise)
+            
+            sale.status = 'cancelled'
+            db.session.commit()
+            
+            return {
+                'message': 'Sale cancelled successfully by admin',
+                'sale': sale.to_dict()
+            }, 200
+            
+        except Exception as exc:
+            db.session.rollback()
+            return {'error': str(exc)}, 500
+
+def setup_routes(api):
+    # Public buying endpoint (no authentication required)
+    api.add_resource(BuyEndpoint, '/api/buy')
+    
+    # Admin sales management endpoints (admin authentication required)
+    api.add_resource(AdminSalesList, '/api/admin/sales')
+    api.add_resource(AdminSaleDetail, '/api/admin/sales/<int:id>')
+    api.add_resource(AdminCancelSale, '/api/admin/sales/<int:id>/cancel')
