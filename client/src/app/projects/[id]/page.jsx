@@ -4,7 +4,6 @@ import { useProjectDetail } from "@/hooks/useProjectDetail";
 import { getProjectImages, getProjectVideos, getProjectPDFs, getProjectZIPs, getTeamMembers } from "@/utils/projectHelpers";
 import ProjectDetailLayout from "@/components/project-detail/ProjectDetailLayout";
 import ReviewForm from "@/components/project-detail/ReviewForm";
-import InteractionForm from "@/components/project-detail/InteractionForm";
 import DeleteConfirmModal from "@/components/project-detail/DeleteConfirmModal";
 import ProjectQA from "@/components/projects/ProjectQA";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
@@ -37,13 +36,10 @@ export default function ProjectDetail() {
     handleSaveEdit,
     handleDeleteClick,
     handleConfirmDelete,
-    handleExpressInterest,
     handleSubmitReview,
-    // State setters
     setEditedDescription,
     setEditedTechStack,
     setShowDeleteConfirm,
-    setShowInteractionForm,
     setShowReviewForm,
   } = useProjectDetail();
 
@@ -97,7 +93,6 @@ if (!singleProject && !loading) {
         onDelete={handleDeleteClick}
         onExpressInterest={() => setShowInteractionForm(true)}
         onWriteReview={() => setShowReviewForm(true)}
-        onHireTeam={null}
         onAskAI={handleAskAI}
       />
 
@@ -109,14 +104,7 @@ if (!singleProject && !loading) {
         />
       )}
 
-      {showInteractionForm && (
-        <InteractionForm
-          project={singleProject}
-          user={user}
-          onSubmit={handleExpressInterest}
-          onCancel={() => setShowInteractionForm(false)}
-        />
-      )}
+
 
       {showReviewForm && (
         <ReviewForm

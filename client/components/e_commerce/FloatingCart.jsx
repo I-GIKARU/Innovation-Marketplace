@@ -12,16 +12,13 @@ import {
   CheckCircleIcon,
   UserIcon,
   EnvelopeIcon,
-  PhoneIcon,
-  MapPinIcon,
-  CreditCardIcon
 } from '@heroicons/react/24/outline';
 import { useCart } from '@/contexts/CartContext';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '@/hooks/useAuth';
 
-const FloatingCart = ({ onCartClick, onCheckoutClick, onOrdersClick }) => {
+const FloatingCart = ({  }) => {
   const { cart, updateQuantity, removeFromCartById, getCartTotal, getCartCount, clearCart } = useCart();
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);

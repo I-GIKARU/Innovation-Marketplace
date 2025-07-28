@@ -23,7 +23,7 @@ const TeamMemberDialog = ({ member, onClose }) => {
           <div>
             <h3 className="text-lg font-bold">
               {isExternal 
-                ? userData.name || 'External Collaborator'
+                ? userData.name || 'Collaborator'
                 : userData.email?.split('@')[0] || 'Team Member'
               }
             </h3>
@@ -32,7 +32,7 @@ const TeamMemberDialog = ({ member, onClose }) => {
                 ? 'bg-orange-100 text-orange-800' 
                 : 'bg-blue-100 text-blue-800'
             }`}>
-              {isExternal ? 'External Collaborator' : userData.role || 'Student'}
+              {isExternal ? 'Collaborator' : userData.role || 'Student'}
             </span>
           </div>
         </div>

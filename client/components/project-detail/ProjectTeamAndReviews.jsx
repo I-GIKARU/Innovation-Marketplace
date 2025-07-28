@@ -80,7 +80,7 @@ const ProjectTeamAndReviews = ({ project, teamMembers, projectReviews, canWriteR
                         ? 'bg-orange-100 text-orange-800' 
                         : 'bg-blue-100 text-blue-800'
                     }`}>
-                      {up.isExternal ? 'External Collaborator' : up.user.role.name}
+                      {up.isExternal ? 'Collaborator' : up.user.role.name}
                     </span>
                   )}
                   
