@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'framer-motion';
-import { FaGithub, FaExternalLinkAlt, FaPlay, FaRocket, FaLightbulb } from 'react-icons/fa';
-import { HiStar, HiEye, HiUsers, HiCode, HiSparkles, HiCubeTransparent, HiLightningBolt } from 'react-icons/hi';
+import { useEffect, useState, } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaPlay, FaRocket, FaLightbulb } from 'react-icons/fa';
+import { HiEye, HiUsers, HiCode, HiSparkles, HiCubeTransparent, HiLightningBolt } from 'react-icons/hi';
 import { useProjects } from '@/hooks/useProjects';
 import Link from 'next/link';
 
@@ -78,7 +78,7 @@ const ProjectCard = ({ project, index }) => {
   const imageSrc = project.thumbnail_url || '/placeholder.jpg';
   const techStack = project.tech_stack ? project.tech_stack.split(',').slice(0, 3) : [];
   const author = project.user_projects?.[0]?.user;
-  
+
   return (
     <motion.div
       variants={itemVariants}
@@ -133,12 +133,6 @@ const ProjectCard = ({ project, index }) => {
                   <HiEye className="w-3 h-3 text-gray-600" />
                   <span>{project.views || 0}</span>
                 </div>
-                {project.user_projects && (
-                  <div className="bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 flex items-center gap-1 text-xs font-medium">
-                    <HiUsers className="w-3 h-3 text-gray-600" />
-                    <span>{project.user_projects.length}</span>
-                  </div>
-                )}
               </motion.div>
             )}
           </AnimatePresence>
