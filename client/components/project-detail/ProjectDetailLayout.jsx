@@ -20,6 +20,8 @@ const ProjectDetailLayout = ({
   onDescriptionChange,
   onTechStackChange,
   onWriteReview,
+  onHireTeam,
+  onAskAI,
 }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a1128] via-slate-900 to-[#0a1128]">
@@ -102,6 +104,7 @@ const ProjectDetailLayout = ({
                     projectReviews={projectReviews}
                     canWriteReview={canWriteReview}
                     onWriteReview={onWriteReview}
+                    onHireTeam={onHireTeam}
                   />
                 </div>
               </section>
@@ -115,6 +118,7 @@ const ProjectDetailLayout = ({
                   isEditing={isEditing}
                   editedTechStack={editedTechStack}
                   onTechStackChange={onTechStackChange}
+                  onAskAI={onAskAI}
                 />
               </div>
             </div>

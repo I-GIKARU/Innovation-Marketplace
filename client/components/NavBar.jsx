@@ -81,16 +81,11 @@ const NavBar = ({ onNavigate, onShowAuth }) => {
           { href: '/dashboard/student', section: 'projects', label: 'My Projects', icon: FiFolder },
           { href: '/dashboard/student', section: 'reviews', label: 'Reviews', icon: FiHeart }
         ];
-      case 'client':
-        return [
-          ...baseItems,
-          { href: '/dashboard/client', section: 'orders', label: 'My Orders', icon: FiShoppingBag }
-        ];
       case 'admin':
         return [
           ...baseItems,
           { href: '/dashboard/admin', section: 'products', label: 'Products', icon: FiShoppingBag },
-          { href: '/dashboard/admin', section: 'orders', label: 'Orders', icon: FiFolder },
+          { href: '/dashboard/admin', section: 'orders', label: 'Sales', icon: FiFolder },
           { href: '/dashboard/admin', section: 'projects', label: 'Projects', icon: FiFolder }
         ];
       default:
@@ -107,8 +102,6 @@ const NavBar = ({ onNavigate, onShowAuth }) => {
         return '/dashboard/admin';
       case 'student':
         return '/dashboard/student';
-      case 'client':
-        return '/dashboard/client';
       default:
         return '/';
     }
@@ -123,8 +116,6 @@ const NavBar = ({ onNavigate, onShowAuth }) => {
         return 'Admin Dashboard';
       case 'student':
         return 'Student Dashboard';
-      case 'client':
-        return 'Client Dashboard';
       default:
         return 'Dashboard';
     }

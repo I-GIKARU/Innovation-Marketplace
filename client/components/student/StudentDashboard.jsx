@@ -6,12 +6,14 @@ import MyProjectsPanel from './MyProjectsPanel'
 import ProjectUpload from './ProjectUpload'
 import StudentReviews from './StudentReviews'
 import StudentProfile from './StudentProfile'
+import CVUpload from './CVUpload'
 import { useStudentDashboard } from '@/hooks/useStudentDashboard'
 import { useAuth } from '@/hooks/useAuth'
 
 const StudentDashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard')
   const [showUploadModal, setShowUploadModal] = useState(false)
+  const [showCVUploadModal, setShowCVUploadModal] = useState(false)
   const { dashboardData, loading: dashboardLoading, error, fetchDashboardData } = useStudentDashboard()
   const { user } = useAuth()
 
@@ -31,13 +33,14 @@ const StudentDashboard = () => {
     }
   }
 
-  const handleUploadClick = () => {
-    setShowUploadModal(true)
-  }
-
   const handleUploadComplete = () => {
     setShowUploadModal(false)
     fetchDashboardData() // Refresh dashboard data
+  }
+
+  const handleCVUploadSuccess = () => {
+    setShowCVUploadModal(false)
+    fetchDashboardData() // Refresh dashboard data to show updated CV status
   }
 
   const handleProjectUpdate = () => {
@@ -54,6 +57,8 @@ const StudentDashboard = () => {
               loading={dashboardLoading}
               error={error}
               onRetry={fetchDashboardData}
+              onCVUpload={() => setShowCVUploadModal(true)}
+              onCVUpdate={fetchDashboardData}
             />
           </div>
         )
@@ -96,6 +101,15 @@ const StudentDashboard = () => {
           isOpen={showUploadModal}
           onClose={() => setShowUploadModal(false)}
           onUploadComplete={handleUploadComplete}
+        />
+      )}
+
+      {/* CV Upload Modal */}
+      {showCVUploadModal && (
+        <CVUpload
+          isOpen={showCVUploadModal}
+          onClose={() => setShowCVUploadModal(false)}
+          onUploadSuccess={handleCVUploadSuccess}
         />
       )}
     </div>

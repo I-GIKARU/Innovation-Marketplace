@@ -1,10 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { FiMail, FiStar } from "react-icons/fi";
+import { FiMail, FiStar, FiBriefcase, FiUser } from "react-icons/fi";
+import { useState } from "react";
+import TeamMemberDialog from "./TeamMemberDialog";
 
 const ProjectTeamAndReviews = ({ project, teamMembers, projectReviews, canWriteReview, onWriteReview }) => {
   const defaultUserAvatar = "/images/default-avatar.png";
+  const [selectedMember, setSelectedMember] = useState(null);
 
   const renderStars = (rating) => {
     return [...Array(5)].map((_, i) => (
@@ -87,15 +90,28 @@ const ProjectTeamAndReviews = ({ project, teamMembers, projectReviews, canWriteR
                     </p>
                   )}
                   
-                  {up.user.email && (
-                    <a
-                      href={`mailto:${up.user.email}`}
-                      className="inline-flex items-center text-orange-400 hover:text-orange-300 text-sm mt-2"
+                  <div className="flex items-center gap-2 mt-3">
+                    {up.user.email && (
+                      <a
+                        href={`mailto:${up.user.email}`}
+                        className="inline-flex items-center text-orange-400 hover:text-orange-300 text-sm"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <FiMail className="w-4 h-4 mr-1" />
+                        Contact
+                      </a>
+                    )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedMember(up);
+                      }}
+                      className="inline-flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors"
                     >
-                      <FiMail className="w-4 h-4 mr-1" />
-                      Contact
-                    </a>
-                  )}
+                      <FiUser className="w-3 h-3 mr-1" />
+                      Hire This Team
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -144,7 +160,7 @@ const ProjectTeamAndReviews = ({ project, teamMembers, projectReviews, canWriteR
                       {review.rating}/5
                     </span>
                     <span className="text-sm text-gray-300">
-                      by {review.user ? review.user.email.split('@')[0] : 'Anonymous'}
+                      by {review.user ? review.user.email.split('@')[0] : (review.email ? review.email.split('@')[0] : 'Anonymous')}
                     </span>
                   </div>
                   <span className="text-sm text-gray-400">
@@ -166,6 +182,14 @@ const ProjectTeamAndReviews = ({ project, teamMembers, projectReviews, canWriteR
           </p>
         )}
       </div>
+      
+      {/* Team Member Details Dialog */}
+      {selectedMember && (
+        <TeamMemberDialog 
+          member={selectedMember} 
+          onClose={() => setSelectedMember(null)} 
+        />
+      )}
     </div>
   );
 };

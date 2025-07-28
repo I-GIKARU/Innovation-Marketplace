@@ -74,19 +74,18 @@ const OverviewPage = () => {
   return (
     <div className="flex-1 overflow-auto relative z-10">
       <main className="max-w-7xl mx-auto py-4 px-4 lg:px-8">
-        <motion.div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8"
+        <motion.div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
         >
           <StatCard name="Total Users" icon={Users} value={stats.total_users || 0} />
           <StatCard name="Students" icon={Users} value={stats.total_students || 0} />
-          <StatCard name="Clients" icon={Users} value={stats.total_clients || 0} />
           <StatCard name="Total Projects" icon={Backpack} value={stats.total_projects || 0} />
           <StatCard name="Approved Projects" icon={CheckCircle} value={stats.approved_projects || 0} />
           <StatCard name="Pending Projects" icon={Clock} value={stats.pending_projects || 0} />
           <StatCard name="Merchandise" icon={ShoppingBag} value={stats.total_merchandise || 0} />
-          <StatCard name="Total Orders" icon={SquareActivity} value={stats.total_orders || 0} />
+          <StatCard name="Total Sales" icon={SquareActivity} value={stats.total_sales || 0} />
         </motion.div>
 
         {/* Quick Insights */}
@@ -111,10 +110,10 @@ const OverviewPage = () => {
           <div className="bg-gradient-to-r from-purple-400 to-pink-500 rounded-xl p-6 text-white">
             <h4 className="text-lg font-semibold mb-2">Platform Growth</h4>
             <div className="text-3xl font-bold">
-              {stats.total_students + stats.total_clients}
+              {stats.total_students || 0}
             </div>
             <p className="text-sm opacity-90 mt-1">
-              Active users on platform
+              Active students on platform
             </p>
           </div>
           

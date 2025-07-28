@@ -1,10 +1,10 @@
 "use client";
 
 import { FiEye } from "react-icons/fi";
-import { Users } from "lucide-react";
+import { Users, Sparkles, MessageSquare } from "lucide-react";
 import { getTeamMembers } from "@/utils/projectHelpers";
 
-const ProjectSidebar = ({ project, isEditing, editedTechStack, onTechStackChange }) => {
+const ProjectSidebar = ({ project, isEditing, editedTechStack, onTechStackChange, onAskAI }) => {
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     return new Date(dateString).toLocaleDateString();
@@ -117,6 +117,55 @@ const ProjectSidebar = ({ project, isEditing, editedTechStack, onTechStackChange
           )}
         </div>
       )}
+
+      {/* AI Project Summary */}
+      {project.project_summary && (
+        <div className="bg-gradient-to-r from-purple-500/20 to-indigo-600/20 backdrop-blur-sm rounded-2xl border border-purple-400/30 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
+            <h3 className="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              AI Project Summary
+            </h3>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+            <p className="text-gray-200 text-sm leading-relaxed whitespace-pre-wrap">
+              {project.project_summary}
+            </p>
+          </div>
+          {project.documentation_file_id && (
+            <div className="mt-3 flex items-center text-xs text-purple-300">
+              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>Enhanced with project documentation</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Ask AI Section */}
+      <div className="bg-gradient-to-r from-indigo-500/20 to-purple-600/20 backdrop-blur-sm rounded-2xl border border-indigo-400/30 p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+            <MessageSquare className="w-4 h-4 text-white" />
+          </div>
+          <h3 className="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+            AI Assistant
+          </h3>
+        </div>
+        <p className="text-gray-300 text-sm mb-4">
+          Have questions about this project? Ask our AI assistant for detailed insights about the technologies, implementation, and features.
+        </p>
+        <button
+          onClick={onAskAI}
+          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+        >
+          <MessageSquare className="w-4 h-4" />
+          Ask AI about this Project
+        </button>
+      </div>
 
       {/* Technical Mentor */}
       {project.technical_mentor && (

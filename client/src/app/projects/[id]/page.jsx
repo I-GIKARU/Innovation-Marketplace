@@ -6,8 +6,14 @@ import ProjectDetailLayout from "@/components/project-detail/ProjectDetailLayout
 import ReviewForm from "@/components/project-detail/ReviewForm";
 import InteractionForm from "@/components/project-detail/InteractionForm";
 import DeleteConfirmModal from "@/components/project-detail/DeleteConfirmModal";
+import ProjectQA from "@/components/projects/ProjectQA";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { useState } from "react";
 
 export default function ProjectDetail() {
+  // AI Q&A modal state
+  const [showAIModal, setShowAIModal] = useState(false);
+
   const {
     // State
     singleProject,
@@ -41,15 +47,23 @@ export default function ProjectDetail() {
     setShowReviewForm,
   } = useProjectDetail();
 
-  if (loading) {
-    return <div className="p-4 text-center">Loading project details...</div>;
+  const handleAskAI = () => {
+    setShowAIModal(true);
+  };
+
+  const handleCloseAI = () => {
+    setShowAIModal(false);
+  };
+
+if (loading) {
+    return <div className="p-4 text-center"><LoadingSpinner size="large" text="Loading project details..." /></div>;
   }
 
   if (error) {
     return <div className="p-4 text-center text-red-500">Error: {error}</div>;
   }
 
-  if (!singleProject) {
+if (!singleProject && !loading) {
     return <div className="p-4 text-center">Project not found.</div>;
   }
 
@@ -83,6 +97,8 @@ export default function ProjectDetail() {
         onDelete={handleDeleteClick}
         onExpressInterest={() => setShowInteractionForm(true)}
         onWriteReview={() => setShowReviewForm(true)}
+        onHireTeam={null}
+        onAskAI={handleAskAI}
       />
 
       {/* Modals */}
@@ -108,6 +124,15 @@ export default function ProjectDetail() {
           user={user}
           onSubmit={handleSubmitReview}
           onCancel={() => setShowReviewForm(false)}
+        />
+      )}
+
+
+      {showAIModal && (
+        <ProjectQA
+          isOpen={showAIModal}
+          project={singleProject}
+          onClose={handleCloseAI}
         />
       )}
     </>

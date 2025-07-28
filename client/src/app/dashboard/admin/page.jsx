@@ -1,13 +1,13 @@
 'use client'
 
 import Dashboard from '../../../../components/admin/AdminDashboard'
+import AuthGuard from '@/components/auth/AuthGuard'
 
 function AdminPage() {
   return (
-  <>
-
-  <Dashboard/>
-    </>
+    <AuthGuard requiredRole="admin">
+      <Dashboard/>
+    </AuthGuard>
   )
 }
 

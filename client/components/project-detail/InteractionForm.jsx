@@ -39,12 +39,6 @@ const InteractionForm = ({ project, user, onSubmit, onCancel }) => {
             {user?.role?.name === "student" && (
               <option value="collaboration">Collaboration</option>
             )}
-            {user?.role?.name === "client" && (
-              <>
-                <option value="buying">Buying</option>
-                <option value="hiring">Hiring</option>
-              </>
-            )}
           </select>
         </div>
         

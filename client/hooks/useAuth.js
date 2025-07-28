@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { 
     signInWithEmailAndPassword,
-    createUserWithEmailAndPassword, 
     signOut as firebaseSignOut,
     onAuthStateChanged,
-    updateProfile
+    GoogleAuthProvider,
+    signInWithPopup
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
@@ -73,11 +73,59 @@ export function useAuth() {
         return unsubscribe;
     }, [fetchUser]);
     
-    const login = async (email, password) => {
+
+    const googleSignIn = async () => {
         setLoading(true);
         setError(null);
         try {
-            // 1. Sign in with Firebase
+            // 1. Sign in with Google
+            const provider = new GoogleAuthProvider();
+            // Force account selection and ensure fresh login
+            provider.setCustomParameters({
+                prompt: 'select_account'
+            });
+            
+            const result = await signInWithPopup(auth, provider);
+            
+            // 2. Get Firebase ID token
+            const idToken = await result.user.getIdToken();
+            
+            // 3. Send token to Flask backend for automatic account creation
+            const res = await fetch(`${API_BASE}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ idToken }),
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Google sign-in failed');
+
+            // Store JWT token if provided
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+            }
+
+            await fetchUser();
+            return { success: true, user: data.user };
+        } catch (err) {
+            // Handle user cancellation gracefully
+            if (err.code === 'auth/popup-cancelled-by-user' || err.code === 'auth/cancelled-popup-request') {
+                setError(null); // Don't show error for user cancellation
+                return { success: false, cancelled: true };
+            }
+            setError(err.message);
+            return { success: false, error: err.message };
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const adminLogin = async (email, password) => {
+        setLoading(true);
+        setError(null);
+        try {
+            // 1. Sign in with Firebase using email/password
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             
             // 2. Get Firebase ID token
@@ -92,56 +140,12 @@ export function useAuth() {
             });
 
             const data = await res.json();
-            if (!res.ok) throw new Error(data.message || 'Backend login failed');
+            if (!res.ok) throw new Error(data.message || 'Admin login failed');
 
             // Store JWT token if provided
             if (data.token) {
                 localStorage.setItem('token', data.token);
             }
-
-            await fetchUser();
-            return { success: true, user: data.user };
-        } catch (err) {
-            setError(err.message);
-            return { success: false, error: err.message };
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const register = async (formData) => {
-        setLoading(true);
-        setError(null);
-        try {
-            const { email, password, firstName, lastName, role, organization } = formData;
-            
-            // 1. Create user in Firebase
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            
-            // 2. Update Firebase user profile
-            await updateProfile(userCredential.user, {
-                displayName: `${firstName} ${lastName}`
-            });
-            
-            // 3. Get Firebase ID token
-            const idToken = await userCredential.user.getIdToken();
-            
-            // 4. Send token and user data to Flask backend
-            const res = await fetch(`${API_BASE}/auth/register`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({
-                    idToken,
-                    role: role || 'client',
-                    firstName,
-                    lastName,
-                    organization: organization || null
-                }),
-            });
-
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || 'Registration failed');
 
             await fetchUser();
             return { success: true, user: data.user };
@@ -171,21 +175,32 @@ export function useAuth() {
         }
     };
 
-    // ✅ Memoize authFetch so it's stable across renders
     const authFetch = useCallback(async (url, options = {}) => {
-        // Check if body is FormData to avoid setting Content-Type header
         const isFormData = options.body instanceof FormData;
-        
         const headers = { ...(options.headers || {}) };
+
         if (!isFormData && !headers['Content-Type']) {
             headers['Content-Type'] = 'application/json';
         }
-        
+
+        // Add bearer token from local storage if available
+        const token = localStorage.getItem('token');
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
         const res = await fetch(url.startsWith('http') ? url : `${API_BASE}${url}`, {
             ...options,
             headers,
             credentials: 'include',
         });
+
+        // Handle token expiration
+        if (res.status === 401) {
+            console.log('Token expired, logging out...');
+            await logout();
+            throw new Error('Session expired. Please log in again.');
+        }
 
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || 'Request failed');
@@ -197,8 +212,8 @@ export function useAuth() {
         loading,
         error,
         isAuthenticated: !!user,
-        login,
-        register,
+        googleSignIn,
+        adminLogin,
         logout,
         authFetch,
     };

@@ -5,7 +5,7 @@ import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import FloatingCart from "@/components/e_commerce/FloatingCart";
 import AddToCartModal from "@/components/e_commerce/AddToCartModal";
-import Auth from "@/components/auth/Auth";
+import CombinedAuth from "@/components/auth/CombinedAuth";
 
 // Lazy load components for better performance
 const Hero = lazy(() => import("@/components/e_commerce/Hero"));
@@ -103,7 +103,7 @@ const MerchandisePage = () => {
                             className="relative z-10 w-full max-w-md mx-auto"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <Auth onClose={() => setShowAuth(false)} />
+                            <CombinedAuth onClose={() => setShowAuth(false)} />
                         </motion.div>
                     </motion.div>
                 )}

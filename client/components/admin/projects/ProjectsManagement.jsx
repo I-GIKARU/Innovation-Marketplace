@@ -4,6 +4,7 @@ import { Backpack, Search, Filter, BarChart3, TrendingUp, Users, Eye, Star } fro
 import ProjectTableRow from './ProjectTableRow'
 import ProjectRejectionModal from './ProjectRejectionModal'
 import ProjectDetailsModal from './ProjectDetailsModal'
+import ProjectQA from '@/components/projects/ProjectQA'
 import { apiCall } from '../shared/utils'
 
 const ProjectsManagement = () => {
@@ -26,6 +27,12 @@ const ProjectsManagement = () => {
     project: null, 
     loading: false, 
     error: null 
+  })
+  
+  // Project AI Q&A modal state
+  const [qaModal, setQaModal] = useState({ 
+    show: false, 
+    project: null 
   })
 
   useEffect(() => {
@@ -120,6 +127,14 @@ const ProjectsManagement = () => {
     setRejectModal({ show: false, project: null })
   }
 
+  const openQAModal = (project) => {
+    setQaModal({ show: true, project })
+  }
+
+  const closeQAModal = () => {
+    setQaModal({ show: false, project: null })
+  }
+
   const handleRejectWithReason = async (rejectionReason) => {
     if (!rejectModal.project) return
 
@@ -147,15 +162,19 @@ const ProjectsManagement = () => {
   }
 
   const openDetailsView = async (project) => {
+    console.log('🔍 Opening details view for project:', project.id)
     setDetailsView({ show: true, project: null, loading: true, error: null })
+    console.log('📱 Set detailsView state - show: true, loading: true')
     
     try {
+      console.log('🌐 Making API call to fetch project details...')
       const data = await apiCall(`/api/projects/${project.id}`)
       const projectData = data.project || data
+      console.log('✅ API call successful, setting project data and loading: false')
       
       setDetailsView({ show: true, project: projectData, loading: false, error: null })
     } catch (err) {
-      console.error('Error fetching project details:', err)
+      console.error('❌ Error fetching project details:', err)
       setDetailsView({ show: true, project: null, loading: false, error: err.message })
     }
   }
@@ -355,6 +374,7 @@ const ProjectsManagement = () => {
                   onDelete={handleDeleteProject}
                   onToggleFeatured={handleToggleFeatured}
                   onViewDetails={openDetailsView}
+                  onAskAI={openQAModal}
                   updatingProject={updatingProject}
                   deletingProject={deletingProject}
                   togglingFeatured={togglingFeatured}
@@ -379,6 +399,13 @@ const ProjectsManagement = () => {
         isLoading={detailsView.loading}
         error={detailsView.error}
         onClose={closeDetailsView}
+        onAskAI={openQAModal}
+      />
+
+      <ProjectQA
+        isOpen={qaModal.show}
+        project={qaModal.project}
+        onClose={closeQAModal}
       />
     </div>
   )

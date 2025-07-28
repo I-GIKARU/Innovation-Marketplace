@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Projects from "@/components/projects/Projects";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
-import Auth from "@/components/auth/Auth";
+import CombinedAuth from "@/components/auth/CombinedAuth";
 
 const ProjectsPage = () => {
     const [showAuth, setShowAuth] = useState(false);
@@ -39,7 +39,7 @@ const ProjectsPage = () => {
                             className="relative z-10 w-full max-w-md mx-auto"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <Auth onClose={() => setShowAuth(false)} />
+                            <CombinedAuth onClose={() => setShowAuth(false)} />
                         </motion.div>
                     </motion.div>
                 )}

@@ -10,7 +10,7 @@ import StatsSection from "@/components/statSection";
 import AboutSection from "@/components/About";
 import Merchandise from "@/components/Merchandise"
 import FeaturedProjects from "@/components/projects/FeaturedProjects";
-import Auth from "@/components/auth/Auth";
+import CombinedAuth from "@/components/auth/CombinedAuth";
 
 // Modern Loading Component
 const LoadingScreen = () => (
@@ -169,7 +169,7 @@ export default function Home() {
                 className="relative z-10 w-full max-w-md mx-auto"
                 onClick={(e) => e.stopPropagation()}
               >
-                <Auth onClose={() => setShowAuth(false)} />
+                <CombinedAuth onClose={() => setShowAuth(false)} />
               </motion.div>
             </motion.div>
           )}

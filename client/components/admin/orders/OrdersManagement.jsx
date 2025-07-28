@@ -26,11 +26,11 @@ const OrdersManagement = () => {
 
   const fetchOrders = async () => {
     try {
-      const data = await apiCall('/api/admin/orders')
-      setOrders(data.orders || data)
+      const data = await apiCall('/api/admin/sales')
+      setOrders(data.sales || data)
       setLoading(false)
     } catch (err) {
-      console.error('Error fetching orders:', err)
+      console.error('Error fetching sales:', err)
       setError(err.message)
       setLoading(false)
     }
@@ -39,12 +39,12 @@ const OrdersManagement = () => {
   const handleStatusUpdate = async (orderId, newStatus) => {
     setUpdatingOrder(orderId)
     try {
-      const result = await apiCall(`/api/orders/${orderId}`, {
+      const result = await apiCall(`/api/admin/sales/${orderId}`, {
         method: 'PUT',
         body: JSON.stringify({ status: newStatus }),
       })
       
-      alert(`Order #${orderId} has been updated to ${newStatus} successfully!`)
+      alert(`Sale #${orderId} has been updated to ${newStatus} successfully!`)
       
       // Update local state
       setOrders(prevOrders => 
@@ -55,8 +55,8 @@ const OrdersManagement = () => {
         )
       )
     } catch (err) {
-      console.error('Error updating order status:', err)
-      alert(`Failed to update order status: ${err.message}`)
+      console.error('Error updating sale status:', err)
+      alert(`Failed to update sale status: ${err.message}`)
     } finally {
       setUpdatingOrder(null)
     }
@@ -66,12 +66,12 @@ const OrdersManagement = () => {
     setDetailsModal({ show: true, order: null, loading: true, error: null })
     
     try {
-      const data = await apiCall(`/api/orders/${order.id}`)
-      const orderData = data.order || data
+      const data = await apiCall(`/api/admin/sales/${order.id}`)
+      const orderData = data.sale || data
       
       setDetailsModal({ show: true, order: orderData, loading: false, error: null })
     } catch (err) {
-      console.error('Error fetching order details:', err)
+      console.error('Error fetching sale details:', err)
       setDetailsModal({ show: true, order: null, loading: false, error: err.message })
     }
   }
@@ -90,7 +90,7 @@ const OrdersManagement = () => {
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-6 flex items-center">
           <ShoppingCart className="mr-2" />
-          Orders Management
+          Sales Management
         </h1>
         <div className="animate-pulse space-y-4">
           {[1, 2, 3].map((i) => (
@@ -106,10 +106,10 @@ const OrdersManagement = () => {
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-6 flex items-center">
           <ShoppingCart className="mr-2" />
-          Orders Management
+          Sales Management
         </h1>
         <div className="text-red-500 text-center py-8">
-          <p>Error loading orders: {error}</p>
+          <p>Error loading sales: {error}</p>
           <button 
             onClick={fetchOrders}
             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -126,11 +126,11 @@ const OrdersManagement = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold flex items-center">
           <ShoppingCart className="mr-2" />
-          Orders Management
+          Sales Management
         </h1>
         
         <div className="flex space-x-2">
-          {['all', 'pending', 'completed', 'shipped', 'cancelled'].map((status) => (
+          {['all', 'paid', 'completed', 'cancelled'].map((status) => (
             <button
               key={status}
               onClick={() => setFilter(status)}
@@ -149,7 +149,7 @@ const OrdersManagement = () => {
       {filteredOrders.length === 0 ? (
         <div className="text-center py-12">
           <ShoppingCart size={48} className="mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-600">No orders found</p>
+          <p className="text-gray-600">No sales found</p>
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -157,7 +157,7 @@ const OrdersManagement = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Order
+                  Sale
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Customer
@@ -167,9 +167,6 @@ const OrdersManagement = () => {
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions

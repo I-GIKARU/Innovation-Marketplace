@@ -4,6 +4,7 @@ import Sidebar from './AdminSidebar'
 import OverviewPage from './Overview'
 import ProductsManagement from './ProductsManagement'
 import ProjectsManagement from './ProjectsManagement'
+import AdminCVManagement from './AdminCVManagement'
 import OrdersManagement from './orders/OrdersManagement'
 import CategoriesManagement from './CategoriesManagement'
 
@@ -26,6 +27,8 @@ const AdminDashboard = () => {
         return <ProductsManagement />
       case 'projects':
         return <ProjectsManagement />
+      case 'cvs':
+        return <AdminCVManagement />
       case 'orders':
         return <OrdersManagement />
       case 'categories':

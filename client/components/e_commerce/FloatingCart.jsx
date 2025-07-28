@@ -29,9 +29,7 @@ const FloatingCart = ({ onCartClick, onCheckoutClick, onOrdersClick }) => {
   
   // Checkout form state
   const [formData, setFormData] = useState({
-    email: '',
-    phone: '',
-    payment_method: 'cash_on_delivery'
+    email: ''
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -46,11 +44,6 @@ const FloatingCart = ({ onCartClick, onCheckoutClick, onOrdersClick }) => {
       newErrors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
-    }
-
-    // Phone validation (required)
-    if (!formData.phone.trim()) {
-      newErrors.phone = 'Phone number is required';
     }
 
     setErrors(newErrors);
@@ -77,31 +70,34 @@ const FloatingCart = ({ onCartClick, onCheckoutClick, onOrdersClick }) => {
   const handleSubmitOrder = async (e) => {
     e.preventDefault();
     
+    console.log('Form submission - formData before validation:', formData);
+    
     if (!validateForm()) {
+      console.log('Validation failed');
       return;
     }
 
+    console.log('Validation passed, proceeding with order');
     setIsLoading(true);
     setErrors({});
 
     try {
-      // Prepare order data
+      // Prepare order data for new /api/buy endpoint
       const orderData = {
         email: formData.email,
-        phone: formData.phone,
-        payment_method: formData.payment_method,
         items: cart.map(item => ({
           merchandise_id: item.id,
           quantity: item.quantity
         }))
       };
 
-      // Make API request
-      const response = await fetch('/api/orders', {
+      console.log('Order data being sent:', orderData);
+
+      // Make API request to new endpoint
+      const response = await fetch('/api/buy', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          ...(token && { 'Authorization': `Bearer ${token}` })
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(orderData)
       });
@@ -123,9 +119,7 @@ const FloatingCart = ({ onCartClick, onCheckoutClick, onOrdersClick }) => {
       
       // Reset form
       setFormData({
-        email: '',
-        phone: '',
-        payment_method: 'cash_on_delivery'
+        email: ''
       });
       
       // Auto close after success
@@ -412,62 +406,6 @@ const FloatingCart = ({ onCartClick, onCheckoutClick, onOrdersClick }) => {
                             )}
                           </div>
 
-                          {/* Phone */}
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Phone Number *
-                            </label>
-                            <div className="relative">
-                              <PhoneIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                              <input
-                                type="tel"
-                                name="phone"
-                                value={formData.phone}
-                                onChange={handleInputChange}
-                                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${
-                                  errors.phone ? 'border-red-300 bg-red-50' : 'border-gray-300'
-                                }`}
-                                placeholder="+254 700 000 000"
-                              />
-                            </div>
-                            {errors.phone && (
-                              <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
-                            )}
-                          </div>
-                        </div>
-
-
-                        {/* Payment Information */}
-                        <div className="space-y-4">
-                          <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                            <CreditCardIcon className="w-5 h-5" />
-                            Payment Method
-                          </h3>
-                          
-                          <div className="space-y-2">
-                            <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                              <input
-                                type="radio"
-                                name="payment_method"
-                                value="cash_on_delivery"
-                                checked={formData.payment_method === 'cash_on_delivery'}
-                                onChange={handleInputChange}
-                                className="text-indigo-600 focus:ring-indigo-500"
-                              />
-                              <span className="font-medium">Cash on Delivery</span>
-                            </label>
-                            <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                              <input
-                                type="radio"
-                                name="payment_method"
-                                value="mpesa"
-                                checked={formData.payment_method === 'mpesa'}
-                                onChange={handleInputChange}
-                                className="text-indigo-600 focus:ring-indigo-500"
-                              />
-                              <span className="font-medium">M-Pesa</span>
-                            </label>
-                          </div>
                         </div>
 
                         {/* Submit Button */}
@@ -511,15 +449,7 @@ const FloatingCart = ({ onCartClick, onCheckoutClick, onOrdersClick }) => {
                       Proceed to Checkout
                     </button>
                     
-                    <button
-                      onClick={() => {
-                        setIsOpen(false);
-                        onOrdersClick?.();
-                      }}
-                      className="w-full border-2 border-indigo-200 hover:border-indigo-500 text-indigo-700 hover:text-indigo-500 font-semibold py-3 px-6 rounded-xl transition-all duration-300"
-                    >
-                      My Orders
-                    </button>
+
                   </div>
                 </div>
               )}
