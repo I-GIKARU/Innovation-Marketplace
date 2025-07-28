@@ -1,8 +1,8 @@
-"""Initial migration - fresh database setup
+"""Initial migration
 
-Revision ID: fcdfd60546b7
+Revision ID: 18cb84bc5749
 Revises: 
-Create Date: 2025-07-26 01:39:00.982468
+Create Date: 2025-07-28 08:01:55.409727
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'fcdfd60546b7'
+revision = '18cb84bc5749'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -62,6 +62,8 @@ def upgrade():
     sa.Column('pdf_urls', sa.Text(), nullable=True),
     sa.Column('video_urls', sa.Text(), nullable=True),
     sa.Column('thumbnail_url', sa.String(length=500), nullable=True),
+    sa.Column('project_summary', sa.Text(), nullable=True),
+    sa.Column('documentation_file_id', sa.String(length=100), nullable=True),
     sa.Column('external_collaborators', sa.Text(), nullable=True),
     sa.ForeignKeyConstraint(['category_id'], ['categories.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -74,15 +76,30 @@ def upgrade():
     sa.Column('auth_provider', sa.String(length=20), nullable=True),
     sa.Column('bio', sa.Text(), nullable=True),
     sa.Column('socials', sa.String(length=255), nullable=True),
-    sa.Column('company', sa.String(length=100), nullable=True),
     sa.Column('past_projects', sa.Text(), nullable=True),
     sa.Column('role_id', sa.Integer(), nullable=False),
+    sa.Column('cv_url', sa.String(length=500), nullable=True),
+    sa.Column('cv_summary', sa.Text(), nullable=True),
+    sa.Column('cv_file_id', sa.String(length=100), nullable=True),
+    sa.Column('cv_uploaded_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['role_id'], ['roles.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email'),
     sa.UniqueConstraint('firebase_uid')
     )
-    op.create_table('orders',
+    op.create_table('reviews',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('project_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('rating', sa.Integer(), nullable=True),
+    sa.Column('comment', sa.Text(), nullable=True),
+    sa.Column('email', sa.String(length=120), nullable=True),
+    sa.Column('date', sa.Date(), nullable=True),
+    sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('sales',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('email', sa.String(length=120), nullable=True),
@@ -93,20 +110,9 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('reviews',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('project_id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.Column('rating', sa.Integer(), nullable=True),
-    sa.Column('comment', sa.Text(), nullable=True),
-    sa.Column('date', sa.Date(), nullable=True),
-    sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
     op.create_table('users_projects',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('project_id', sa.Integer(), nullable=False),
     sa.Column('interested_in', sa.String(length=255), nullable=True),
     sa.Column('date', sa.Date(), nullable=True),
@@ -115,24 +121,24 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('order_item',
-    sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('order_id', sa.Integer(), nullable=True),
-    sa.Column('merchandise_id', sa.Integer(), nullable=True),
-    sa.Column('quantity', sa.Integer(), nullable=True),
-    sa.Column('price', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['merchandise_id'], ['merchandise.id'], ),
-    sa.ForeignKeyConstraint(['order_id'], ['orders.id'], ),
-    sa.PrimaryKeyConstraint('id')
-    )
     op.create_table('payments',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('order_id', sa.Integer(), nullable=True),
+    sa.Column('sales_id', sa.Integer(), nullable=True),
     sa.Column('method', sa.String(length=50), nullable=True),
     sa.Column('amount', sa.Integer(), nullable=True),
     sa.Column('status', sa.String(length=50), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['order_id'], ['orders.id'], ),
+    sa.ForeignKeyConstraint(['sales_id'], ['sales.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('sales_item',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('sales_id', sa.Integer(), nullable=True),
+    sa.Column('merchandise_id', sa.Integer(), nullable=True),
+    sa.Column('quantity', sa.Integer(), nullable=True),
+    sa.Column('price', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['merchandise_id'], ['merchandise.id'], ),
+    sa.ForeignKeyConstraint(['sales_id'], ['sales.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
@@ -140,11 +146,11 @@ def upgrade():
 
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
+    op.drop_table('sales_item')
     op.drop_table('payments')
-    op.drop_table('order_item')
     op.drop_table('users_projects')
+    op.drop_table('sales')
     op.drop_table('reviews')
-    op.drop_table('orders')
     op.drop_table('users')
     op.drop_table('projects')
     op.drop_table('roles')

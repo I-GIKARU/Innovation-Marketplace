@@ -124,7 +124,6 @@ class CVQuestionResource(Resource):
             print(f"CV question error: {e}")
             return {"error": "Failed to process question"}, 500
 
-# ProjectDocumentationResource removed - now using regular project PDF uploads only
 
 class ProjectQuestionResource(Resource):
     def post(self, project_id):
@@ -295,11 +294,9 @@ class ProjectSummaryResource(Resource):
 
 # Setup routes function
 def setup_ai_routes(api):
-    """Setup AI agent routes - now using regular project PDFs only"""
     api.add_resource(CVUploadResource, '/api/ai/cv/upload')
     api.add_resource(CVDeleteResource, '/api/ai/cv/delete')
     api.add_resource(CVQuestionResource, '/api/ai/cv/<int:user_id>/question')
-    # Removed: ProjectDocumentationResource - now using regular project PDF uploads only
     api.add_resource(ProjectQuestionResource, '/api/ai/project/<int:project_id>/question')
     api.add_resource(AdminCVListResource, '/api/ai/admin/cvs')
     api.add_resource(ProjectSummaryResource, '/api/ai/project/<int:project_id>/summary')

@@ -17,13 +17,13 @@ def validate_student_email(email):
     parts = names.split('.')
     firstname, lastname = parts[0], parts[1]
 
-    name_pattern = re.compile(r'^[a-zA-Z]{2,}$')
+    name_pattern = re.compile(r'^[a-zA-Z0-9]{2,}$')
     
     if not name_pattern.match(firstname):
-        return False, "First name must contain only letters and be at least 2 characters long"
+        return False, "First name must contain only letters and numbers and be at least 2 characters long"
     
     if not name_pattern.match(lastname):
-        return False, "Last name must contain only letters and be at least 2 characters long"
+        return False, "Last name must contain only letters and numbers and be at least 2 characters long"
     
     return True, "Valid student email"
 
