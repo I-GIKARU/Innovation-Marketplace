@@ -143,6 +143,7 @@ class UserProject(db.Model, SerializerMixin):
     # Relationships
     user = db.relationship('User', back_populates='user_projects')
     project = db.relationship('Project', back_populates='user_projects')
+    contributions = db.relationship('Contribution', back_populates='user_project')
 
     # Serialization rules
     serialize_rules = ('-user.user_projects', '-project.user_projects')
@@ -177,3 +178,16 @@ class Review(db.Model, SerializerMixin):
 
     # Serialization rules
     serialize_rules = ('-project.reviews', '-user.reviews')
+
+class Contribution(db.Model, SerializerMixin):
+    __tablename__ = 'contributions'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    users_projects_id = db.Column(db.Integer, db.ForeignKey('users_projects.id'), nullable=False)
+    amount = db.Column(db.Float)
+    date = db.Column(db.Date)
+    comment = db.Column(db.Text)
+
+    user_project = db.relationship('UserProject', back_populates='contributions') 
+
+
