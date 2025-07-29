@@ -1,12 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
-
+from .projects import Role, User, Category, Project, UserProject, Review, Contribution
+from .merchandise import Merchandise, Order, OrderItem, Payment
 
 db = SQLAlchemy()
 
-
-
-from .projects import Role, User, Category, Project, UserProject, Review
-from .merchandise import  Merchandise, OrderItem, Order, Payment
 __all__ = [
     'db',
     'Role',
@@ -15,6 +12,7 @@ __all__ = [
     'Project',
     'UserProject',
     'Review',
+    'Contribution',
     'Merchandise',
     'Order',
     'OrderItem',
