@@ -12,7 +12,7 @@ class Role(db.Model, SerializerMixin):
     
     # Relationships
     users = db.relationship('User', back_populates='role', lazy=True)
-
+    
     # Serialization rules
     serialize_rules = ('-users.role',)
 
@@ -34,11 +34,9 @@ class User(db.Model, SerializerMixin):
     orders = db.relationship('Order', back_populates='user', lazy=True)
     user_projects = db.relationship('UserProject', back_populates='user', lazy=True)
     role = db.relationship('Role', back_populates='users')
-
+    
     # Serialization rules
     serialize_rules = ('-role.users', '-orders.user', '-user_projects.user')
-
-
 
 class Category(db.Model, SerializerMixin):
     __tablename__ = 'categories'
@@ -66,7 +64,7 @@ class Project(db.Model, SerializerMixin):
     status = db.Column(db.String(50))
     featured = db.Column(db.Boolean, default=False)
     technical_mentor = db.Column(db.String(100))
-    views = db.Column( db.Integer, default=0)
+    views = db.Column(db.Integer, default=0)
     clicks = db.Column(db.Integer, default=0)
     downloads = db.Column(db.Integer, default=0)
     rejection_reason = db.Column(db.Text, nullable=True)
@@ -87,11 +85,10 @@ class Project(db.Model, SerializerMixin):
     
     # Serialization rules
     serialize_rules = ('-category.projects', '-user_projects.project')
-
+    
     def to_dict(self):
         """Custom to_dict method that includes user_projects (collaborators) and external collaborators"""
         import json
-
         # Parse external collaborators
         external_collabs = []
         if self.external_collaborators:
@@ -128,8 +125,6 @@ class Project(db.Model, SerializerMixin):
         }
         return result
 
-
-
 class UserProject(db.Model, SerializerMixin):
     __tablename__ = 'users_projects'
     
@@ -143,13 +138,13 @@ class UserProject(db.Model, SerializerMixin):
     # Relationships
     user = db.relationship('User', back_populates='user_projects')
     project = db.relationship('Project', back_populates='user_projects')
-    contributions = db.relationship('Contribution', back_populates='user_project')
-
+    contributions = db.relationship('Contribution', back_populates='user_project', cascade='all, delete-orphan')
+    
     # Serialization rules
-    serialize_rules = ('-user.user_projects', '-project.user_projects')
-
+    serialize_rules = ('-user.user_projects', '-project.user_projects', '-contributions.user_project')
+    
     def to_dict(self):
-        """Custom to_dict method that includes user information"""
+        """Custom to_dict method that includes user information and contributions"""
         result = {
             'id': self.id,
             'user_id': self.user_id,
@@ -157,10 +152,10 @@ class UserProject(db.Model, SerializerMixin):
             'interested_in': self.interested_in,
             'date': self.date.isoformat() if self.date else None,
             'message': self.message,
-            'user': self.user.to_dict() if self.user else None
+            'user': self.user.to_dict() if self.user else None,
+            'contributions': [contribution.to_dict() for contribution in self.contributions] if self.contributions else []
         }
         return result
-    
 
 class Review(db.Model, SerializerMixin):
     __tablename__ = 'reviews'
@@ -175,7 +170,7 @@ class Review(db.Model, SerializerMixin):
     # Relationships
     project = db.relationship('Project', backref='reviews')
     user = db.relationship('User', backref='reviews')
-
+    
     # Serialization rules
     serialize_rules = ('-project.reviews', '-user.reviews')
 
@@ -185,9 +180,29 @@ class Contribution(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     users_projects_id = db.Column(db.Integer, db.ForeignKey('users_projects.id'), nullable=False)
     amount = db.Column(db.Float)
-    date = db.Column(db.Date)
+    date = db.Column(db.Date, default=datetime.utcnow().date)
     comment = db.Column(db.Text)
-
-    user_project = db.relationship('UserProject', back_populates='contributions') 
-
-
+    
+    # Relationships
+    user_project = db.relationship('UserProject', back_populates='contributions')
+    
+    # Serialization rules
+    serialize_rules = ('-user_project.contributions',)
+    
+    def to_dict(self):
+        result = {
+            'id': self.id,
+            'users_projects_id': self.users_projects_id,
+            'amount': self.amount,
+            'date': self.date.isoformat() if self.date else None,
+            'comment': self.comment,
+            'user_project': {
+                'id': self.user_project.id,
+                'user': self.user_project.user.to_dict() if self.user_project.user else None,
+                'project': {
+                    'id': self.user_project.project.id,
+                    'title': self.user_project.project.title
+                } if self.user_project.project else None
+            } if self.user_project else None
+        }
+        return result
