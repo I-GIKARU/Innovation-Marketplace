@@ -5,8 +5,8 @@ db = SQLAlchemy()
 
 
 
-from .projects import Role, User, Category, Project, UserProject, Review
-from .merchandise import  Merchandise, SalesItem, Sales, Payment
+from .projects import Role, User, Category, Project, UserProject, Review, Contribution
+from .merchandise import Merchandise, Order, OrderItem, Payment
 __all__ = [
     'db',
     'Role',
@@ -15,8 +15,9 @@ __all__ = [
     'Project',
     'UserProject',
     'Review',
+    'Contribution',
     'Merchandise',
-    'Sales',
-    'SalesItem',
+    'Order',
+    'OrderItem',
     'Payment'
 ]

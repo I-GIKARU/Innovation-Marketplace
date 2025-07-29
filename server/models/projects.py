@@ -12,7 +12,7 @@ class Role(db.Model, SerializerMixin):
     
     # Relationships
     users = db.relationship('User', back_populates='role', lazy=True)
-
+    
     # Serialization rules
     serialize_rules = ('-users.role',)
 
@@ -26,42 +26,17 @@ class User(db.Model, SerializerMixin):
     auth_provider = db.Column(db.String(20), default='firebase')  # Only Firebase auth
     bio = db.Column(db.Text)
     socials = db.Column(db.String(255))
+    company = db.Column(db.String(100))
     past_projects = db.Column(db.Text)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable=False)
     
-    # CV-related fields
-    cv_url = db.Column(db.String(500))  # URL to the CV file
-    cv_summary = db.Column(db.Text)  # AI-generated CV summary
-    cv_file_id = db.Column(db.String(100))  # Unique file ID for CV
-    cv_uploaded_at = db.Column(db.DateTime)  # When CV was uploaded
-    
     # Relationships
-    sales = db.relationship('Sales', back_populates='user', lazy=True)
+    orders = db.relationship('Order', back_populates='user', lazy=True)
     user_projects = db.relationship('UserProject', back_populates='user', lazy=True)
     role = db.relationship('Role', back_populates='users')
-
+    
     # Serialization rules
-    serialize_rules = ('-role.users', '-sales.user', '-user_projects.user')
-
-    def to_dict(self):
-        """Custom to_dict method for User serialization"""
-        return {
-            'id': self.id,
-            'email': self.email,
-            'phone': self.phone,
-            # firebase_uid removed for security - should never be exposed to frontend
-            'auth_provider': self.auth_provider,
-            'bio': self.bio,
-            'socials': self.socials,
-            'past_projects': self.past_projects,
-            'role': self.role.name if self.role else None,
-            'cv_url': self.cv_url,
-            'cv_summary': self.cv_summary,
-            'cv_file_id': self.cv_file_id,
-            'cv_uploaded_at': self.cv_uploaded_at.isoformat() if self.cv_uploaded_at else None
-        }
-
-
+    serialize_rules = ('-role.users', '-orders.user', '-user_projects.user')
 
 class Category(db.Model, SerializerMixin):
     __tablename__ = 'categories'
@@ -89,7 +64,7 @@ class Project(db.Model, SerializerMixin):
     status = db.Column(db.String(50))
     featured = db.Column(db.Boolean, default=False)
     technical_mentor = db.Column(db.String(100))
-    views = db.Column( db.Integer, default=0)
+    views = db.Column(db.Integer, default=0)
     clicks = db.Column(db.Integer, default=0)
     downloads = db.Column(db.Integer, default=0)
     rejection_reason = db.Column(db.Text, nullable=True)
@@ -101,10 +76,6 @@ class Project(db.Model, SerializerMixin):
     video_urls = db.Column(db.Text)  # JSON string of video URLs
     thumbnail_url = db.Column(db.String(500))  # Main project thumbnail
     
-    # AI-generated fields
-    project_summary = db.Column(db.Text)  # AI-generated project summary
-    documentation_file_id = db.Column(db.String(100))  # File ID for project documentation
-    
     # External collaborators (unregistered users)
     external_collaborators = db.Column(db.Text)  # JSON string of external collaborators with name and github
     
@@ -114,11 +85,10 @@ class Project(db.Model, SerializerMixin):
     
     # Serialization rules
     serialize_rules = ('-category.projects', '-user_projects.project')
-
+    
     def to_dict(self):
         """Custom to_dict method that includes user_projects (collaborators) and external collaborators"""
         import json
-
         # Parse external collaborators
         external_collabs = []
         if self.external_collaborators:
@@ -148,8 +118,6 @@ class Project(db.Model, SerializerMixin):
             'pdf_urls': self.pdf_urls,
             'video_urls': self.video_urls,
             'thumbnail_url': self.thumbnail_url,
-            'project_summary': self.project_summary,
-            'documentation_file_id': self.documentation_file_id,
             'category': self.category.to_dict() if self.category else None,
             'user_projects': [up.to_dict() for up in self.user_projects] if self.user_projects else [],
             'external_collaborators': external_collabs,
@@ -157,13 +125,11 @@ class Project(db.Model, SerializerMixin):
         }
         return result
 
-
-
 class UserProject(db.Model, SerializerMixin):
     __tablename__ = 'users_projects'
     
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)  # Allow NULL for external hire requests
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     interested_in = db.Column(db.String(255))
     date = db.Column(db.Date)
@@ -172,12 +138,13 @@ class UserProject(db.Model, SerializerMixin):
     # Relationships
     user = db.relationship('User', back_populates='user_projects')
     project = db.relationship('Project', back_populates='user_projects')
-
+    contributions = db.relationship('Contribution', back_populates='user_project', cascade='all, delete-orphan')
+    
     # Serialization rules
-    serialize_rules = ('-user.user_projects', '-project.user_projects')
-
+    serialize_rules = ('-user.user_projects', '-project.user_projects', '-contributions.user_project')
+    
     def to_dict(self):
-        """Custom to_dict method that includes user information"""
+        """Custom to_dict method that includes user information and contributions"""
         result = {
             'id': self.id,
             'user_id': self.user_id,
@@ -185,10 +152,10 @@ class UserProject(db.Model, SerializerMixin):
             'interested_in': self.interested_in,
             'date': self.date.isoformat() if self.date else None,
             'message': self.message,
-            'user': self.user.to_dict() if self.user else None
+            'user': self.user.to_dict() if self.user else None,
+            'contributions': [contribution.to_dict() for contribution in self.contributions] if self.contributions else []
         }
         return result
-    
 
 class Review(db.Model, SerializerMixin):
     __tablename__ = 'reviews'
@@ -198,12 +165,44 @@ class Review(db.Model, SerializerMixin):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     rating = db.Column(db.Integer)
     comment = db.Column(db.Text)
-    email = db.Column(db.String(120), nullable=True)  # Email field for reviews
     date = db.Column(db.Date, default=datetime.utcnow().date)
     
     # Relationships
     project = db.relationship('Project', backref='reviews')
     user = db.relationship('User', backref='reviews')
-
+    
     # Serialization rules
     serialize_rules = ('-project.reviews', '-user.reviews')
+
+class Contribution(db.Model, SerializerMixin):
+    __tablename__ = 'contributions'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    users_projects_id = db.Column(db.Integer, db.ForeignKey('users_projects.id'), nullable=False)
+    amount = db.Column(db.Float)
+    date = db.Column(db.Date, default=datetime.utcnow().date)
+    comment = db.Column(db.Text)
+    
+    # Relationships
+    user_project = db.relationship('UserProject', back_populates='contributions')
+    
+    # Serialization rules
+    serialize_rules = ('-user_project.contributions',)
+    
+    def to_dict(self):
+        result = {
+            'id': self.id,
+            'users_projects_id': self.users_projects_id,
+            'amount': self.amount,
+            'date': self.date.isoformat() if self.date else None,
+            'comment': self.comment,
+            'user_project': {
+                'id': self.user_project.id,
+                'user': self.user_project.user.to_dict() if self.user_project.user else None,
+                'project': {
+                    'id': self.user_project.project.id,
+                    'title': self.user_project.project.title
+                } if self.user_project.project else None
+            } if self.user_project else None
+        }
+        return result

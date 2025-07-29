@@ -98,6 +98,7 @@ def create_app():
     from resources.migrate import setup_routes as migrate_setup_routes
     from resources.ai_agent import setup_ai_routes
     from resources.mpesa import setup_routes as mpesa_setup_routes
+    from resources.contributions import setup_routes as contributions_setup_routes
 
     
     auth_setup_routes(api)
@@ -109,6 +110,7 @@ def create_app():
     migrate_setup_routes(api)
     setup_ai_routes(api)
     mpesa_setup_routes(api)
+    contributions_setup_routes(api)
     
     # ✅ Create default roles on app startup  
     # Use a background function to avoid blocking the main thread
