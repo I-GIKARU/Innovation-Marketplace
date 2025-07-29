@@ -1,10 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { FiEye } from "react-icons/fi";
 import { Users, Sparkles, MessageSquare } from "lucide-react";
 import { getTeamMembers } from "@/utils/projectHelpers";
+import BuyMeCoffee from "./BuyMeCoffee";
 
 const ProjectSidebar = ({ project, isEditing, editedTechStack, onTechStackChange, onAskAI }) => {
+  const [showBuyMeCoffee, setShowBuyMeCoffee] = useState(false);
+  
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     return new Date(dateString).toLocaleDateString();
@@ -144,6 +148,30 @@ const ProjectSidebar = ({ project, isEditing, editedTechStack, onTechStackChange
           )}
         </div>
       )}
+
+      {/* Buy Me Coffee */}
+      <div className="bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 backdrop-blur-sm rounded-2xl p-6 text-white">
+        <div className="flex items-center justify-center gap-3">
+          <span className="text-2xl">☕</span>
+          <div className="text-center">
+            <h3 className="font-bold text-lg">Support the Project</h3>
+            <p className="text-sm">Buy us a coffee</p>
+            <button 
+              onClick={() => setShowBuyMeCoffee(true)}
+              className="inline-block mt-2 px-4 py-2 bg-black rounded-full text-white hover:bg-gray-800 transition-colors"
+            >
+              ☕ Buy Coffee
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Buy Me Coffee Modal */}
+      <BuyMeCoffee 
+        project={project}
+        isOpen={showBuyMeCoffee}
+        onClose={() => setShowBuyMeCoffee(false)}
+      />
 
       {/* Ask AI Section */}
       <div className="bg-gradient-to-r from-indigo-500/20 to-purple-600/20 backdrop-blur-sm rounded-2xl border border-indigo-400/30 p-6">

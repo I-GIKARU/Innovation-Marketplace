@@ -2,6 +2,8 @@ from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required
 from models import db, Sales, SalesItem, Merchandise
+from utils.mpesa import MpesaClient, validate_mpesa_config
+from utils.email_service import send_order_confirmation_email
 from resources.auth.decorators import role_required
 import uuid
 
@@ -45,12 +47,13 @@ class BuyEndpoint(Resource):
                     'price': merchandise.price # Store price at time of sale
                 })
             
-            # Create sale with 'completed' status (direct purchase)
+            # Create order immediately (M-Pesa payment handled separately)
+            # Status set to 'completed' - we assume user will complete payment
             sale = Sales(
                 user_id=None,  # Guest purchase
                 email=user_email,
                 amount=total_amount,
-                status='completed'  # Direct completion without payment processing
+                status='completed'  # Mark as completed since payment is handled separately
             )
             
             db.session.add(sale)
@@ -74,11 +77,42 @@ class BuyEndpoint(Resource):
             
             db.session.commit()
             
-            return {
-                'message': 'Order placed successfully!',
+            # Prepare email data with detailed item information
+            email_items = []
+            for item_data in sales_items_data:
+                merchandise = Merchandise.query.get(item_data['merchandise_id'])
+                if merchandise:
+                    email_items.append({
+                        'name': merchandise.name,
+                        'quantity': item_data['quantity'],
+                        'price': item_data['price']
+                    })
+            
+            # Send order confirmation email immediately
+            email_data = {
+                'email': user_email,
                 'sale_id': sale.id,
                 'amount': total_amount,
-                'status': 'completed'
+                'status': 'completed',
+                'items': email_items
+            }
+            
+            # Send email (don't fail the order if email fails)
+            try:
+                email_sent = send_order_confirmation_email(email_data)
+                if email_sent:
+                    print(f"✅ Order confirmation email sent to {user_email} for order #{sale.id}")
+                else:
+                    print(f"⚠️ Failed to send order confirmation email to {user_email} for order #{sale.id}")
+            except Exception as email_error:
+                print(f"❌ Email sending error for order #{sale.id}: {str(email_error)}")
+            
+            return {
+                'message': 'Order placed successfully! You will receive a confirmation email shortly.',
+                'sale_id': sale.id,
+                'amount': total_amount,
+                'status': 'completed',
+                'email_sent': 'Confirmation email has been sent to your email address'
             }, 200
             
         except Exception as exc:

@@ -10,6 +10,7 @@ from models import db, User, Role
 import firebase_admin
 from firebase_admin import credentials, auth
 from utils.cloudinary_storage import init_cloudinary
+from utils.email_service import init_mail
 
 load_dotenv()
 
@@ -75,6 +76,16 @@ def create_app():
         print(f"✅ Cloudinary initialized")
     except Exception as e:
         print(f"⚠️ Cloudinary initialization failed: {e}")
+    
+    # Initialize Flask-Mail
+    try:
+        init_mail(app)
+        if app.config.get('MAIL_USERNAME'):
+            print(f"✅ Flask-Mail initialized with username: {app.config.get('MAIL_USERNAME')}")
+        else:
+            print(f"⚠️ Flask-Mail initialized but no MAIL_USERNAME configured")
+    except Exception as e:
+        print(f"⚠️ Flask-Mail initialization failed: {e}")
 
     api = Api(app)
 
@@ -86,6 +97,7 @@ def create_app():
     from resources.user_projects import setuser_project_routes as user_projects_setup_routes
     from resources.migrate import setup_routes as migrate_setup_routes
     from resources.ai_agent import setup_ai_routes
+    from resources.mpesa import setup_routes as mpesa_setup_routes
 
     
     auth_setup_routes(api)
@@ -96,6 +108,7 @@ def create_app():
     user_projects_setup_routes(api)
     migrate_setup_routes(api)
     setup_ai_routes(api)
+    mpesa_setup_routes(api)
     
     # ✅ Create default roles on app startup  
     # Use a background function to avoid blocking the main thread

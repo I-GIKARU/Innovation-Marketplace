@@ -40,7 +40,9 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'https://innovation-marketplace-840370620772.us-central1.run.app/api/:path*',
+        destination: process.env.NODE_ENV === 'development' 
+          ? 'http://localhost:5000/api/:path*'
+          : 'https://innovation-marketplace-840370620772.us-central1.run.app/api/:path*',
       },
     ];
   },

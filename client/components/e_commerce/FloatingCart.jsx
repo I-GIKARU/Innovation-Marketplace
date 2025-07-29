@@ -15,6 +15,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/hooks/useAuth';
+import MpesaPayment from './MpesaPayment';
 
 const FloatingCart = ({  }) => {
   const { cart, updateQuantity, removeFromCartById, getCartTotal, getCartCount, clearCart } = useCart();
@@ -348,7 +349,7 @@ const FloatingCart = ({  }) => {
                         <p className="text-sm text-gray-500">This window will close automatically...</p>
                       </motion.div>
                     ) : (
-                      <form onSubmit={handleSubmitOrder} className="space-y-6">
+                      <div className="space-y-6">
                         {/* Order Summary */}
                         <div className="bg-gray-50 rounded-lg p-4 mb-6">
                           <h3 className="font-semibold text-gray-900 mb-2">Order Summary</h3>
@@ -373,7 +374,7 @@ const FloatingCart = ({  }) => {
                           </div>
                         )}
 
-                        {/* Customer Information */}
+{/* Customer Information */}
                         <div className="space-y-4">
                           <h3 className="font-semibold text-gray-900 flex items-center gap-2">
                             <UserIcon className="w-5 h-5" />
@@ -403,24 +404,32 @@ const FloatingCart = ({  }) => {
                             )}
                           </div>
 
-                        </div>
+                          {/* M-Pesa Payment */}
+                          <MpesaPayment 
+                            amount={cartTotal}
+                            orderData={{
+                              email: formData.email,
+                              items: cart.map(item => ({
+                                merchandise_id: item.id,
+                                quantity: item.quantity
+                              }))
+                            }} 
+                            onPaymentSuccess={(paymentData) => {
+                              setOrderSuccess(true);
+                              clearCart();
+                              setTimeout(() => {
+                                setOrderSuccess(false);
+                                setMode('cart');
+                                setIsOpen(false);
+                              }, 3000);
+                            }}
+                            onPaymentError={(errorMessage) => {
+                              setErrors({ general: errorMessage || 'Failed to complete payment. Please try again.' });
+                            }}
+                          />
 
-                        {/* Submit Button */}
-                        <button
-                          type="submit"
-                          disabled={isLoading}
-                          className="w-full bg-[#0a1128] hover:bg-orange-500 disabled:bg-gray-400 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl disabled:transform-none disabled:shadow-none flex items-center justify-center gap-2"
-                        >
-                          {isLoading ? (
-                            <>
-                              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                              Placing Order...
-                            </>
-                          ) : (
-                            `Place Order - KES ${cartTotal?.toLocaleString()}`
-                          )}
-                        </button>
-                      </form>
+                        </div>
+                      </div>
                     )}
                   </div>
                 )}
