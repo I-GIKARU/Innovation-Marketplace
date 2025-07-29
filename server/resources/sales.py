@@ -4,23 +4,24 @@ from flask_jwt_extended import jwt_required
 from models import db, Sales, SalesItem, Merchandise
 from utils.mpesa import MpesaClient, validate_mpesa_config
 from utils.email_service import send_order_confirmation_email
-from resources.auth.decorators import role_required
+from resources.auth.decorators import role_required, get_current_user
 import uuid
 
 class BuyEndpoint(Resource):
-    """Public endpoint for purchasing merchandise - no authentication required"""
+    """Authenticated endpoint for purchasing merchandise"""
+    @jwt_required()
     def post(self):
         try:
+            current_user = get_current_user()
+            if not current_user:
+                return {'error': 'User not found'}, 404
+            
             data = request.get_json()
             
             if not data.get('items'):
                 return {'error': 'Items are required'}, 400
             
-            # Email is required
-            if not data.get('email'):
-                return {'error': 'Email is required'}, 400
-            
-            user_email = data['email']
+            user_email = current_user.email
             
             # Calculate total amount
             total_amount = 0
@@ -50,7 +51,7 @@ class BuyEndpoint(Resource):
             # Create order immediately (M-Pesa payment handled separately)
             # Status set to 'completed' - we assume user will complete payment
             sale = Sales(
-                user_id=None,  # Guest purchase
+                user_id=current_user.id,  # Authenticated user
                 email=user_email,
                 amount=total_amount,
                 status='completed'  # Mark as completed since payment is handled separately
@@ -230,11 +231,108 @@ class AdminCancelSale(Resource):
             db.session.rollback()
             return {'error': str(exc)}, 500
 
+class UserOrdersList(Resource):
+    """User endpoint to view their orders"""
+    @jwt_required()
+    def get(self):
+        try:
+            current_user = get_current_user()
+            if not current_user:
+                return {'error': 'User not found'}, 404
+            
+            page = request.args.get('page', 1, type=int)
+            per_page = request.args.get('per_page', 10, type=int)
+            
+            # Get user's orders (sales where user_id matches)
+            orders = Sales.query.filter_by(
+                user_id=current_user.id,
+                hidden_from_user=False
+            ).order_by(Sales.date.desc()).paginate(
+                page=page,
+                per_page=per_page,
+                error_out=False
+            )
+            
+            return {
+                'orders': [order.to_dict() for order in orders.items],
+                'total': orders.total,
+                'pages': orders.pages,
+                'current_page': page
+            }, 200
+            
+        except Exception as exc:
+            return {'error': str(exc)}, 500
+
+class UserOrderDetail(Resource):
+    """Get specific order details for user"""
+    @jwt_required()
+    def get(self, id):
+        try:
+            current_user = get_current_user()
+            if not current_user:
+                return {'error': 'User not found'}, 404
+            
+            order = Sales.query.filter_by(
+                id=id,
+                user_id=current_user.id,
+                hidden_from_user=False
+            ).first_or_404()
+            
+            return {'order': order.to_dict()}, 200
+            
+        except Exception as exc:
+            return {'error': str(exc)}, 500
+
+class UserOrderCancel(Resource):
+    """Cancel user's order"""
+    @jwt_required()
+    def post(self, id):
+        try:
+            current_user = get_current_user()
+            if not current_user:
+                return {'error': 'User not found'}, 404
+            
+            order = Sales.query.filter_by(
+                id=id,
+                user_id=current_user.id
+            ).first_or_404()
+            
+            if order.status in ['cancelled', 'completed', 'refunded']:
+                return {'error': 'Order cannot be cancelled'}, 400
+            
+            # Restore stock quantities
+            for sales_item in order.items:
+                merchandise = Merchandise.query.get(sales_item.merchandise_id)
+                if merchandise:
+                    merchandise.quantity += sales_item.quantity
+                    db.session.add(merchandise)
+            
+            order.status = 'cancelled'
+            db.session.commit()
+            
+            return {
+                'message': 'Order cancelled successfully',
+                'order': order.to_dict()
+            }, 200
+            
+        except Exception as exc:
+            db.session.rollback()
+            return {'error': str(exc)}, 500
+
 def setup_routes(api):
-    # Public buying endpoint (no authentication required)
+    # Authenticated buying endpoint
     api.add_resource(BuyEndpoint, '/api/buy')
+    
+    # User order management endpoints (authentication required)
+    api.add_resource(UserOrdersList, '/api/orders')
+    api.add_resource(UserOrderDetail, '/api/orders/<int:id>')
+    api.add_resource(UserOrderCancel, '/api/orders/<int:id>/cancel')
     
     # Admin sales management endpoints (admin authentication required)
     api.add_resource(AdminSalesList, '/api/admin/sales')
     api.add_resource(AdminSaleDetail, '/api/admin/sales/<int:id>')
     api.add_resource(AdminCancelSale, '/api/admin/sales/<int:id>/cancel')
+    
+    # Admin order management endpoints (admin authentication required) - alias for sales
+    # Using the same endpoint for backward compatibility
+    api.add_resource(AdminSalesList, '/api/admin/orders', endpoint='admin_orders_list')

@@ -31,12 +31,27 @@ class User(db.Model, SerializerMixin):
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable=False)
     
     # Relationships
-    orders = db.relationship('Order', back_populates='user', lazy=True)
+    sales = db.relationship('Sales', back_populates='user', lazy=True)
     user_projects = db.relationship('UserProject', back_populates='user', lazy=True)
     role = db.relationship('Role', back_populates='users')
     
     # Serialization rules
-    serialize_rules = ('-role.users', '-orders.user', '-user_projects.user')
+    serialize_rules = ('-role.users', '-sales.user', '-user_projects.user')
+    
+    def to_dict(self):
+        """Custom to_dict method for User serialization"""
+        return {
+            'id': self.id,
+            'email': self.email,
+            'phone': self.phone,
+            # firebase_uid removed for security - should never be exposed to frontend
+            'auth_provider': self.auth_provider,
+            'bio': self.bio,
+            'socials': self.socials,
+            'company': self.company,
+            'past_projects': self.past_projects,
+            'role': self.role.name if self.role else None
+        }
 
 class Category(db.Model, SerializerMixin):
     __tablename__ = 'categories'

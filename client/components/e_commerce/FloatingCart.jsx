@@ -80,9 +80,14 @@ const FloatingCart = ({  }) => {
     setErrors({});
 
     try {
-      // Prepare order data for new /api/buy endpoint
+      // Check if user is authenticated
+      if (!user) {
+        setErrors({ general: 'Please sign in to place an order.' });
+        return;
+      }
+
+      // Prepare order data for authenticated /api/buy endpoint
       const orderData = {
-        email: formData.email,
         items: cart.map(item => ({
           merchandise_id: item.id,
           quantity: item.quantity
@@ -91,11 +96,19 @@ const FloatingCart = ({  }) => {
 
       console.log('Order data being sent:', orderData);
 
-      // Make API request to new endpoint
+      // Get auth token
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setErrors({ general: 'Authentication required. Please sign in.' });
+        return;
+      }
+
+      // Make authenticated API request
       const response = await fetch('/api/buy', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(orderData)
       });
@@ -136,14 +149,20 @@ const FloatingCart = ({  }) => {
   };
 
   const switchToCheckout = () => {
-    setMode('checkout');
-    // Pre-fill user data if logged in
-    if (user) {
-      setFormData(prev => ({
-        ...prev,
-        email: user.email || ''
-      }));
+    // Check authentication before proceeding to checkout
+    if (!user) {
+      setErrors({ general: 'Please sign in to place your order. You\'ll be able to proceed with checkout after signing in.' });
+      return;
     }
+    
+    setMode('checkout');
+    setErrors({}); // Clear any previous errors
+    
+    // Pre-fill user data
+    setFormData(prev => ({
+      ...prev,
+      email: user.email || ''
+    }));
   };
 
   const switchToCart = () => {
@@ -446,16 +465,37 @@ const FloatingCart = ({  }) => {
                     </span>
                   </div>
 
+                  {/* Authentication status and error display */}
+                  {errors.general && (
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
+                      <p className="text-sm text-orange-700">{errors.general}</p>
+                      {!user && (
+                        <p className="text-xs text-orange-600 mt-1">
+                          Please sign in using the sign-in button in the navigation bar.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
                   {/* Action Buttons */}
                   <div className="space-y-3">
                     <button
                       onClick={switchToCheckout}
-                      className="w-full bg-[#0a1128] hover:bg-orange-500 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                      className={`w-full font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform shadow-lg ${
+                        user 
+                          ? 'bg-[#0a1128] hover:bg-orange-500 text-white hover:scale-105 hover:shadow-xl' 
+                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      }`}
+                      disabled={!user}
                     >
-                      Proceed to Checkout
+                      {user ? 'Proceed to Checkout' : 'Sign in to Checkout'}
                     </button>
                     
-
+                    {!user && (
+                      <p className="text-xs text-gray-500 text-center">
+                        You need to be signed in to place an order
+                      </p>
+                    )}
                   </div>
                 </div>
               )}

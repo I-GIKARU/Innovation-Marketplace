@@ -1,6 +1,6 @@
 from .login import CurrentUser, UserLogout, FirebaseLogin
 from .profile import UserProfile
-from .dashboard import StudentDashboard, AdminDashboard
+from .dashboard import StudentDashboard, AdminDashboard, ClientDashboard
 
 def setup_routes(api):
     # Firebase authentication routes
@@ -12,4 +12,5 @@ def setup_routes(api):
     
     # Dashboard routes
     api.add_resource(StudentDashboard, '/api/dashboard/student')
+    api.add_resource(ClientDashboard, '/api/dashboard/client')
     api.add_resource(AdminDashboard, '/api/dashboard/admin')

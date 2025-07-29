@@ -14,16 +14,16 @@ export function useOrders() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    // ✅ Place order (user)
+    // ✅ Place order (authenticated users only)
     const placeOrder = useCallback(async (items) => {
         setLoading(true);
         setError(null);
         try {
-            const res = await authFetch(`/orders`, {
+            const res = await authFetch(`/buy`, {
                 method: "POST",
                 body: JSON.stringify({ items }),
             });
-            return { success: true, order: res.order };
+            return { success: true, sale_id: res.sale_id, message: res.message };
         } catch (err) {
             setError(err.message);
             return { success: false, error: err.message };
@@ -31,28 +31,6 @@ export function useOrders() {
             setLoading(false);
         }
     }, [authFetch]);
-
-    const placeGuestOrder = useCallback(async ({ email, items }) => {
-        setLoading(true);
-        setError(null);
-        try {
-            const res = await fetch(`/api/orders`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, items }),
-            });
-
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Guest order failed");
-
-            return { success: true, order: data.order };
-        } catch (err) {
-            setError(err.message);
-            return { success: false, error: err.message };
-        } finally {
-            setLoading(false);
-        }
-    }, []);
 
     const fetchUserOrders = useCallback(async ({ page = 1, perPage = 10 } = {}) => {
         setLoading(true);
@@ -127,7 +105,6 @@ export function useOrders() {
         loading,
         error,
         placeOrder,
-        placeGuestOrder,
         fetchUserOrders,
         fetchOrderById,
         cancelOrder,

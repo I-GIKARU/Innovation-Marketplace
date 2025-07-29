@@ -79,7 +79,7 @@ def create_or_get_user_from_firebase(firebase_user_data, role_name=None):
     if user:
         # Update existing user with Firebase UID
         user.firebase_uid = firebase_uid
-        user.auth_provider = 'google'
+        user.auth_provider = 'firebase'
         db.session.commit()
         return user, None
     
@@ -91,8 +91,8 @@ def create_or_get_user_from_firebase(firebase_user_data, role_name=None):
         elif email == 'admin@innovation.marketplace.com':  # Special case for admin
             role = Role.query.filter_by(name='admin').first()
         else:
-            # Only students with institutional emails can sign up automatically
-            return None, "Only students with @student.moringaschool.com email can register. Contact admin for other access."
+            # All other users default to client role
+            role = Role.query.filter_by(name='client').first()
         
         if not role:
             return None, "Unable to determine user role"
@@ -111,7 +111,7 @@ def create_or_get_user_from_firebase(firebase_user_data, role_name=None):
         user_data = {
             'email': email,
             'firebase_uid': firebase_uid,
-            'auth_provider': 'google',
+            'auth_provider': 'firebase',
             'role_id': role.id
         }
         

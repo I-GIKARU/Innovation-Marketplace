@@ -10,6 +10,7 @@ import StatsSection from "@/components/statSection";
 import AboutSection from "@/components/About";
 import Merchandise from "@/components/Merchandise"
 import FeaturedProjects from "@/components/projects/FeaturedProjects";
+import UserTypesSection from "@/components/UserTypesSection";
 import CombinedAuth from "@/components/auth/CombinedAuth";
 
 // Modern Loading Component
@@ -64,6 +65,7 @@ export default function Home() {
   const [componentsLoaded, setComponentsLoaded] = useState({
     hero: false,
     about: false,
+    userTypes: false,
     projects: false,
     stats: false,
     merchandise: false
@@ -116,8 +118,16 @@ export default function Home() {
           
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: componentsLoaded.projects ? 1 : 0, y: componentsLoaded.projects ? 0 : 20 }}
+            animate={{ opacity: componentsLoaded.userTypes ? 1 : 0, y: componentsLoaded.userTypes ? 0 : 20 }}
             transition={{ duration: 0.6, delay: 0.3 }}
+          >
+            <UserTypesSection />
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: componentsLoaded.projects ? 1 : 0, y: componentsLoaded.projects ? 0 : 20 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
           >
             <FeaturedProjects />
           </motion.div>
@@ -125,7 +135,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: componentsLoaded.stats ? 1 : 0, y: componentsLoaded.stats ? 0 : 20 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
           >
             <StatsSection />
           </motion.div>
@@ -133,7 +143,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: componentsLoaded.merchandise ? 1 : 0, y: componentsLoaded.merchandise ? 0 : 20 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
           >
             <Merchandise />
           </motion.div>
@@ -141,7 +151,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
+            transition={{ duration: 0.6, delay: 0.7 }}
           >
             <Footer />
           </motion.div>

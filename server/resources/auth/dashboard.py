@@ -1,6 +1,6 @@
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import User, Project, UserProject, Order, Merchandise, Role, Contribution
+from models import User, Project, UserProject, Sales, Merchandise, Role, Contribution
 from resources.auth.decorators import role_required, get_current_user
 
 class StudentDashboard(Resource):
@@ -50,7 +50,7 @@ class ClientDashboard(Resource):
         expressed_interests = UserProject.query.filter_by(user_id=user.id).all()
         
         # Get client's orders
-        orders = Order.query.filter_by(user_id=user.id).order_by(Order.date.desc()).all()
+        orders = Sales.query.filter_by(user_id=user.id).order_by(Sales.date.desc()).all()
         
         # Get client's contributions
         client_contributions = Contribution.query.join(UserProject).filter(
@@ -98,8 +98,8 @@ class AdminDashboard(Resource):
             'total_projects': Project.query.count(),
             'approved_projects': Project.query.filter_by(status='approved').count(),
             'pending_projects': Project.query.filter_by(status='pending').count(),
-            'total_orders': Order.query.count(),
-            'completed_orders': Order.query.filter_by(status='completed').count(),
+            'total_orders': Sales.query.count(),
+            'completed_orders': Sales.query.filter_by(status='completed').count(),
             'total_contributions': Contribution.query.count(),
             'total_contribution_amount': sum(c.amount for c in Contribution.query.all() if c.amount)
         }

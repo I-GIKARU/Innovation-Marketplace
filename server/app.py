@@ -128,7 +128,8 @@ def create_app():
                     # Create all roles if they don't exist
                     roles_to_create = [
                         {'name': 'admin', 'desc': 'Administrator role'},
-                        {'name': 'student', 'desc': 'Student developer'}
+                        {'name': 'student', 'desc': 'Student developer'},
+                        {'name': 'client', 'desc': 'Client user'}
                     ]
                     
                     created_roles = []

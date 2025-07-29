@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 from .projects import Role, User, Category, Project, UserProject, Review, Contribution
-from .merchandise import Merchandise, Order, OrderItem, Payment
+from .merchandise import Merchandise, Sales, SalesItem, Payment
 __all__ = [
     'db',
     'Role',
@@ -14,7 +14,7 @@ __all__ = [
     'Review',
     'Contribution',
     'Merchandise',
-    'Order',
-    'OrderItem',
+    'Sales',
+    'SalesItem',
     'Payment'
 ]

@@ -68,8 +68,10 @@ const NavBar = ({ onNavigate, onShowAuth }) => {
         return '/dashboard/admin';
       case 'student':
         return '/dashboard/student';
-      default:
-        return '/';
+    case 'client':
+      return '/dashboard/client';
+    default:
+      return '/';
     }
   };
 
@@ -82,8 +84,10 @@ const NavBar = ({ onNavigate, onShowAuth }) => {
         return 'Admin Dashboard';
       case 'student':
         return 'Student Dashboard';
-      default:
-        return 'Dashboard';
+    case 'client':
+      return 'Client Dashboard';
+    default:
+      return 'Dashboard';
     }
   };
 

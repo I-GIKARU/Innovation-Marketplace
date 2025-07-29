@@ -6,7 +6,8 @@ const protectedRoutes = ['/dashboard'];
 // Routes that require specific roles
 const roleBasedRoutes = {
   '/dashboard/admin': 'admin',
-  '/dashboard/student': 'student'
+  '/dashboard/student': 'student',
+  '/dashboard/client': 'client'
 };
 
 export function middleware(request) {

@@ -39,8 +39,8 @@ const MyOrders = ({ orders, loading, onOrderUpdate }) => {
   }
 
   const filteredOrders = orders?.filter(order => {
-    const matchesSearch = order.projectTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.orderId?.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch = order.id?.toString().includes(searchTerm.toLowerCase()) ||
+                         order.email?.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter
     return matchesSearch && matchesStatus
   }) || []
@@ -48,13 +48,13 @@ const MyOrders = ({ orders, loading, onOrderUpdate }) => {
   const sortedOrders = [...filteredOrders].sort((a, b) => {
     switch (sortBy) {
       case 'newest':
-        return new Date(b.createdAt) - new Date(a.createdAt)
+        return new Date(b.date) - new Date(a.date)
       case 'oldest':
-        return new Date(a.createdAt) - new Date(b.createdAt)
+        return new Date(a.date) - new Date(b.date)
       case 'amount-high':
-        return b.total - a.total
+        return b.amount - a.amount
       case 'amount-low':
-        return a.total - b.total
+        return a.amount - b.amount
       default:
         return 0
     }

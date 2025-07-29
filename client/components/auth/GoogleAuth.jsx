@@ -48,9 +48,22 @@ const GoogleAuth = ({ onClose }) => {
                         <h2 className="text-2xl font-bold text-white mb-2">
                             Welcome to InnoMarket
                         </h2>
-                        <p className="text-gray-300 text-sm">
-                            Sign in with your student email to continue
+                        <p className="text-gray-300 text-sm mb-3">
+                            Sign in with your Google account
                         </p>
+                        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                            <p className="text-xs text-gray-300 mb-2 font-medium">You'll be assigned a role based on your email:</p>
+                            <div className="space-y-1 text-xs">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                                    <span className="text-green-300">@student.moringaschool.com → Student Dashboard</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                                    <span className="text-blue-300">Any other email → Client Dashboard</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Google Sign-In Button */}
@@ -76,9 +89,13 @@ const GoogleAuth = ({ onClose }) => {
 
                     {/* Info Text */}
                     <div className="mt-6 text-center">
-                        <p className="text-gray-400 text-sm">
-                            Use your <span className="text-orange-400 font-medium">@student.moringaschool.com</span> email
-                        </p>
+                        <div className="bg-orange-500/10 border border-orange-400/30 rounded-lg p-3">
+                            <p className="text-orange-300 text-xs font-medium mb-1">💡 Quick Start Guide:</p>
+                            <p className="text-gray-300 text-xs">
+                                <span className="text-green-300 font-medium">Students:</span> Use your @student.moringaschool.com email<br/>
+                                <span className="text-blue-300 font-medium">Clients:</span> Use any personal Gmail account
+                            </p>
+                        </div>
                     </div>
 
                     {/* Error Display */}
