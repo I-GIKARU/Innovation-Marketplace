@@ -2,10 +2,13 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Next.js](https://img.shields.io/badge/Next.js-15.4.1-black?logo=next.js)](https://nextjs.org/)
-[![Flask](https://img.shields.io/badge/Flask-3.1.1-blue?logo=flask)](https://flask.palletsprojects.com/)
+[![Flask](https://img.shields.io/badge/Flask-3.1.x-blue?logo=flask)](https://flask.palletsprojects.com/)
 [![Firebase](https://img.shields.io/badge/Firebase-12.0.0-orange?logo=firebase)](https://firebase.google.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-blue?logo=postgresql)](https://postgresql.org/)
+[![Google Cloud](https://img.shields.io/badge/Google_Cloud-Ready-blue?logo=google-cloud)](https://cloud.google.com/)
+[![AI Powered](https://img.shields.io/badge/AI-Powered-green?logo=google)](https://ai.google.dev/)
 
-> A modern full-stack marketplace platform connecting innovative student projects with potential clients and collaborators.
+> A modern full-stack marketplace platform connecting innovative student projects with potential clients and collaborators. Features AI-powered project insights, comprehensive e-commerce, and advanced analytics.
 
 ## 🚀 Overview
 
@@ -20,15 +23,22 @@ Innovation Marketplace is a comprehensive web application designed to bridge the
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Next.js       │◄──►│   Flask API     │◄──►│   Firebase      │
+│   Next.js 15    │◄──►│   Flask API     │◄──►│   Firebase      │
 │   Frontend      │    │   Backend       │    │   Auth/Storage  │
 │   (Port 3000)   │    │   (Port 5000)   │    │                 │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
          │                       │                       │
          ▼                       ▼                       ▼
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│ Tailwind CSS    │    │     SQLite      │    │   Cloudinary    │
-│ Framer Motion   │    │   Database      │    │ Media Storage   │
+│ Tailwind CSS    │    │  PostgreSQL     │    │   Cloudinary    │
+│ Framer Motion   │    │  Google Cloud   │    │ Media Storage   │
+│ React Context   │    │  SQL / Neon     │    │ + File Upload   │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         ▼                       ▼                       ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│ Custom Hooks    │    │  AI Integration │    │ Google Cloud    │
+│ Component Lib   │    │  Google Gemini  │    │ Run Deployment  │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
@@ -41,16 +51,22 @@ Innovation Marketplace is a comprehensive web application designed to bridge the
 - **Review and rating system** for projects
 - **E-commerce store** with cart and checkout functionality
 - **Admin dashboard** for content and user management
+- **AI-powered project Q&A** with Google Gemini
+- **Smart CV analysis** and matching
+- **Real-time analytics** and insights
 
 ### 🔧 Technical Features
-- **Server-Side Rendering (SSR)** with Next.js
+- **Server-Side Rendering (SSR)** with Next.js App Router
 - **RESTful API** with Flask-RESTful
+- **AI Integration** with Google Generative AI
+- **Cloud SQL** with PostgreSQL
 - **Real-time data** with optimized caching
 - **Responsive design** with Tailwind CSS
 - **Smooth animations** with Framer Motion
-- **File upload** to Cloudinary and Firebase Storage
+- **Multi-cloud storage** (Firebase + Cloudinary)
 - **Database migrations** with Alembic
-- **Docker containerization** for easy deployment
+- **Container deployment** with Google Cloud Run
+- **Middleware protection** for routes
 
 ## 🛠️ Tech Stack
 
@@ -209,6 +225,35 @@ The API follows RESTful conventions with comprehensive endpoint documentation av
 - `POST /api/orders` - Place order
 
 For complete API documentation, see [API_DOCUMENTATION.md](./server/API_DOCUMENTATION.md)
+
+## 📚 Comprehensive Documentation
+
+### 🖥️ Backend Documentation
+- **[Server Overview](./server/docs/README.md)** - Complete backend architecture
+- **[Database Models](./server/docs/models/README.md)** - Data structure and relationships
+- **[API Resources](./server/docs/resources/)** - Endpoint documentation
+  - [Authentication Resources](./server/docs/resources/auth.md)
+  - [Project Resources](./server/docs/resources/projects.md)
+  - [Admin Resources](./server/docs/resources/admin.md)
+  - [AI Resources](./server/docs/resources/ai.md)
+- **[Configuration Guide](./server/docs/config.md)** - Environment setup and configuration
+- **[App Analysis](./server/docs/app-analysis.md)** - Detailed app.py breakdown
+- **[Deployment Guide](./server/docs/deployment/README.md)** - Production deployment
+
+### 🌐 Frontend Documentation
+- **[Client Overview](./client/docs/README.md)** - Complete frontend architecture
+- **[Components Guide](./client/docs/components/README.md)** - UI components documentation
+- **[Hooks Documentation](./client/docs/hooks/README.md)** - Custom React hooks
+- **[Context Providers](./client/docs/contexts/)** - Global state management
+- **[Pages Structure](./client/docs/pages/)** - Next.js App Router pages
+- **[Styling Guide](./client/docs/styles/)** - Tailwind CSS patterns
+- **[Development Guides](./client/docs/guides/)** - Best practices and conventions
+
+### 🔧 Development Resources
+- **[Google Cloud SQL Setup](./server/docs/deployment/database.md)** - Cloud SQL configuration
+- **[Firebase Configuration](./server/docs/deployment/environment.md)** - Firebase setup guide
+- **[AI Integration](./server/docs/utils/ai.md)** - Google Generative AI setup
+- **[Troubleshooting](./server/docs/guides/troubleshooting.md)** - Common issues and solutions
 
 ## 🐳 Docker Deployment
 

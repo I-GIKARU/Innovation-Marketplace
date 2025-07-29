@@ -130,3 +130,21 @@ class Config:
     CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY')
     CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET')
     CLOUDINARY_FOLDER = os.getenv('CLOUDINARY_FOLDER', 'Innovation-Marketplace')
+    
+    # M-Pesa Configuration
+    MPESA_CONSUMER_KEY = os.getenv('MPESA_CONSUMER_KEY')
+    MPESA_CONSUMER_SECRET = os.getenv('MPESA_CONSUMER_SECRET')
+    MPESA_BUSINESS_SHORT_CODE = os.getenv('MPESA_BUSINESS_SHORT_CODE')
+    MPESA_PASSKEY = os.getenv('MPESA_PASSKEY')
+    MPESA_CALLBACK_URL = os.getenv('MPESA_CALLBACK_URL', 'https://your-domain.com/api/mpesa/callback')
+    MPESA_ENVIRONMENT = os.getenv('MPESA_ENVIRONMENT', 'sandbox')  # 'sandbox' or 'production'
+    
+    # Email Configuration
+    MAIL_SERVER = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
+    MAIL_PORT = int(os.getenv('MAIL_PORT', 587))
+    MAIL_USE_TLS = os.getenv('MAIL_USE_TLS', 'true').lower() == 'true'
+    MAIL_USE_SSL = os.getenv('MAIL_USE_SSL', 'false').lower() == 'true'
+    MAIL_USERNAME = os.getenv('MAIL_USERNAME')
+    MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
+    MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER', 'noreply@innovationmarketplace.com')
+    ADMIN_EMAIL = os.getenv('ADMIN_EMAIL')  # Optional: for admin notifications

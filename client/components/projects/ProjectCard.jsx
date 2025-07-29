@@ -5,9 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { FiGithub, FiExternalLink, FiEye, FiDownload, FiStar, FiDollarSign, FiArrowRight } from 'react-icons/fi';
 import { ShoppingCart, Users, Calendar } from "lucide-react";
-import ProjectMedia from '@/components/common/ProjectMedia';
 
-const ProjectCard = ({ project, title, description, image, bgColor, onAddToCart, onProjectClick }) => {
+const ProjectCard = ({ project, title, description, image, onProjectClick }) => {
     const defaultImage = "/images/marketplace.png"; // Use local fallback image
 
     if (!project) {

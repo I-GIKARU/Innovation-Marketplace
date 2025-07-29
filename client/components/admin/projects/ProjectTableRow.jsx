@@ -1,6 +1,6 @@
 "use client"
 import React from 'react'
-import { Eye, CheckCircle, XCircle, Trash2, Star } from 'lucide-react'
+import { Eye, CheckCircle, XCircle, Trash2, Star, MessageSquare } from 'lucide-react'
 import LoadingSpinner from '../shared/LoadingSpinner'
 import ProjectStatusIcon from './ProjectStatusIcon'
 import { getStatusBadge } from '../shared/utils'
@@ -12,6 +12,7 @@ const ProjectTableRow = ({
   onDelete, 
   onToggleFeatured, 
   onViewDetails,
+  onAskAI,
   updatingProject,
   deletingProject,
   togglingFeatured
@@ -164,6 +165,14 @@ const ProjectTableRow = ({
             title="View Project Details"
           >
             View
+          </button>
+          <button 
+            onClick={() => onAskAI(project)}
+            className="px-3 py-1 text-xs font-medium text-purple-600 hover:text-purple-900 border border-purple-600 hover:border-purple-900 rounded-md hover:bg-purple-50 transition-colors flex items-center"
+            title="Ask AI about Project"
+          >
+            <MessageSquare size={12} className="mr-1" />
+            Ask AI
           </button>
         </div>
       </td>

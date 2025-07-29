@@ -1,9 +1,10 @@
 'use client'
 
-import { Eye, Download, ExternalLink, Star, Clock, CheckCircle, X, TrendingUp, Users } from 'lucide-react'
+import { Eye, Download, ExternalLink, Star, Clock, CheckCircle, X, TrendingUp, Users, FileText, Upload } from 'lucide-react'
 import { motion } from "framer-motion"
+import CVManager from './CVManager'
 
-const DashboardOverview = ({ dashboardData, loading, error, onRetry }) => {
+const DashboardOverview = ({ dashboardData, loading, error, onRetry, onCVUpload, onCVUpdate }) => {
   if (loading) {
     return (
       <div className="flex-1 overflow-auto relative z-10">
@@ -51,7 +52,6 @@ const DashboardOverview = ({ dashboardData, loading, error, onRetry }) => {
   
   const totalViews = stats?.totalViews || projects?.reduce((sum, p) => sum + (p.views || 0), 0) || 0
   const totalClicks = stats?.totalClicks || projects?.reduce((sum, p) => sum + (p.clicks || 0), 0) || 0
-  const totalDownloads = stats?.totalDownloads || projects?.reduce((sum, p) => sum + (p.downloads || 0), 0) || 0
 
   const statsCards = [
     {
@@ -67,13 +67,6 @@ const DashboardOverview = ({ dashboardData, loading, error, onRetry }) => {
       icon: <Eye className="w-6 h-6" />,
       color: 'bg-green-500',
       textColor: 'text-green-600'
-    },
-    {
-      title: 'Total Downloads',
-      value: totalDownloads.toLocaleString(),
-      icon: <Download className="w-6 h-6" />,
-      color: 'bg-purple-500',
-      textColor: 'text-purple-600'
     },
     {
       title: 'Featured Projects',
@@ -145,16 +138,18 @@ const DashboardOverview = ({ dashboardData, loading, error, onRetry }) => {
               <span className="font-semibold">{Math.round(totalViews / totalProjects)}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Average downloads per project</span>
-              <span className="font-semibold">{Math.round(totalDownloads / totalProjects)}</span>
-            </div>
-            <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">Total clicks</span>
               <span className="font-semibold">{totalClicks.toLocaleString()}</span>
             </div>
           </div>
         </div>
       )}
+
+      {/* CV Management Section */}
+      <CVManager 
+        userData={user} 
+        onCVUpdate={onCVUpdate} 
+      />
     </div>
   )
 }

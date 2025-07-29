@@ -14,7 +14,6 @@ const StudentProfile = ({ dashboardData }) => {
   const [userData, setUserData] = useState({
     id: user?.id || '',
     email: user?.email || '',
-    role: user?.role || '',
     phone: user?.phone || '',
     bio: user?.bio || '',
     socials: user?.socials || '',
@@ -60,7 +59,6 @@ const StudentProfile = ({ dashboardData }) => {
           ...prev,
           id: profileData.user.id || prev.id,
           email: profileData.user.email || prev.email,
-          role: profileData.user.role || prev.role,
           phone: profileData.user.phone || prev.phone,
           bio: profileData.user.bio || prev.bio,
           socials: profileData.user.socials || prev.socials,
@@ -126,29 +124,29 @@ const StudentProfile = ({ dashboardData }) => {
   const stats = getProjectStats()
 
   return (
-    <div className="p-6">
+    <div>
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Profile Settings</h2>
         <p className="text-gray-600">Manage your account information and preferences</p>
         {error && (
-          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-800 text-sm">{error}</p>
+          <div className="mt-4 text-red-800 text-sm">
+            <p>{error}</p>
           </div>
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div>
         {/* Profile Info */}
-        <div className="lg:col-span-2 space-y-6">
+        <div>
           {/* Basic Information */}
-          <div className="bg-white rounded-lg shadow-sm border">
-            <div className="p-6 border-b border-gray-200">
+          <div>
+            <div className="mb-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">Basic Information</h3>
                 {!isEditing ? (
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="flex items-center px-4 py-2 text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+                    className="flex items-center px-4 py-2 text-green-600 hover:text-green-700 transition-colors"
                   >
                     <Edit2 className="h-4 w-4 mr-2" />
                     Edit
@@ -157,14 +155,14 @@ const StudentProfile = ({ dashboardData }) => {
                   <div className="flex space-x-2">
                     <button
                       onClick={handleCancel}
-                      className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                      className="px-4 py-2 text-gray-600 hover:text-gray-700 transition-colors"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleSave}
                       disabled={loading}
-                      className="flex items-center px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                      className="flex items-center px-4 py-2 text-white bg-green-600 hover:bg-green-700 transition-colors disabled:opacity-50"
                     >
                       <Save className="h-4 w-4 mr-2" />
                       {loading ? 'Saving...' : 'Save'}
@@ -188,7 +186,7 @@ const StudentProfile = ({ dashboardData }) => {
                   </button>
                 </div>
                 <div className="flex-1 space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Email Address
@@ -196,15 +194,6 @@ const StudentProfile = ({ dashboardData }) => {
                       <div className="flex items-center space-x-2">
                         <Mail className="h-4 w-4 text-gray-400" />
                         <span className="text-gray-900">{userData.email}</span>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Role
-                      </label>
-                      <div className="flex items-center space-x-2">
-                        <User className="h-4 w-4 text-gray-400" />
-                        <span className="text-gray-900 capitalize">{userData.role}</span>
                       </div>
                     </div>
                     <div>
@@ -222,23 +211,6 @@ const StudentProfile = ({ dashboardData }) => {
 
               {/* Editable Fields */}
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email Address
-                  </label>
-                  {isEditing ? (
-                    <input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      placeholder="Enter your email address"
-                    />
-                  ) : (
-                    <p className="text-gray-900">{userData.email}</p>
-                  )}
-                </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">

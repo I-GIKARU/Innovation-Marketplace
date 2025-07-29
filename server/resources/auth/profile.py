@@ -13,16 +13,8 @@ class UserProfile(Resource):
         if not user:
             return {'message': 'User not found'}, 404
         
-        profile_data = {
-            'id': user.id,
-            'email': user.email,
-            'role': user.role.name,
-            'phone': user.phone,
-            'bio': user.bio,
-            'socials': user.socials,
-            'company': user.company,
-            'past_projects': user.past_projects
-        }
+        # Use the to_dict method for consistent serialization
+        profile_data = user.to_dict()
         
         return {'user': profile_data}, 200
     
@@ -48,11 +40,10 @@ class UserProfile(Resource):
                     return {'error': 'Email already exists'}, 400
                 user.email = data['email']
             
-            # Update general user fields
+            # Update general user fields (only fields that exist in User model)
             user.phone = data.get('phone', user.phone)
             user.bio = data.get('bio', user.bio)
             user.socials = data.get('socials', user.socials)
-            user.company = data.get('company', user.company)
             user.past_projects = data.get('past_projects', user.past_projects)
             
             # Password updates are handled by Firebase Auth, not through this endpoint

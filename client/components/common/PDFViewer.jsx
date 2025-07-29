@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { X, Download, ExternalLink, FileText } from 'lucide-react'
+import { X,FileText } from 'lucide-react'
 
 const PDFViewer = ({ isOpen, onClose, pdfUrl, title = "Document" }) => {
   const [loading, setLoading] = useState(true)

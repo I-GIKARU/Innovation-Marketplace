@@ -14,13 +14,15 @@ import {
     Settings,
     ChevronLeft,
     ChevronRight,
+    FileText,
 } from "lucide-react";
 
 const menu = [
     { name: "Dashboard", key: "dashboard", icon: House, description: "Overview & Analytics" },
     { name: "Products", key: "products", icon: ShoppingBag, description: "Manage products" },
     { name: "Projects", key: "projects", icon: BriefcaseBusiness, description: "Project management" },
-    { name: "Orders", key: "orders", icon: ShoppingCart, description: "Order tracking" },
+    { name: "Student CVs", key: "cvs", icon: FileText, description: "Review student CVs" },
+    { name: "Sales", key: "orders", icon: ShoppingCart, description: "Sales tracking" },
     { name: "Categories", key: "categories", icon: ChartColumnStacked, description: "Category management" },
 ];
 

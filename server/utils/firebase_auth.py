@@ -31,13 +31,13 @@ def firebase_auth_required(f):
         auth_header = request.headers.get('Authorization')
         
         if not auth_header or not auth_header.startswith('Bearer '):
-            return jsonify({'error': 'Authorization header required'}), 401
+            return {'error': 'Authorization header required'}, 401
         
         id_token = auth_header.split('Bearer ')[1]
         
         decoded_token, error = verify_firebase_token(id_token)
         if error:
-            return jsonify({'error': error}), 401
+            return {'error': error}, 401
         
         # Add decoded token to request context
         request.firebase_user = decoded_token
@@ -51,15 +51,18 @@ def get_firebase_user_from_request():
     """
     return getattr(request, 'firebase_user', None)
 
-def create_or_get_user_from_firebase(firebase_user_data, role_name=None, additional_data=None):
+def create_or_get_user_from_firebase(firebase_user_data, role_name=None):
     """
     Create or retrieve user from database based on Firebase user data
+    Supports both Google Sign-In (students) and email/password (admin) authentication
+    Automatically creates accounts on first login with appropriate roles
     """
     from models import User, Role, db
     from utils.validation import validate_student_email, validate_email_format
     
     firebase_uid = firebase_user_data.get('uid')
     email = firebase_user_data.get('email')
+    display_name = firebase_user_data.get('name', '')  # From Google profile
     
     if not firebase_uid or not email:
         return None, "Invalid Firebase user data"
@@ -76,24 +79,23 @@ def create_or_get_user_from_firebase(firebase_user_data, role_name=None, additio
     if user:
         # Update existing user with Firebase UID
         user.firebase_uid = firebase_uid
-        user.auth_provider = 'firebase'
+        user.auth_provider = 'google'
         db.session.commit()
         return user, None
     
-    # Create new user
+    # Create new user automatically on first Google sign-in
     try:
-        # Determine role
-        if role_name:
-            role = Role.query.filter_by(name=role_name).first()
-        elif email.endswith('@student.moringaschool.com'):
+        # Determine role - automatic role assignment based on email domain
+        if email.endswith('@student.moringaschool.com'):
             role = Role.query.filter_by(name='student').first()
         elif email == 'admin@innovation.marketplace.com':  # Special case for admin
             role = Role.query.filter_by(name='admin').first()
         else:
-            role = Role.query.filter_by(name='client').first()  # Default to client
+            # Only students with institutional emails can sign up automatically
+            return None, "Only students with @student.moringaschool.com email can register. Contact admin for other access."
         
         if not role:
-            return None, f"Invalid role: {role_name}"
+            return None, "Unable to determine user role"
         
         # Validate email based on role
         if role.name == 'student':
@@ -105,38 +107,23 @@ def create_or_get_user_from_firebase(firebase_user_data, role_name=None, additio
             if not is_valid_email:
                 return None, email_message
         
-        # Prepare user data
+        # Create user data (only include fields that exist in User model)
         user_data = {
             'email': email,
             'firebase_uid': firebase_uid,
-            'auth_provider': 'firebase',
+            'auth_provider': 'google',
             'role_id': role.id
         }
-        
-        # Add additional fields based on role and provided data
-        if additional_data:
-            if role.name == 'student':
-                user_data.update({
-                    'bio': additional_data.get('bio'),
-                    'socials': additional_data.get('socials'),
-                    'past_projects': additional_data.get('past_projects')
-                })
-            elif role.name == 'client':
-                user_data.update({
-                    'company': additional_data.get('company')
-                })
-            
-            # Common fields
-            user_data['phone'] = additional_data.get('phone')
         
         new_user = User(**user_data)
         
         db.session.add(new_user)
         db.session.commit()
         
+        logger.info(f"Created new user account for {email} via Google Sign-In")
         return new_user, None
         
     except Exception as e:
         db.session.rollback()
-        logger.error(f"Error creating user from Firebase: {e}")
+        logger.error(f"Error creating user from Google Sign-In: {e}")
         return None, "Failed to create user account"

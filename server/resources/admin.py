@@ -1,7 +1,7 @@
 from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import db, Project, User, Category, Order, Role
+from models import db, Project, User, Category, Sales, Role
 from resources.auth.decorators import role_required
 from sqlalchemy import func
 
@@ -90,7 +90,6 @@ class AdminStats(Resource):
             # User stats
             total_users = User.query.count()
             total_students = User.query.join(Role).filter(Role.name == 'student').count()
-            total_clients = User.query.join(Role).filter(Role.name == 'client').count()
             
             # Project stats
             total_projects = Project.query.count()
@@ -99,9 +98,9 @@ class AdminStats(Resource):
             featured_projects = Project.query.filter_by(featured=True).count()
             
             
-            # Order stats
-            total_orders = Order.query.count()
-            completed_orders = Order.query.filter_by(status='completed').count()
+            # Sales stats
+            total_sales = Sales.query.count()
+            completed_sales = Sales.query.filter_by(status='completed').count()
             
             # Top viewed projects
             top_projects = Project.query.filter_by(status='approved').order_by(Project.views.desc()).limit(5).all()
@@ -109,8 +108,7 @@ class AdminStats(Resource):
             return {
                 'user_stats': {
                     'total': total_users,
-                    'students': total_students,
-                    'clients': total_clients
+                    'students': total_students
                 },
                 'project_stats': {
                     'total': total_projects,
@@ -118,9 +116,9 @@ class AdminStats(Resource):
                     'pending': pending_projects,
                     'featured': featured_projects
                 },
-                'order_stats': {
-                    'total': total_orders,
-                    'completed': completed_orders
+                'sales_stats': {
+                    'total': total_sales,
+                    'completed': completed_sales
                 },
                 'top_projects': [project.to_dict() for project in top_projects]
             }, 200
@@ -128,7 +126,7 @@ class AdminStats(Resource):
         except Exception as exc:
             return {'error': str(exc)}, 500
         
-class AdminAllOrders(Resource):
+class AdminAllSales(Resource):
     @jwt_required()
     @role_required('admin')
     def get(self):
@@ -137,15 +135,15 @@ class AdminAllOrders(Resource):
             page = request.args.get("page", 1, type=int)
             per_page = request.args.get("per_page", 20, type=int)
 
-            orders = (
-                Order.query.order_by(Order.date.desc())
+            sales = (
+                Sales.query.order_by(Sales.date.desc())
                 .paginate(page=page, per_page=per_page, error_out=False)
             )
 
             return {
-                "orders": [order.to_dict() for order in orders.items],
-                "total": orders.total,
-                "pages": orders.pages,
+                "sales": [sale.to_dict() for sale in sales.items],
+                "total": sales.total,
+                "pages": sales.pages,
                 "current_page": page,
             }, 200
 
@@ -156,4 +154,4 @@ def setup_routes(api):
     api.add_resource(AdminCategories, '/api/admin/categories')
     api.add_resource(AdminCategoryDetail, '/api/admin/categories/<int:id>')
     api.add_resource(AdminStats, '/api/admin/stats')
-    api.add_resource(AdminAllOrders, "/api/admin/orders")
+    api.add_resource(AdminAllSales, "/api/admin/sales")

@@ -14,28 +14,28 @@ class Merchandise(db.Model, SerializerMixin):
     image_urls = db.Column(db.Text)  # JSON string of multiple image URLs
     thumbnail_url = db.Column(db.String(500))  # Main product image
 
-    order_items = db.relationship('OrderItem', back_populates='merchandise')
+    sales_items = db.relationship('SalesItem', back_populates='merchandise')
 
-    serialize_rules = ('-order_items.merchandise',)
+    serialize_rules = ('-sales_items.merchandise',)
 
 
-class OrderItem(db.Model, SerializerMixin):
-    __tablename__ = 'order_item'
+class SalesItem(db.Model, SerializerMixin):
+    __tablename__ = 'sales_item'
 
     id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'))
+    sales_id = db.Column(db.Integer, db.ForeignKey('sales.id'))
     merchandise_id = db.Column(db.Integer, db.ForeignKey('merchandise.id'))
     quantity = db.Column(db.Integer)
     price = db.Column(db.Integer)
 
-    order = db.relationship('Order', back_populates='items')
-    merchandise = db.relationship('Merchandise', back_populates='order_items')
+    sales = db.relationship('Sales', back_populates='items')
+    merchandise = db.relationship('Merchandise', back_populates='sales_items')
 
-    serialize_rules = ('-order.items', '-merchandise.order_items',)
+    serialize_rules = ('-sales.items', '-merchandise.sales_items',)
 
 
-class Order(db.Model, SerializerMixin):
-    __tablename__ = 'orders'
+class Sales(db.Model, SerializerMixin):
+    __tablename__ = 'sales'
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
@@ -44,12 +44,13 @@ class Order(db.Model, SerializerMixin):
     status = db.Column(db.String(50))
     amount = db.Column(db.Integer)
     hidden_from_user = db.Column(db.Boolean, default=False)  # Soft delete for user view
+    
 
-    user = db.relationship('User', back_populates='orders')
-    items = db.relationship('OrderItem', back_populates='order')
-    payment = db.relationship('Payment', back_populates='order', uselist=False)
+    user = db.relationship('User', back_populates='sales')
+    items = db.relationship('SalesItem', back_populates='sales')
+    payment = db.relationship('Payment', back_populates='sales', uselist=False)
 
-    serialize_rules = ('-user.orders', '-items.order', '-payment.order',)
+    serialize_rules = ('-user.sales', '-items.sales', '-payment.sales',)
 
     def to_dict(self):
         return {
@@ -69,12 +70,12 @@ class Payment(db.Model, SerializerMixin):
     __tablename__ = 'payments'
 
     id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'))
+    sales_id = db.Column(db.Integer, db.ForeignKey('sales.id'))
     method = db.Column(db.String(50))
     amount = db.Column(db.Integer)
     status = db.Column(db.String(50))
     timestamp = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
-    order = db.relationship('Order', back_populates='payment')
+    sales = db.relationship('Sales', back_populates='payment')
 
-    serialize_rules = ('-order.payment',)
+    serialize_rules = ('-sales.payment',)

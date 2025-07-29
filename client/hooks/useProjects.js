@@ -457,7 +457,7 @@ export function useProjects() {
   );
 
   const submitReview = useCallback(
-    async (projectId, rating, comment, token) => {
+    async (projectId, rating, comment, email, token) => {
       setLoading(true);
       setError(null);
       try {
@@ -476,7 +476,7 @@ export function useProjects() {
           {
             method: "POST",
             headers,
-            body: JSON.stringify({ rating, comment }),
+            body: JSON.stringify({ rating, comment, email }),
           }
         );
 
@@ -519,6 +519,39 @@ export function useProjects() {
       setLoading(false);
     }
   }, []);
+
+  const hireTeam = useCallback(
+    async (projectId, hireData) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch(`${API_BASE}/projects/${projectId}/hire`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(hireData),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            errorData.error || `HTTP error! status: ${response.status}`
+          );
+        }
+
+        const data = await response.json();
+        return { success: true, message: data.message };
+      } catch (err) {
+        setError(err.message || "Failed to send hire request");
+        console.error("Error sending hire request:", err);
+        return { success: false, error: err.message };
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
 
   // Helper function to clear cache
   const clearCache = useCallback(() => {
@@ -564,6 +597,7 @@ export function useProjects() {
     createProjectInteraction,
     submitReview,
     fetchProjectReviews,
+    hireTeam,
     
     // Cache management
     clearCache,

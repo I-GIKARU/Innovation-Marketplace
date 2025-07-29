@@ -9,16 +9,12 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import dynamic from "next/dynamic";
 
-// Dynamically import ProjectUpload
-const ProjectUpload = dynamic(() => import('@/components/student/ProjectUpload'), {
-  ssr: false
-});
+
 
 const NavBar = ({ onNavigate, onShowAuth }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [showClientContent, setShowClientContent] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const pathname = usePathname();
   const { isAuthenticated, user, logout, loading } = useAuth();
   const dropdownRef = useRef(null);
@@ -61,42 +57,7 @@ const NavBar = ({ onNavigate, onShowAuth }) => {
     }
   };
 
-  const handleUploadClick = () => {
-    setIsUploadModalOpen(true);
-    setIsUserMenuOpen(false);
-  };
 
-  const getDashboardItems = () => {
-    if (!user?.role) return [];
-
-    const baseItems = [
-      { href: getDashboardUrl(), label: 'Dashboard', icon: RiDashboardLine }
-    ];
-
-    switch (user.role) {
-      case 'student':
-        return [
-          ...baseItems,
-          { action: handleUploadClick, label: 'Upload Project', icon: FiUpload },
-          { href: '/dashboard/student', section: 'projects', label: 'My Projects', icon: FiFolder },
-          { href: '/dashboard/student', section: 'reviews', label: 'Reviews', icon: FiHeart }
-        ];
-      case 'client':
-        return [
-          ...baseItems,
-          { href: '/dashboard/client', section: 'orders', label: 'My Orders', icon: FiShoppingBag }
-        ];
-      case 'admin':
-        return [
-          ...baseItems,
-          { href: '/dashboard/admin', section: 'products', label: 'Products', icon: FiShoppingBag },
-          { href: '/dashboard/admin', section: 'orders', label: 'Orders', icon: FiFolder },
-          { href: '/dashboard/admin', section: 'projects', label: 'Projects', icon: FiFolder }
-        ];
-      default:
-        return baseItems;
-    }
-  };
 
   // Helper function to get the correct dashboard URL based on user role
   const getDashboardUrl = () => {
@@ -107,8 +68,6 @@ const NavBar = ({ onNavigate, onShowAuth }) => {
         return '/dashboard/admin';
       case 'student':
         return '/dashboard/student';
-      case 'client':
-        return '/dashboard/client';
       default:
         return '/';
     }
@@ -123,8 +82,6 @@ const NavBar = ({ onNavigate, onShowAuth }) => {
         return 'Admin Dashboard';
       case 'student':
         return 'Student Dashboard';
-      case 'client':
-        return 'Client Dashboard';
       default:
         return 'Dashboard';
     }
@@ -332,14 +289,6 @@ const NavBar = ({ onNavigate, onShowAuth }) => {
             )}
           </div>
         </div>
-        
-        {/* ProjectUpload Modal */}
-        {isUploadModalOpen && (
-          <ProjectUpload
-            isOpen={isUploadModalOpen}
-            onClose={() => setIsUploadModalOpen(false)}
-          />
-        )}
       </nav>
   );
 };

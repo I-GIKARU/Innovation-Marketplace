@@ -21,6 +21,7 @@ export function useProjectDetail() {
     createProjectInteraction,
     submitReview,
     fetchProjectReviews,
+    hireTeam,
   } = useProjects();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -29,6 +30,7 @@ export function useProjectDetail() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showInteractionForm, setShowInteractionForm] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [showHireForm, setShowHireForm] = useState(false);
   const [currentUserProjectInteraction, setCurrentUserProjectInteraction] = useState(null);
 
   // Load project data on mount and when ID changes
@@ -123,11 +125,12 @@ export function useProjectDetail() {
     }
   };
 
-  const handleSubmitReview = async (rating, comment) => {
+  const handleSubmitReview = async (rating, comment, email) => {
     const result = await submitReview(
       singleProject.id,
       rating,
       comment,
+      email,
       token
     );
     if (result.success) {
@@ -136,6 +139,19 @@ export function useProjectDetail() {
       fetchProjectReviews(id);
     } else {
       alert(`Failed to submit review: ${result.error}`);
+    }
+  };
+
+  const handleHireTeam = async (hireData) => {
+    const result = await hireTeam(
+      singleProject.id,
+      hireData
+    );
+    if (result.success) {
+      alert("Hire request sent successfully! The team will be notified.");
+      setShowHireForm(false);
+    } else {
+      alert(`Failed to send hire request: ${result.error}`);
     }
   };
 
@@ -151,7 +167,7 @@ export function useProjectDetail() {
 
   const canExpressInterest =
     user &&
-    (user.role?.name === "student" || user.role?.name === "client") &&
+    user.role?.name === "student" &&
     !currentUserProjectInteraction &&
     !canEditOrDelete;
 
@@ -171,6 +187,7 @@ export function useProjectDetail() {
     showDeleteConfirm,
     showInteractionForm,
     showReviewForm,
+    showHireForm,
     currentUserProjectInteraction,
     
     // Permissions
@@ -186,6 +203,7 @@ export function useProjectDetail() {
     handleConfirmDelete,
     handleExpressInterest,
     handleSubmitReview,
+    handleHireTeam,
     
     // State setters
     setEditedDescription,
@@ -193,5 +211,6 @@ export function useProjectDetail() {
     setShowDeleteConfirm,
     setShowInteractionForm,
     setShowReviewForm,
+    setShowHireForm,
   };
 }
