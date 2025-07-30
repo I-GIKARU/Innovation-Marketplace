@@ -1,13 +1,14 @@
 from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required
-from models import db, UserProject, Project, Review
-from resources.auth.decorators import admin_or_role_required, get_current_user
+from models import db, UserProject, Project, Review, User
+from resources.auth.decorators import admin_or_role_required, get_current_user, flexible_auth_required
+from utils.firebase_auth import get_firebase_user_from_request, create_or_get_user_from_firebase
 from datetime import date
 
 class UserProjectList(Resource):
     @jwt_required()
-    @admin_or_role_required(['student']) # Users can view their saved projects
+    @admin_or_role_required(['student', 'client']) # Both students and clients can express interest
     def post(self):
         try:
             current_user = get_current_user()
@@ -35,14 +36,19 @@ class UserProjectList(Resource):
             # Determine interested_in based on role
             interested_in = data.get('interested_in')
             if role_name == 'student':
-                # Students can only be 'contributor' for their own projects
-                # Or they can express interest in other projects for 'collaboration'
+                # Students can collaborate on projects
                 if not interested_in:
                     return {'error': 'For student, "interested_in" field is required (e.g., "collaboration")'}, 400
-                if interested_in not in ['collaboration']: # Extend as needed
-                    return {'error': 'Invalid "interested_in" value for student'}, 400
+                if interested_in not in ['collaboration', 'contributor']: 
+                    return {'error': 'Invalid "interested_in" value for student. Must be "collaboration" or "contributor"'}, 400
+            elif role_name == 'client':
+                # Clients can hire teams or purchase projects
+                if not interested_in:
+                    return {'error': 'For client, "interested_in" field is required (e.g., "hire", "purchase")'}, 400
+                if interested_in not in ['hire', 'purchase', 'inquiry']:
+                    return {'error': 'Invalid "interested_in" value for client. Must be "hire", "purchase", or "inquiry"'}, 400
             else:
-                return {'error': 'Only students can create user-project interactions'}, 403
+                return {'error': 'Invalid user role'}, 403
             
             # Create user-project interaction
             user_project = UserProject(
@@ -142,8 +148,13 @@ class UserProjectDetail(Resource):
             return {'error': str(e)}, 500
 
 class CreateProjectReview(Resource):
+    @jwt_required()
     def post(self, project_id):
         try:
+            current_user = get_current_user()
+            if not current_user:
+                return {'error': 'User not found'}, 404
+            
             # Check if project exists
             project = Project.query.get_or_404(project_id)
             data = request.get_json()
@@ -155,12 +166,19 @@ class CreateProjectReview(Resource):
             if not isinstance(rating, int) or rating < 1 or rating > 5:
                 return {'error': 'Rating must be an integer between 1 and 5'}, 400
             
-            # Create review without user authentication
+            # Check if user has already reviewed this project
+            existing_review = Review.query.filter_by(
+                project_id=project_id,
+                user_id=current_user.id
+            ).first()
+            if existing_review:
+                return {'error': 'You have already reviewed this project'}, 400
+            
+            # Create authenticated review
             review = Review(
                 project_id=project_id,
-                user_id=None,  # Allow anonymous reviews
+                user_id=current_user.id,  # Require user authentication
                 rating=rating,
-email=data.get('email', None),  # Capture email from review data
                 comment=data.get('comment', '')
             )
             
@@ -193,27 +211,43 @@ class ProjectReviews(Resource):
             return {'error': str(exc)}, 500
 
 class HireTeam(Resource):
+    @jwt_required()
     def post(self, project_id):
         try:
+            current_user = get_current_user()
+            if not current_user:
+                return {'error': 'User not found'}, 404
+            
+            # Only clients should be able to hire teams
+            if current_user.role.name not in ['client', 'admin']:
+                return {'error': 'Only clients can send hire requests'}, 403
+            
             # Check if project exists
             project = Project.query.get_or_404(project_id)
             data = request.get_json()
             
-            # Validate required fields
-            required_fields = ['name', 'email', 'message']
-            for field in required_fields:
-                if not data.get(field):
-                    return {'error': f'{field.capitalize()} is required'}, 400
+            # Validate required fields (message is required, other fields can be taken from profile)
+            if not data.get('message'):
+                return {'error': 'Message is required'}, 400
             
-            # Create a special user-project interaction for hire requests
+            # Check if user has already sent a hire request for this project
+            existing_request = UserProject.query.filter_by(
+                user_id=current_user.id,
+                project_id=project_id,
+                interested_in='hire_request'
+            ).first()
+            if existing_request:
+                return {'error': 'You have already sent a hire request for this project'}, 400
+            
+            # Create authenticated hire request
             hire_request = UserProject(
-                user_id=None,  # No user ID for external hire requests
+                user_id=current_user.id,  # Use authenticated user ID
                 project_id=project_id,
                 interested_in='hire_request',  # Special type for hire requests
                 date=date.today(),  # Set current date
-                message=f"HIRE REQUEST from {data['name']} ({data['email']}):\n\n" +
-                       f"Company: {data.get('company', 'Not specified')}\n" +
-                       f"Phone: {data.get('phone', 'Not provided')}\n\n" +
+                message=f"HIRE REQUEST from {current_user.email}:\n\n" +
+                       f"Company: {current_user.company or 'Not specified'}\n" +
+                       f"Phone: {current_user.phone or 'Not provided'}\n\n" +
                        f"Message: {data['message']}"
             )
             

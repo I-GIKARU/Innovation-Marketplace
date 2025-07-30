@@ -30,6 +30,12 @@ class User(db.Model, SerializerMixin):
     past_projects = db.Column(db.Text)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable=False)
     
+    # CV-related fields
+    cv_url = db.Column(db.String(500))
+    cv_summary = db.Column(db.Text)
+    cv_file_id = db.Column(db.String(100))
+    cv_uploaded_at = db.Column(db.DateTime)
+    
     # Relationships
     sales = db.relationship('Sales', back_populates='user', lazy=True)
     user_projects = db.relationship('UserProject', back_populates='user', lazy=True)
@@ -50,7 +56,11 @@ class User(db.Model, SerializerMixin):
             'socials': self.socials,
             'company': self.company,
             'past_projects': self.past_projects,
-            'role': self.role.name if self.role else None
+            'role': self.role.name if self.role else None,
+            'cv_url': self.cv_url,
+            'cv_summary': self.cv_summary,
+            'cv_file_id': self.cv_file_id,
+            'cv_uploaded_at': self.cv_uploaded_at.isoformat() if self.cv_uploaded_at else None
         }
 
 class Category(db.Model, SerializerMixin):
@@ -84,6 +94,9 @@ class Project(db.Model, SerializerMixin):
     downloads = db.Column(db.Integer, default=0)
     rejection_reason = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # AI-generated summary field
+    project_summary = db.Column(db.Text)
     
     # Media fields
     zip_urls = db.Column(db.Text)  # JSON string of ZIP file URLs
@@ -129,6 +142,7 @@ class Project(db.Model, SerializerMixin):
             'downloads': self.downloads,
             'rejection_reason': self.rejection_reason,
             'created_at': self.created_at.isoformat() if self.created_at else None,
+            'project_summary': self.project_summary,
             'zip_urls': self.zip_urls,
             'pdf_urls': self.pdf_urls,
             'video_urls': self.video_urls,
@@ -180,6 +194,7 @@ class Review(db.Model, SerializerMixin):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     rating = db.Column(db.Integer)
     comment = db.Column(db.Text)
+    email = db.Column(db.String(120), nullable=True)  # Match database schema
     date = db.Column(db.Date, default=datetime.utcnow().date)
     
     # Relationships
@@ -188,6 +203,25 @@ class Review(db.Model, SerializerMixin):
     
     # Serialization rules
     serialize_rules = ('-project.reviews', '-user.reviews')
+    
+    def to_dict(self):
+        """Custom to_dict method to prevent circular references"""
+        result = {
+            'id': self.id,
+            'project_id': self.project_id,
+            'user_id': self.user_id,
+            'rating': self.rating,
+            'comment': self.comment,
+            'email': self.email,  # Include email field from database
+            'date': self.date.isoformat() if self.date else None,
+            # Include basic user info without causing circular references
+            'user': {
+                'id': self.user.id,
+                'email': self.user.email,
+                'name': getattr(self.user, 'name', None)
+            } if self.user else None
+        }
+        return result
 
 class Contribution(db.Model, SerializerMixin):
     __tablename__ = 'contributions'

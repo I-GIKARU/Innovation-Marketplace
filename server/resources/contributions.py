@@ -16,12 +16,38 @@ class ContributionList(Resource):
             
             data = request.get_json()
             
-            # Validate required fields
-            if not data.get('users_projects_id'):
-                return {'error': 'users_projects_id is required'}, 400
+            # Handle both direct project donations and user-project contributions
+            users_projects_id = data.get('users_projects_id')
+            project_id = data.get('project_id')
             
-            # Check if UserProject exists and user has permission
-            user_project = UserProject.query.get_or_404(data['users_projects_id'])
+            if not users_projects_id and not project_id:
+                return {'error': 'Either users_projects_id or project_id is required'}, 400
+            
+            # If project_id is provided (for donations), find or create user-project relationship
+            if project_id and not users_projects_id:
+                # Check if project exists
+                project = Project.query.get_or_404(project_id)
+                
+                # Find existing user-project relationship or create one
+                user_project = UserProject.query.filter_by(
+                    user_id=current_user.id,
+                    project_id=project_id
+                ).first()
+                
+                if not user_project:
+                    # Create a new user-project relationship for donation
+                    user_project = UserProject(
+                        user_id=current_user.id,
+                        project_id=project_id,
+                        interested_in='supporter',  # New type for supporters/donors
+                        message=data.get('comment', 'Project supporter'),
+                        date=date.today()
+                    )
+                    db.session.add(user_project)
+                    db.session.flush()  # Get the ID
+            else:
+                # Check if UserProject exists and user has permission
+                user_project = UserProject.query.get_or_404(users_projects_id)
             
             # Check permissions based on role
             if current_user.role.name == 'client':
@@ -41,7 +67,7 @@ class ContributionList(Resource):
             
             # Create contribution
             contribution = Contribution(
-                users_projects_id=data['users_projects_id'],
+                users_projects_id=user_project.id,
                 amount=data.get('amount', 0.0),
                 comment=data.get('comment', ''),
                 date=date.today()
@@ -164,7 +190,7 @@ class ContributionDetail(Resource):
 
 class ProjectContributions(Resource):
     @jwt_required()
-    @admin_or_role_required(['student'])
+    @admin_or_role_required(['student', 'admin'])
     def get(self, id):
         try:
             current_user = get_current_user()

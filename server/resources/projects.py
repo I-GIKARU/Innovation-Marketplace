@@ -360,6 +360,20 @@ class ProjectDetail(Resource):
             project = Project.query.get(id)
             if not project:
                 return {'error': 'Project not found'}, 404
+
+            # Security check: Only admins or owners can see non-approved projects
+            try:
+                from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
+                verify_jwt_in_request(optional=True)
+                current_user = get_current_user()
+                is_admin = current_user and current_user.role.name == 'admin'
+                is_owner = current_user and any(up.user_id == current_user.id for up in project.user_projects)
+            except Exception:
+                is_admin = False
+                is_owner = False
+
+            if project.status != 'approved' and not is_admin and not is_owner:
+                return {'error': 'This project is not approved and you do not have permission to view it'}, 403
             
             # Increment view count
             project.views += 1

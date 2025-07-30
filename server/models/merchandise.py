@@ -17,6 +17,18 @@ class Merchandise(db.Model, SerializerMixin):
     sales_items = db.relationship('SalesItem', back_populates='merchandise')
 
     serialize_rules = ('-sales_items.merchandise',)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'price': self.price,
+            'quantity': self.quantity,
+            'image_url': self.image_url,
+            'image_urls': self.image_urls,
+            'thumbnail_url': self.thumbnail_url
+        }
 
 
 class SalesItem(db.Model, SerializerMixin):
@@ -32,6 +44,16 @@ class SalesItem(db.Model, SerializerMixin):
     merchandise = db.relationship('Merchandise', back_populates='sales_items')
 
     serialize_rules = ('-sales.items', '-merchandise.sales_items',)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'sales_id': self.sales_id,
+            'merchandise_id': self.merchandise_id,
+            'quantity': self.quantity,
+            'price': self.price,
+            'merchandise': self.merchandise.to_dict() if self.merchandise else None
+        }
 
 
 class Sales(db.Model, SerializerMixin):
