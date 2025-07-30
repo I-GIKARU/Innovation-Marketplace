@@ -88,8 +88,8 @@ const ProjectCard = ({ project, index }) => {
       onHoverEnd={() => setIsHovered(false)}
     >
       <motion.div
-        variants={cardHoverVariants}
-        className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100"
+      variants={cardHoverVariants}
+        className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 border border-gray-100 flex flex-col h-full"
       >
         {/* Image Section with Overlay */}
         <div className="relative h-64 overflow-hidden">
@@ -141,7 +141,7 @@ const ProjectCard = ({ project, index }) => {
         </div>
 
         {/* Content Section */}
-        <div className="p-6">
+        <div className="p-6 flex-1 flex flex-col">
           {/* Category */}
           {project.category && (
             <div className="mb-3">
@@ -198,7 +198,7 @@ const ProjectCard = ({ project, index }) => {
         </div>
         
         {/* View Project Button */}
-        <div className="px-6 pb-6">
+        <div className="px-6 pb-6 mt-auto">
           <Link
             href={`/projects/${project.id}`}
             className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold py-3 px-4 rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-200 flex items-center justify-center gap-2 group/btn"

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api";
+import apiClient from "@/lib/apiClient";
+import toast from 'react-hot-toast';
 
 export function useProjects() {
   const [projects, setProjects] = useState([]);
@@ -60,16 +60,11 @@ export function useProjects() {
         if (category_id) params.append("category_id", category_id.toString());
         if (featured !== null) params.append("featured", featured.toString());
 
-        const fullUrl = `${API_BASE}/projects/approved?${params}`;
+        const fullUrl = `/projects/approved?${params}`;
         console.log('🔍 Fetching projects from:', fullUrl);
-        const response = await fetch(fullUrl);
+        const response = await apiClient.get(fullUrl);
 
-        if (!response.ok) {
-          console.error('❌ Response not OK:', response.status, response.statusText);
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
+        const data = response.data;
         console.log('✅ API Response data:', data);
         console.log('🔢 Projects count:', data.projects?.length || 0);
 
@@ -112,13 +107,8 @@ export function useProjects() {
         const params = new URLSearchParams();
         if (limit) params.append("limit", limit.toString());
 
-        const response = await fetch(`${API_BASE}/projects/featured?${params}`);
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
+        const response = await apiClient.get(`/projects/featured?${params}`);
+        const data = response.data;
         setFeaturedProjects(data.projects || []);
         return { success: true, projects: data.projects, count: data.count };
       } catch (err) {
@@ -145,13 +135,8 @@ export function useProjects() {
           category_id: categoryId.toString(), // Filter by category using query parameter
         });
 
-        const response = await fetch(`${API_BASE}/projects/approved?${params}`);
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
+        const response = await apiClient.get(`/projects/approved?${params}`);
+        const data = response.data;
 
         setProjects(data.projects || []);
         setPagination({
@@ -178,17 +163,10 @@ export function useProjects() {
       setError(null);
 
       try {
-        const response = await fetch(`${API_BASE}/projects/my`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
+        // Set the token for this request
+        apiClient.defaults.headers.Authorization = `Bearer ${token}`;
+        const response = await apiClient.get('/projects/my');
+        const data = response.data;
         setMyProjects(data.projects || []);
         setStatusCounts(data.status_counts || {});
         return { success: true, projects: data.projects, status_counts: data.status_counts };
@@ -225,17 +203,10 @@ export function useProjects() {
         if (search) params.append("search", search);
         if (category_id) params.append("category_id", category_id.toString());
 
-        const response = await fetch(`${API_BASE}/projects?${params}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
+        // Set the token for this request
+        apiClient.defaults.headers.Authorization = `Bearer ${token}`;
+        const response = await apiClient.get(`/projects?${params}`);
+        const data = response.data;
 
         setAllProjects(data.projects || []);
         setPagination({
@@ -263,23 +234,10 @@ export function useProjects() {
       setError(null);
 
       try {
-        const response = await fetch(`${API_BASE}/projects/create`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(projectData),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(
-            errorData.error || `HTTP error! status: ${response.status}`
-          );
-        }
-
-        const data = await response.json();
+        // Set the token for this request
+        apiClient.defaults.headers.Authorization = `Bearer ${token}`;
+        const response = await apiClient.post('/projects/create', projectData);
+        const data = response.data;
         return { success: true, project: data.project, message: data.message };
       } catch (err) {
         setError(err.message || "Failed to create project");
@@ -298,27 +256,20 @@ export function useProjects() {
   const fetchProjectById = useCallback(async (id) => {
     setLoading(true);
     setError(null);
+    // Don't clear singleProject immediately to prevent flashing
 
     try {
-      const response = await fetch(`${API_BASE}/projects/${id}`);
-
-      if (!response.ok) {
-        // Try to get the error message from the response
-        let errorMessage = `HTTP error! status: ${response.status}`;
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.error || errorMessage;
-        } catch {
-          // If we can't parse JSON, keep the generic error
-        }
-        throw new Error(errorMessage);
-      }
-
-      const data = await response.json();
+      const response = await apiClient.get(`/projects/${id}`);
+      const data = response.data;
       setSingleProject(data.project || null);
+      setError(null); // Clear any previous errors on success
     } catch (err) {
-      setError(err.message || "Failed to fetch project");
-      setSingleProject(null); // Make sure to clear any previous project data
+      const errorMessage = err.message || "Failed to fetch project";
+      setError(errorMessage);
+      // Only clear singleProject if this is a 404 or similar "not found" error
+      if (err.response?.status === 404) {
+        setSingleProject(null);
+      }
       console.error("Error fetching project:", err);
     } finally {
       setLoading(false);
@@ -330,13 +281,8 @@ export function useProjects() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE}/categories`);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const response = await apiClient.get('/categories');
+      const data = response.data;
       setCategories(data.categories || []);
     } catch (err) {
       setError(err.message || "Failed to fetch categories");
@@ -348,9 +294,7 @@ export function useProjects() {
 
   const recordProjectClick = useCallback(async (id) => {
     try {
-      await fetch(`${API_BASE}/projects/${id}/click`, {
-        method: "POST",
-      });
+      await apiClient.post(`/projects/${id}/click`);
     } catch (err) {
       console.error("Error recording project click:", err);
     }
@@ -358,9 +302,7 @@ export function useProjects() {
 
   const recordProjectDownload = useCallback(async (id) => {
     try {
-      await fetch(`${API_BASE}/projects/${id}/download`, {
-        method: "POST",
-      });
+      await apiClient.post(`/projects/${id}/download`);
     } catch (err) {
       console.error("Error recording project download:", err);
     }
@@ -370,23 +312,10 @@ export function useProjects() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_BASE}/projects/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(projectData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`
-        );
-      }
-
-      const data = await response.json();
+      // Set the token for this request
+      apiClient.defaults.headers.Authorization = `Bearer ${token}`;
+      const response = await apiClient.put(`/projects/${id}`, projectData);
+      const data = response.data;
       setSingleProject(data.project); // Update the single project state
       return { success: true, project: data.project };
     } catch (err) {
@@ -402,19 +331,9 @@ export function useProjects() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_BASE}/projects/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`
-        );
-      }
+      // Set the token for this request
+      apiClient.defaults.headers.Authorization = `Bearer ${token}`;
+      await apiClient.delete(`/projects/${id}`);
 
       setSingleProject(null);
       return { success: true };
@@ -432,27 +351,14 @@ export function useProjects() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`${API_BASE}/user-projects`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            project_id: projectId,
-            interested_in: interestedIn,
-            message,
-          }),
+        // Set the token for this request
+        apiClient.defaults.headers.Authorization = `Bearer ${token}`;
+        const response = await apiClient.post('/user-projects', {
+          project_id: projectId,
+          interested_in: interestedIn,
+          message,
         });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(
-            errorData.error || `HTTP error! status: ${response.status}`
-          );
-        }
-
-        const data = await response.json();
+        const data = response.data;
         return { success: true, userProject: data.user_project };
       } catch (err) {
         setError(err.message || "Failed to create project interaction");
@@ -470,35 +376,20 @@ export function useProjects() {
       // Ensure authentication is required
       if (!token) {
         const message = "Please log in to submit a review";
-        if (typeof window !== 'undefined') {
-          window.alert(message);
-        }
+        toast.error(message);
         return { success: false, error: message };
       }
       
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(
-          `${API_BASE}/projects/${projectId}/reviews`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ rating, comment }),
-          }
-        );
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(
-            errorData.error || `HTTP error! status: ${response.status}`
-          );
-        }
-
-        const data = await response.json();
+        // Set the token for this request
+        apiClient.defaults.headers.Authorization = `Bearer ${token}`;
+        const response = await apiClient.post(`/projects/${projectId}/reviews`, {
+          rating,
+          comment
+        });
+        const data = response.data;
         return { success: true, review: data.review };
       } catch (err) {
         setError(err.message || "Failed to submit review");
@@ -515,11 +406,8 @@ export function useProjects() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_BASE}/projects/${projectId}/reviews`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
+      const response = await apiClient.get(`/projects/${projectId}/reviews`);
+      const data = response.data;
       setProjectReviews(data.reviews || []);
       return { success: true, reviews: data.reviews };
     } catch (err) {
@@ -536,22 +424,8 @@ export function useProjects() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`${API_BASE}/projects/${projectId}/hire`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(hireData),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(
-            errorData.error || `HTTP error! status: ${response.status}`
-          );
-        }
-
-        const data = await response.json();
+        const response = await apiClient.post(`/projects/${projectId}/hire`, hireData);
+        const data = response.data;
         return { success: true, message: data.message };
       } catch (err) {
         setError(err.message || "Failed to send hire request");

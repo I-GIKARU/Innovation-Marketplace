@@ -142,20 +142,6 @@ const DashboardOverview = ({ dashboardData, loading, error, onRetry }) => {
         </div>
       )}
 
-      {/* Quick Actions */}
-      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
-        <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="flex items-center justify-center p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
-            <ShoppingCart className="w-5 h-5 text-blue-600 mr-2" />
-            <span className="text-blue-700 font-medium">Browse Marketplace</span>
-          </button>
-          <button className="flex items-center justify-center p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors">
-            <Package className="w-5 h-5 text-purple-600 mr-2" />
-            <span className="text-purple-700 font-medium">Track Orders</span>
-          </button>
-        </div>
-      </div>
     </div>
   )
 }

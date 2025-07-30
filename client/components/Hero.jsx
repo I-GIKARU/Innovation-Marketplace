@@ -63,7 +63,7 @@ const Hero = () => {
           className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8"
         >
           <motion.a
-            href="#/projects"
+            href="/projects"
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.98 }}
             className="w-full sm:w-auto bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-center inline-flex items-center justify-center gap-2"

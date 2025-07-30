@@ -8,6 +8,7 @@ import {
   ExclamationTriangleIcon,
   ArrowPathIcon,
 } from '@heroicons/react/24/outline';
+import apiClient from '@/lib/apiClient';
 
 const MpesaPayment = ({ amount, orderData, onPaymentSuccess, onPaymentError }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -66,20 +67,14 @@ const MpesaPayment = ({ amount, orderData, onPaymentSuccess, onPaymentError }) =
     try {
       const formattedPhone = formatPhoneNumber(phoneNumber);
       
-      const response = await fetch('/api/mpesa/stk-push', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          phone_number: formattedPhone,
-          amount: amount,
-          account_reference: `ORDER-${Date.now()}`,
-          transaction_desc: `Payment for merchandise - KES ${amount}`,
-        }),
+      const response = await apiClient.post('/mpesa/stk-push', {
+        phone_number: formattedPhone,
+        amount: amount,
+        account_reference: `ORDER-${Date.now()}`,
+        transaction_desc: `Payment for merchandise - KES ${amount}`,
       });
 
-      const result = await response.json();
+      const result = response.data;
 
       if (result.success) {
         setCheckoutRequestId(result.checkout_request_id);
@@ -108,17 +103,11 @@ const MpesaPayment = ({ amount, orderData, onPaymentSuccess, onPaymentError }) =
     
     const checkStatus = async () => {
       try {
-        const response = await fetch('/api/mpesa/payment-status', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            checkout_request_id: requestId,
-          }),
+        const response = await apiClient.post('/mpesa/payment-status', {
+          checkout_request_id: requestId,
         });
 
-        const result = await response.json();
+        const result = response.data;
         
         if (result.success && result.data) {
           const { ResultCode, ResultDesc } = result.data;
@@ -188,20 +177,14 @@ const MpesaPayment = ({ amount, orderData, onPaymentSuccess, onPaymentError }) =
       // Get email from orderData if available, or use a default
       const email = orderData?.email || 'customer@example.com';
       
-      const response = await fetch('/api/buy', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email,
-          items: orderData?.items || []
-        }),
+      const response = await apiClient.post('/buy', {
+        email: email,
+        items: orderData?.items || []
       });
 
-      const result = await response.json();
+      const result = response.data;
 
-      if (response.ok) {
+      if (response.status === 200) {
         setPaymentStatus('success');
         setStatusMessage('Order created successfully! Please complete the M-Pesa payment on your phone. You will receive a confirmation email shortly.');
         onPaymentSuccess?.(result);

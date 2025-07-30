@@ -55,17 +55,8 @@ export default function ProjectDetail() {
     setShowAIModal(false);
   };
 
-if (loading) {
+if (loading || !singleProject) {
     return <div className="p-4 text-center"><LoadingSpinner size="large" text="Loading project details..." /></div>;
-  }
-
-  if (error) {
-    // Show generic "Project not found" message instead of API error details
-    return <div className="p-4 text-center text-red-500">Project not found.</div>;
-  }
-
-if (!singleProject && !loading) {
-    return <div className="p-4 text-center">Project not found.</div>;
   }
 
   const projectImages = getProjectImages(singleProject);
@@ -113,11 +104,11 @@ if (!singleProject && !loading) {
         <InteractionForm
           project={singleProject}
           user={user}
-          onSubmit={(action, interestedIn, message) => {
+          onSubmit={async (action, interestedIn, message) => {
             if (action === 'hire_team') {
-              handleHireTeam({ message, interested_in: interestedIn });
+              await handleHireTeam({ message, interested_in: interestedIn });
             } else {
-              handleExpressInterest(interestedIn, message);
+              await handleExpressInterest(interestedIn, message);
             }
           }}
           onCancel={() => setShowInteractionForm(false)}
@@ -128,7 +119,9 @@ if (!singleProject && !loading) {
         <ReviewForm
           project={singleProject}
           user={user}
-          onSubmit={handleSubmitReview}
+          onSubmit={async (rating, comment) => {
+            await handleSubmitReview(rating, comment);
+          }}
           onCancel={() => setShowReviewForm(false)}
         />
       )}

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useProjects } from "./useProjects";
 import { useAuthContext } from "@/contexts/AuthContext";
+import toast from 'react-hot-toast';
 
 export function useProjectDetail() {
   const { id } = useParams();
@@ -58,7 +59,7 @@ export function useProjectDetail() {
   const handleDownload = () => {
     if (singleProject?.id) {
       recordProjectDownload(singleProject.id);
-      alert(`Downloading ${singleProject.title}!`);
+      toast.success(`Downloading ${singleProject.title}!`);
     }
   };
 
@@ -68,7 +69,7 @@ export function useProjectDetail() {
 
   const handleSaveEdit = async () => {
     if (!user) {
-      alert("You must be logged in to edit projects.");
+      toast.error("You must be logged in to edit projects.");
       return;
     }
     
@@ -81,11 +82,11 @@ export function useProjectDetail() {
         method: 'PUT',
         body: JSON.stringify(updatedData)
       });
-      alert("Project updated successfully!");
+      toast.success("Project updated successfully!");
       setIsEditing(false);
       fetchProjectById(id);
     } catch (error) {
-      alert(`Failed to update project: ${error.message}`);
+      toast.error(`Failed to update project: ${error.message}`);
     }
   };
 
@@ -95,7 +96,7 @@ export function useProjectDetail() {
 
   const handleConfirmDelete = async () => {
     if (!user) {
-      alert("You must be logged in to delete projects.");
+      toast.error("You must be logged in to delete projects.");
       return;
     }
     
@@ -103,17 +104,17 @@ export function useProjectDetail() {
       await authFetch(`/projects/${singleProject.id}`, {
         method: 'DELETE'
       });
-      alert("Project deleted successfully!");
+      toast.success("Project deleted successfully!");
       router.push("/projects");
     } catch (error) {
-      alert(`Failed to delete project: ${error.message}`);
+      toast.error(`Failed to delete project: ${error.message}`);
     }
     setShowDeleteConfirm(false);
   };
 
   const handleExpressInterest = async (interestedIn, message) => {
     if (!user) {
-      alert("You must be logged in to express interest.");
+      toast.error("You must be logged in to express interest.");
       return;
     }
 
@@ -126,17 +127,17 @@ export function useProjectDetail() {
           message
         })
       });
-      alert("Your interest has been recorded!");
+      toast.success("Your interest has been recorded!");
       setShowInteractionForm(false);
       fetchProjectById(id);
     } catch (error) {
-      alert(`Failed to express interest: ${error.message}`);
+      toast.error(error.message || 'Failed to express interest');
     }
   };
 
   const handleSubmitReview = async (rating, comment) => {
     if (!user) {
-      alert("Please log in to write a review.");
+      toast.error("Please log in to write a review.");
       return;
     }
     
@@ -145,17 +146,17 @@ export function useProjectDetail() {
         method: 'POST',
         body: JSON.stringify({ rating, comment })
       });
-      alert("Review submitted successfully!");
+      toast.success("Review submitted successfully!");
       setShowReviewForm(false);
       fetchProjectReviews(id);
     } catch (error) {
-      alert(`Failed to submit review: ${error.message}`);
+      toast.error(error.message || 'Failed to submit review');
     }
   };
 
   const handleHireTeam = async (hireData) => {
     if (!user) {
-      alert("You must be logged in to send a hire request.");
+      toast.error("You must be logged in to send a hire request.");
       return;
     }
     
@@ -164,16 +165,16 @@ export function useProjectDetail() {
         method: 'POST',
         body: JSON.stringify(hireData)
       });
-      alert("Hire request sent successfully! The team will be notified.");
+      toast.success("Hire request sent successfully! The team will be notified.");
       setShowHireForm(false);
     } catch (error) {
-      alert(`Failed to send hire request: ${error.message}`);
+      toast.error(`Failed to send hire request: ${error.message}`);
     }
   };
 
   const handleReviewClick = () => {
     if (!user) {
-      alert("Please log in to write a review.");
+      toast.error("Please log in to write a review.");
       return;
     }
     setShowReviewForm(true);

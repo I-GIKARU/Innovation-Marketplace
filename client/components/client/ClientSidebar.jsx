@@ -47,7 +47,7 @@ function ClientSidebar({ onSelect }) {
     };
 
     return (
-        <div className={`relative z-20 transition-all duration-300 ease-in-out ${isSideBarOpen ? 'w-72' : 'w-20'} bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 shadow-2xl border-r border-gray-700`}>
+        <div className={`relative z-20 transition-all duration-300 ease-in-out ${isSideBarOpen ? 'w-72' : 'w-16 md:w-20'} bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 shadow-2xl border-r border-gray-700 flex-shrink-0`}>
             <div className="h-screen flex flex-col">
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-gray-700">
@@ -80,17 +80,17 @@ function ClientSidebar({ onSelect }) {
                             <div key={item.key} className="relative">
                                 <button
                                     onClick={() => handleSelect(item.key)}
-                                    className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group
+                                    className={`w-full flex items-center px-2 py-2 md:px-3 md:py-3 text-sm font-medium rounded-lg transition-all duration-200 group
                                         ${
                                             isActive 
                                                 ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg transform scale-[1.02]' 
                                                 : 'text-indigo-300 hover:text-white hover:bg-indigo-800/50 hover:transform hover:scale-[1.01]'
                                         }`}
                                 >
-                                    <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${
+                                    <div className={`flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-lg ${
                                         isActive ? 'bg-white/20' : 'bg-indigo-800 group-hover:bg-indigo-700'
                                     } transition-all duration-200`}>
-                                        <Icon size={20} className={isActive ? 'text-white' : 'text-indigo-300 group-hover:text-white'} />
+                                        <Icon size={16} className={`${isActive ? 'text-white' : 'text-indigo-300 group-hover:text-white'} md:w-5 md:h-5`} />
                                     </div>
                                     {isSideBarOpen && (
                                         <div className="ml-3 flex-1 text-left">

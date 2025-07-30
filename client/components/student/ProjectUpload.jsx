@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { X, Upload } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 import { useAuthContext } from '@/contexts/AuthContext'
 
 // Import our smaller components
@@ -135,7 +136,7 @@ const ProjectUpload = ({ isOpen, onClose, onUploadComplete }) => {
 
     } catch (error) {
       console.error('Upload error:', error)
-      alert('Upload failed: ' + error.message)
+      toast.error('Upload failed: ' + error.message)
     } finally {
       setUploading(false)
     }

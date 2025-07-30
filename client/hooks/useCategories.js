@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api";
+import apiClient from "@/lib/apiClient";
 
 export function useCategories() {
   const [categories, setCategories] = useState([]);
@@ -14,15 +13,11 @@ export function useCategories() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE}/categories`, {
-        credentials: 'include'
+      const response = await apiClient.get('/categories', {
+        withCredentials: true
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = response.data;
       setCategories(data.categories || []);
     } catch (err) {
       setError(err.message || "Failed to fetch categories");
@@ -37,24 +32,13 @@ export function useCategories() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE}/admin/categories`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: 'include',
-        body: JSON.stringify(categoryData),
+      // Set the token for this request
+      apiClient.defaults.headers.Authorization = `Bearer ${token}`;
+      const response = await apiClient.post('/admin/categories', categoryData, {
+        withCredentials: true
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`
-        );
-      }
-
-      const data = await response.json();
+      const data = response.data;
       setCategories(prev => [...prev, data.category]);
       return { success: true, category: data.category };
     } catch (err) {
@@ -71,24 +55,13 @@ export function useCategories() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE}/admin/categories/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: 'include',
-        body: JSON.stringify(categoryData),
+      // Set the token for this request
+      apiClient.defaults.headers.Authorization = `Bearer ${token}`;
+      const response = await apiClient.put(`/admin/categories/${id}`, categoryData, {
+        withCredentials: true
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`
-        );
-      }
-
-      const data = await response.json();
+      const data = response.data;
       setCategories(prev => 
         prev.map(cat => cat.id === id ? data.category : cat)
       );
@@ -107,20 +80,11 @@ export function useCategories() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE}/admin/categories/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: 'include',
+      // Set the token for this request
+      apiClient.defaults.headers.Authorization = `Bearer ${token}`;
+      await apiClient.delete(`/admin/categories/${id}`, {
+        withCredentials: true
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`
-        );
-      }
 
       setCategories(prev => prev.filter(cat => cat.id !== id));
       return { success: true };

@@ -1,31 +1,26 @@
+import apiClient from '@/lib/apiClient';
+
 // API utility functions
 export const apiCall = async (url, options = {}) => {
-  const token = localStorage.getItem('token')
+  const { body, ...restOptions } = options;
   
-  const defaultOptions = {
-    credentials: 'include',
-    headers: {
+  const config = {
+    url,
+    withCredentials: true,
+    ...restOptions
+  };
+
+  // If body is provided, set it as data and ensure JSON headers
+  if (body) {
+    config.data = body;
+    config.headers = {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
+      ...config.headers
+    };
   }
 
-  const mergedOptions = {
-    ...defaultOptions,
-    ...options,
-    headers: {
-      ...defaultOptions.headers,
-      ...options.headers,
-    },
-  }
-
-  const response = await fetch(url, mergedOptions)
-  
-  if (!response.ok) {
-    throw new Error(`API call failed: ${response.statusText}`)
-  }
-
-  return response.json()
+  const response = await apiClient(config);
+  return response.data;
 }
 
 // Helper function to parse JSON strings safely

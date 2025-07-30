@@ -40,7 +40,8 @@ const MyOrders = ({ orders, loading, onOrderUpdate }) => {
 
   const filteredOrders = orders?.filter(order => {
     const matchesSearch = order.id?.toString().includes(searchTerm.toLowerCase()) ||
-                         order.email?.toLowerCase().includes(searchTerm.toLowerCase())
+                         order.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         order.items?.some(item => item.merchandise?.name?.toLowerCase().includes(searchTerm.toLowerCase()))
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter
     return matchesSearch && matchesStatus
   }) || []
@@ -140,79 +141,85 @@ const MyOrders = ({ orders, loading, onOrderUpdate }) => {
           sortedOrders.map((order) => (
             <div key={order.id} className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between mb-4">
-                <div className="flex items-start space-x-4">
-                  {order.projectImage && (
-                    <img
-                      src={order.projectImage}
-                      alt={order.projectTitle}
-                      className="w-16 h-16 rounded-lg object-cover"
-                    />
-                  )}
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                      {order.projectTitle}
-                    </h3>
-                    <p className="text-sm text-gray-600 mb-2">Order #{order.orderId}</p>
-                    <div className="flex items-center space-x-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                        {getStatusIcon(order.status)}
-                        <span className="ml-1 capitalize">{order.status}</span>
-                      </span>
-                      <span className="text-sm text-gray-500">
-                        {new Date(order.createdAt).toLocaleDateString()}
-                      </span>
+                <div className="flex-1">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                        Order #{order.id}
+                      </h3>
+                      <div className="flex items-center space-x-4 mb-3">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                          {getStatusIcon(order.status)}
+                          <span className="ml-1 capitalize">{order.status}</span>
+                        </span>
+                        <span className="text-sm text-gray-500">
+                          {new Date(order.date).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-lg font-semibold text-gray-900">KES {order.amount?.toLocaleString()}</p>
                     </div>
                   </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-semibold text-gray-900">KES {order.total?.toFixed(2)}</p>
-                  {order.status === 'completed' && (
-                    <button className="mt-2 inline-flex items-center px-3 py-1 bg-green-100 text-green-700 text-sm rounded-lg hover:bg-green-200 transition-colors">
-                      <Download className="w-4 h-4 mr-1" />
-                      Download
-                    </button>
-                  )}
+
+                  {/* Order Items */}
+                  <div className="space-y-3">
+                    {order.items?.map((item) => (
+                      <div key={item.id} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                        <img 
+                          src={item.merchandise?.image_url || item.merchandise?.thumbnail_url} 
+                          alt={item.merchandise?.name}
+                          className="w-12 h-12 object-cover rounded"
+                          onError={(e) => {
+                            e.target.src = '/placeholder-image.png';
+                          }}
+                        />
+                        <div className="flex-1">
+                          <h4 className="font-medium text-gray-900">{item.merchandise?.name}</h4>
+                          <p className="text-sm text-gray-600">{item.merchandise?.description}</p>
+                          <div className="flex items-center space-x-4 mt-1">
+                            <span className="text-sm text-gray-500">Qty: {item.quantity}</span>
+                            <span className="text-sm text-gray-500">Price: KES {item.price}</span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold text-gray-900">KES {(item.price * item.quantity).toLocaleString()}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 
               {/* Order Details */}
               <div className="border-t border-gray-100 pt-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                   <div>
-                    <p className="text-gray-600">Student</p>
-                    <p className="font-medium">{order.studentName}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600">Category</p>
-                    <p className="font-medium">{order.category}</p>
+                    <p className="text-gray-600">Items</p>
+                    <p className="font-medium">{order.items?.length || 0} item(s)</p>
                   </div>
                   <div>
                     <p className="text-gray-600">Payment Method</p>
-                    <p className="font-medium">{order.paymentMethod}</p>
+                    <p className="font-medium">{order.payment?.method || 'M-Pesa'}</p>
                   </div>
                   <div>
-                    <p className="text-gray-600">Last Updated</p>
-                    <p className="font-medium">{new Date(order.updatedAt).toLocaleDateString()}</p>
+                    <p className="text-gray-600">Order Date</p>
+                    <p className="font-medium">{new Date(order.date).toLocaleDateString()}</p>
                   </div>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="border-t border-gray-100 pt-4 mt-4">
-                <div className="flex items-center justify-between">
-                  <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-                    <Eye className="w-4 h-4 mr-2" />
-                    View Details
-                  </button>
-                  
-                  {order.status === 'pending' && (
+              {order.status === 'pending' && (
+                <div className="border-t border-gray-100 pt-4 mt-4">
+                  <div className="flex items-center justify-end">
                     <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-lg transition-colors">
                       <X className="w-4 h-4 mr-2" />
                       Cancel Order
                     </button>
-                  )}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           ))
         )}
@@ -240,7 +247,7 @@ const MyOrders = ({ orders, loading, onOrderUpdate }) => {
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-900">
-                KES {sortedOrders.reduce((sum, o) => sum + (o.total || 0), 0).toFixed(2)}
+                KES {sortedOrders.reduce((sum, o) => sum + (o.amount || 0), 0).toLocaleString()}
               </p>
               <p className="text-sm text-gray-600">Total Spent</p>
             </div>

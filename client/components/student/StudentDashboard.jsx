@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import NavBar from '@/components/NavBar'
 import StudentSidebar from './StudentSidebar'
 import DashboardOverview from './DashboardOverview'
@@ -7,6 +7,7 @@ import ProjectUpload from './ProjectUpload'
 import StudentReviews from './StudentReviews'
 import StudentProfile from './StudentProfile'
 import CVUpload from './CVUpload'
+import MyOrders from '@/components/client/MyOrders'
 import { useStudentDashboard } from '@/hooks/useStudentDashboard'
 import { useAuthContext } from "@/contexts/AuthContext";
 
@@ -14,15 +15,15 @@ const StudentDashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard')
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [showCVUploadModal, setShowCVUploadModal] = useState(false)
-  const { dashboardData, loading: dashboardLoading, error, fetchDashboardData } = useStudentDashboard()
+  const { dashboardData, allData, loading: dashboardLoading, error, fetchDashboardData, fetchAllStudentData } = useStudentDashboard()
   const { user } = useAuthContext()
 
   // Fetch dashboard data when component mounts
   useEffect(() => {
     if (user && user.role === 'student') {
-      fetchDashboardData()
+      fetchAllStudentData()
     }
-  }, [user, fetchDashboardData])
+  }, [user, fetchAllStudentData])
 
   const handleSidebarSelect = (section) => {
     setActiveSection(section)
@@ -50,7 +51,7 @@ const StudentDashboard = () => {
     switch (activeSection) {
       case 'dashboard':
         return (
-          <div className="space-y-6 p-6">
+          <div className="space-y-6">
             <DashboardOverview 
               dashboardData={dashboardData} 
               loading={dashboardLoading}
@@ -69,6 +70,14 @@ const StudentDashboard = () => {
             onProjectUpdate={handleProjectUpdate}
           />
         )
+      case 'orders':
+        return (
+          <MyOrders 
+            orders={allData.orders || []} 
+            loading={dashboardLoading} 
+            onOrderUpdate={() => {}}
+          />
+        )
       case 'reviews':
         return <StudentReviews dashboardData={dashboardData} />
       case 'profile':
@@ -85,11 +94,13 @@ const StudentDashboard = () => {
   return (
     <div className="h-screen w-full flex flex-col m-0 p-0">
       <NavBar />
-      <div className="flex flex-1">
+      <div className="flex flex-1 overflow-hidden">
         <StudentSidebar onSelect={handleSidebarSelect} />
-        <div className="flex flex-col flex-1">
-          <div className="flex-1 overflow-y-auto bg-gray-50">
-            {renderActiveSection()}
+        <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+          <div className="flex-1 overflow-y-auto px-2 py-2 sm:px-4 sm:py-4 md:p-6 bg-gray-50 w-full">
+            <div className="max-w-full mx-auto">
+              {renderActiveSection()}
+            </div>
           </div>
         </div>
       </div>

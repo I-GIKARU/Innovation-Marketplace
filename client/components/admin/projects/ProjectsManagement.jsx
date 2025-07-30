@@ -1,6 +1,7 @@
 "use client"
 import React, { useState } from 'react'
 import { Backpack, Search, Filter, BarChart3, TrendingUp, Users, Eye, Star } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 import ProjectTableRow from './ProjectTableRow'
 import ProjectRejectionModal from './ProjectRejectionModal'
 import ProjectDetailsModal from './ProjectDetailsModal'
@@ -51,7 +52,7 @@ const ProjectsManagement = ({ projects: initialProjects = [], loading: initialLo
 
   const fetchProjects = async () => {
     try {
-      const data = await apiCall('/api/projects')
+      const data = await apiCall('/projects')
       setProjects(data.projects || [])
       setStatusCounts(data.status_counts || {})
       setLoading(false)
@@ -66,18 +67,18 @@ const ProjectsManagement = ({ projects: initialProjects = [], loading: initialLo
   const handleStatusChange = async (projectId, newStatus) => {
     setUpdatingProject(projectId)
     try {
-      const result = await apiCall(`/api/projects/${projectId}`, {
+      const result = await apiCall(`/projects/${projectId}`, {
         method: 'PUT',
         body: JSON.stringify({ status: newStatus }),
       })
       
       const actionText = newStatus === 'approved' ? 'approved' : 'rejected'
-      alert(`Project "${result.project?.title || 'Unknown'}" has been ${actionText} successfully!`)
+      toast.success(`Project "${result.project?.title || 'Unknown'}" has been ${actionText} successfully!`)
       
       fetchProjects()
     } catch (err) {
       console.error('Error updating project status:', err)
-      alert(`Failed to update project status: ${err.message}`)
+      toast.error(`Failed to update project status: ${err.message}`)
     } finally {
       setUpdatingProject(null)
     }
@@ -90,15 +91,15 @@ const ProjectsManagement = ({ projects: initialProjects = [], loading: initialLo
 
     setDeletingProject(projectId)
     try {
-      await apiCall(`/api/projects/${projectId}`, {
+      await apiCall(`/projects/${projectId}`, {
         method: 'DELETE',
       })
 
-      alert(`Project "${projectTitle}" has been deleted successfully!`)
+      toast.success(`Project "${projectTitle}" has been deleted successfully!`)
       fetchProjects()
     } catch (err) {
       console.error('Error deleting project:', err)
-      alert(`Failed to delete project: ${err.message}`)
+      toast.error(`Failed to delete project: ${err.message}`)
     } finally {
       setDeletingProject(null)
     }
@@ -107,13 +108,13 @@ const ProjectsManagement = ({ projects: initialProjects = [], loading: initialLo
   const handleToggleFeatured = async (projectId, projectTitle, currentFeaturedStatus) => {
     setTogglingFeatured(projectId)
     try {
-      const result = await apiCall(`/api/projects/${projectId}`, {
+      const result = await apiCall(`/projects/${projectId}`, {
         method: 'PUT',
         body: JSON.stringify({ featured: !currentFeaturedStatus }),
       })
 
       const actionText = result.project.featured ? 'featured' : 'unfeatured'
-      alert(`Project "${projectTitle}" has been ${actionText} successfully!`)
+      toast.success(`Project "${projectTitle}" has been ${actionText} successfully!`)
       
       setProjects(prevProjects => 
         prevProjects.map(project => 
@@ -124,7 +125,7 @@ const ProjectsManagement = ({ projects: initialProjects = [], loading: initialLo
       )
     } catch (err) {
       console.error('Error updating featured status:', err)
-      alert(`Failed to update featured status: ${err.message}`)
+      toast.error(`Failed to update featured status: ${err.message}`)
     } finally {
       setTogglingFeatured(null)
     }
@@ -153,7 +154,7 @@ const ProjectsManagement = ({ projects: initialProjects = [], loading: initialLo
     setUpdatingProject(projectId)
 
     try {
-      const result = await apiCall(`/api/projects/${projectId}`, {
+      const result = await apiCall(`/projects/${projectId}`, {
         method: 'PUT',
         body: JSON.stringify({ 
           status: 'rejected',
@@ -161,12 +162,12 @@ const ProjectsManagement = ({ projects: initialProjects = [], loading: initialLo
         }),
       })
       
-      alert(`Project "${rejectModal.project.title}" has been rejected successfully!`)
+      toast.success(`Project "${rejectModal.project.title}" has been rejected successfully!`)
       fetchProjects()
       closeRejectModal()
     } catch (err) {
       console.error('Error rejecting project:', err)
-      alert(`Failed to reject project: ${err.message}`)
+      toast.error(`Failed to reject project: ${err.message}`)
     } finally {
       setUpdatingProject(null)
     }
@@ -179,7 +180,7 @@ const ProjectsManagement = ({ projects: initialProjects = [], loading: initialLo
     
     try {
       console.log('🌐 Making API call to fetch project details...')
-      const data = await apiCall(`/api/projects/${project.id}`)
+      const data = await apiCall(`/projects/${project.id}`)
       const projectData = data.project || data
       console.log('✅ API call successful, setting project data and loading: false')
       

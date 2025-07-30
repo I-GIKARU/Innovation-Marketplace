@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { FiMail, FiPhone, FiUser, FiGithub, FiGlobe, FiBriefcase } from "react-icons/fi";
 import HireForm from "./HireForm";
 import { useAuthContext } from "@/contexts/AuthContext";
+import apiClient from "@/lib/apiClient";
+import toast from 'react-hot-toast';
 
 const TeamMemberDialog = ({ member, onClose, project }) => {
     const { user } = useAuthContext();
@@ -9,23 +11,13 @@ const TeamMemberDialog = ({ member, onClose, project }) => {
 
   const handleHire = async (hireData) => {
     try {
-      const response = await fetch(`/api/projects/${project?.id}/hire`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(hireData),
-      });
+      await apiClient.post(`/projects/${project?.id}/hire`, hireData);
       
-      if (response.ok) {
-        alert('Hire request sent successfully!');
-        setShowHireForm(false);
-        onClose();
-      } else {
-        throw new Error('Failed to send hire request');
-      }
+      toast.success('Hire request sent successfully!');
+      setShowHireForm(false);
+      onClose();
     } catch (error) {
-      alert(`Error: ${error.message}`);
+      toast.error(`Error: ${error.response?.data?.message || error.message}`);
     }
   };
 

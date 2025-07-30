@@ -2,18 +2,28 @@
 
 import { useState } from "react";
 import { FiStar } from "react-icons/fi";
+import toast from 'react-hot-toast';
 
 const ReviewForm = ({ project, user, onSubmit, onCancel }) => {
   const [reviewRating, setReviewRating] = useState(1);
   const [reviewComment, setReviewComment] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!reviewRating || reviewRating < 1 || reviewRating > 5) {
-      alert("Please provide a rating between 1 and 5.");
+      toast.error("Please provide a rating between 1 and 5.");
       return;
     }
 
-    onSubmit(reviewRating, reviewComment);
+    setIsSubmitting(true);
+    try {
+      await onSubmit(reviewRating, reviewComment);
+    } catch (error) {
+      // Error handling is done in the parent component
+      console.error('Error submitting review:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const renderStarRating = () => {
@@ -79,15 +89,24 @@ const ReviewForm = ({ project, user, onSubmit, onCancel }) => {
         <div className="flex justify-end gap-2">
           <button
             onClick={onCancel}
-            className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+            disabled={isSubmitting}
+            className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700"
+            disabled={isSubmitting}
+            className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            Submit Review
+            {isSubmitting ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Submitting...
+              </>
+            ) : (
+              'Submit Review'
+            )}
           </button>
         </div>
       </div>

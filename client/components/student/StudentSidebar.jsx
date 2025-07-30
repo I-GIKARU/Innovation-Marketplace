@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     BarChart3,
     FolderOpen,
@@ -19,6 +19,7 @@ const menu = [
     { name: "Dashboard", key: "dashboard", icon: BarChart3, description: "Overview & Analytics" },
     { name: "My Projects", key: "projects", icon: FolderOpen, description: "Manage your projects" },
     { name: "Upload Project", key: "upload", icon: Upload, description: "Add new project" },
+    { name: "My Orders", key: "orders", icon: ShoppingCart, description: "Track your purchases" },
     { name: "Reviews", key: "reviews", icon: MessageSquare, description: "Project feedback" },
     { name: "Profile", key: "profile", icon: User, description: "Account settings" },
 ];
@@ -26,6 +27,23 @@ const menu = [
 function StudentSidebar({ onSelect }) {
     const [isSideBarOpen, setSideBarIsOpen] = useState(true);
     const [activeItem, setActiveItem] = useState("dashboard");
+    
+    // Check if we're on mobile and set sidebar state accordingly
+    useEffect(() => {
+        const checkScreenSize = () => {
+            const isMobile = window.innerWidth < 768;
+            setSideBarIsOpen(!isMobile); // Closed on mobile, open on desktop
+        };
+        
+        // Check on mount
+        checkScreenSize();
+        
+        // Add event listener for screen size changes
+        window.addEventListener('resize', checkScreenSize);
+        
+        // Cleanup
+        return () => window.removeEventListener('resize', checkScreenSize);
+    }, []);
 
     const handleSelect = (key) => {
         setActiveItem(key);
@@ -33,13 +51,13 @@ function StudentSidebar({ onSelect }) {
     };
 
     return (
-        <div className={`relative z-20 transition-all duration-300 ease-in-out ${isSideBarOpen ? 'w-72' : 'w-20'} bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 shadow-2xl border-r border-gray-700`}>
+<div className={`relative z-20 transition-all duration-300 ease-in-out ${isSideBarOpen ? 'w-72 md:w-64' : 'w-20'} bg-gradient-to-br from-slate-900 via-gray-900 to-slate-800 shadow-2xl border-r border-gray-700`}>
             <div className="h-screen flex flex-col">
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-gray-700">
                     <button 
-                        onClick={() => setSideBarIsOpen(!isSideBarOpen)}
-                        className="p-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-700 transition-all duration-200"
+onClick={() => setSideBarIsOpen(!isSideBarOpen)}
+                        className="p-2 md:p-3 rounded-lg text-gray-300 hover:text-white hover:bg-gray-700 transition-all duration-200"
                     >
                         {isSideBarOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
                     </button>
@@ -66,7 +84,7 @@ function StudentSidebar({ onSelect }) {
                             <div key={item.key} className="relative">
                                 <button
                                     onClick={() => handleSelect(item.key)}
-                                    className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group
+ className={`w-full flex items-center px-2 py-2 md:px-3 md:py-3 text-sm font-medium rounded-lg transition-all duration-200 group
                                         ${
                                             isActive 
                                                 ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transform scale-[1.02]' 
@@ -76,7 +94,7 @@ function StudentSidebar({ onSelect }) {
                                     <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${
                                         isActive ? 'bg-white/20' : 'bg-indigo-800 group-hover:bg-indigo-700'
                                     } transition-all duration-200`}>
-                                        <Icon size={20} className={isActive ? 'text-white' : 'text-indigo-300 group-hover:text-white'} />
+<Icon size={16} className={`md:w-5 md:h-5 ${isActive ? 'text-white' : 'text-indigo-300 group-hover:text-white'}`} />
                                     </div>
                                     {isSideBarOpen && (
                                         <div className="ml-3 flex-1 text-left">

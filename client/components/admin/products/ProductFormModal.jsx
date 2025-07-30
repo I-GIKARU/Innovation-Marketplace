@@ -4,6 +4,7 @@ import { Upload, X } from 'lucide-react'
 import Modal from '../shared/Modal'
 import LoadingSpinner from '../shared/LoadingSpinner'
 import { apiCall } from '../shared/utils'
+import apiClient from '@/lib/apiClient'
 
 const ProductFormModal = ({ 
   isOpen, 
@@ -46,7 +47,7 @@ const ProductFormModal = ({
 
   const fetchCategories = async () => {
     try {
-      const data = await apiCall('/api/categories')
+      const data = await apiCall('/categories')
       setCategories(data.categories || data || [])
     } catch (error) {
       console.error('Error fetching categories:', error)
@@ -126,18 +127,18 @@ const ProductFormModal = ({
     uploadFormData.append('image', imageFile)
 
     try {
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: uploadFormData,
-        credentials: 'include',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      })
-
-      if (!response.ok) throw new Error('Failed to upload image')
+      // Set the token for this request
+      const token = localStorage.getItem('token');
+      apiClient.defaults.headers.Authorization = `Bearer ${token}`;
       
-      const data = await response.json()
+      const response = await apiClient.post('/upload', uploadFormData, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      const data = response.data;
       return data.url || data.image_url
     } catch (error) {
       console.error('Error uploading image:', error)
@@ -169,12 +170,12 @@ const ProductFormModal = ({
 
       let result
       if (isEditing) {
-        result = await apiCall(`/api/merchandise/${product.id}`, {
+        result = await apiCall(`/merchandise/${product.id}`, {
           method: 'PUT',
           body: JSON.stringify(productData),
         })
       } else {
-        result = await apiCall('/api/merchandise', {
+        result = await apiCall('/merchandise', {
           method: 'POST',
           body: JSON.stringify(productData),
         })

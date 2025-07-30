@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-hot-toast';
 import { useAuthContext } from '@/contexts/AuthContext';
 
 const OrderManagement = ({ onNavigate }) => {
@@ -33,11 +34,11 @@ const OrderManagement = ({ onNavigate }) => {
       await authFetch(`/orders/${orderId}/cancel`, {
         method: 'POST',
       });
-      alert('Order cancelled successfully!');
+      toast.success('Order cancelled successfully!');
       fetchOrders(currentPage); // Refresh the orders
     } catch (error) {
       console.error('Error cancelling order:', error);
-      alert(`Failed to cancel order: ${error.message}`);
+      toast.error(`Failed to cancel order: ${error.message}`);
     }
   };
 
@@ -48,11 +49,11 @@ const OrderManagement = ({ onNavigate }) => {
       await authFetch(`/orders/${orderId}/hide`, {
         method: 'POST',
       });
-      alert('Order hidden from your view!');
+      toast.success('Order hidden from your view!');
       fetchOrders(currentPage); // Refresh the orders
     } catch (error) {
       console.error('Error hiding order:', error);
-      alert(`Failed to hide order: ${error.message}`);
+      toast.error(`Failed to hide order: ${error.message}`);
     }
   };
 

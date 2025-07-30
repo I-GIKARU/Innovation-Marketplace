@@ -1,19 +1,29 @@
 "use client";
 
 import { useState } from "react";
+import toast from 'react-hot-toast';
 
 const InteractionForm = ({ project, user, onSubmit, onCancel }) => {
   const [userProjectMessage, setUserProjectMessage] = useState("");
   const [userProjectInterestedIn, setUserProjectInterestedIn] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!userProjectInterestedIn || !userProjectMessage) {
-      alert("Please select your interest and provide a message.");
+      toast.error("Please select your interest and provide a message.");
       return;
     }
 
-    const action = userProjectInterestedIn === 'hiring' ? 'hire_team' : 'express_interest';
-    onSubmit(action, userProjectInterestedIn, userProjectMessage);
+    setIsSubmitting(true);
+    try {
+      const action = userProjectInterestedIn === 'hiring' ? 'hire_team' : 'express_interest';
+      await onSubmit(action, userProjectInterestedIn, userProjectMessage);
+    } catch (error) {
+      // Error handling is done in the parent component
+      console.error('Error submitting interaction:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const getUserRole = () => {
@@ -114,15 +124,24 @@ const InteractionForm = ({ project, user, onSubmit, onCancel }) => {
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
             <button
               onClick={onCancel}
-              className="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
+              disabled={isSubmitting}
+              className="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
             <button
               onClick={handleSubmit}
-              className="px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all duration-300 shadow-lg font-medium"
+              disabled={isSubmitting || !userProjectInterestedIn || !userProjectMessage}
+              className="px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all duration-300 shadow-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              {getSubmitButtonText()}
+              {isSubmitting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Submitting...
+                </>
+              ) : (
+                getSubmitButtonText()
+              )}
             </button>
           </div>
         </div>

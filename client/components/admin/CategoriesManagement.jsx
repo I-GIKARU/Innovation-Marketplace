@@ -1,6 +1,8 @@
 "use client"
-import React, { useState } from 'react'
-import { ChartColumnStacked, Plus, Edit, Trash2 } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { ChartColumnStacked, Plus, Edit, Trash2, Loader2 } from 'lucide-react'
+import apiClient from '@/lib/apiClient'
+import toast from 'react-hot-toast'
 
 const CategoriesManagement = ({ categories: initialCategories = [], loading: initialLoading = false, error: initialError = null, onRefresh }) => {
   const [categories, setCategories] = useState(initialCategories)
@@ -8,8 +10,9 @@ const CategoriesManagement = ({ categories: initialCategories = [], loading: ini
   const [error, setError] = useState(initialError)
   const [showAddForm, setShowAddForm] = useState(false)
   const [newCategory, setNewCategory] = useState({ name: '', description: '' })
-
-  React.useEffect(() => {
+  const [isAddingCategory, setIsAddingCategory] = useState(false)
+  
+  useEffect(() => {
     setCategories(initialCategories)
     setLoading(initialLoading)
     setError(initialError)
@@ -17,19 +20,11 @@ const CategoriesManagement = ({ categories: initialCategories = [], loading: ini
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/categories', {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
+      const response = await apiClient.get('/categories', {
+        withCredentials: true
+      });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch categories')
-      }
-
-      const data = await response.json()
+      const data = response.data;
       setCategories(data.categories || []) // Handle the API response format
       setLoading(false)
       if (onRefresh) onRefresh()
@@ -42,26 +37,23 @@ const CategoriesManagement = ({ categories: initialCategories = [], loading: ini
 
   const handleAddCategory = async (e) => {
     e.preventDefault()
+    if (isAddingCategory) return // Prevent double submission
+    
+    setIsAddingCategory(true)
     try {
-      const response = await fetch('/api/admin/categories', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newCategory),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to add category')
-      }
+      const response = await apiClient.post('/admin/categories', newCategory, {
+        withCredentials: true
+      });
 
       setNewCategory({ name: '', description: '' })
       setShowAddForm(false)
       fetchCategories()
+      toast.success('Category added successfully!')
     } catch (err) {
       console.error('Error adding category:', err)
-      alert('Failed to add category')
+      toast.error(err.response?.data?.message || 'Failed to add category')
+    } finally {
+      setIsAddingCategory(false)
     }
   }
 
@@ -71,22 +63,15 @@ const CategoriesManagement = ({ categories: initialCategories = [], loading: ini
     }
 
     try {
-      const response = await fetch(`/api/admin/categories/${categoryId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to delete category')
-      }
+      await apiClient.delete(`/admin/categories/${categoryId}`, {
+        withCredentials: true
+      });
 
       fetchCategories()
+      toast.success('Category deleted successfully!')
     } catch (err) {
       console.error('Error deleting category:', err)
-      alert('Failed to delete category')
+      toast.error(err.response?.data?.message || 'Failed to delete category')
     }
   }
 
@@ -157,6 +142,7 @@ const CategoriesManagement = ({ categories: initialCategories = [], loading: ini
                   value={newCategory.name}
                   onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={isAddingCategory}
                   required
                 />
               </div>
@@ -169,6 +155,7 @@ const CategoriesManagement = ({ categories: initialCategories = [], loading: ini
                   value={newCategory.description}
                   onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={isAddingCategory}
                 />
               </div>
             </div>
@@ -179,15 +166,24 @@ const CategoriesManagement = ({ categories: initialCategories = [], loading: ini
                   setShowAddForm(false)
                   setNewCategory({ name: '', description: '' })
                 }}
-                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isAddingCategory}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                disabled={isAddingCategory}
               >
-                Add Category
+                {isAddingCategory ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Adding...
+                  </>
+                ) : (
+                  'Add Category'
+                )}
               </button>
             </div>
           </form>
@@ -243,3 +239,4 @@ const CategoriesManagement = ({ categories: initialCategories = [], loading: ini
 }
 
 export default CategoriesManagement
+

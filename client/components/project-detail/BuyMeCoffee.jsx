@@ -11,6 +11,7 @@ import {
   UserIcon,
 } from '@heroicons/react/24/outline';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { toast } from 'react-hot-toast';
 
 const BuyMeCoffee = ({ project, isOpen, onClose }) => {
   const { user, authFetch } = useAuthContext();
@@ -133,7 +134,7 @@ const BuyMeCoffee = ({ project, isOpen, onClose }) => {
   const handleLoginRedirect = () => {
     // You can trigger the login modal here
     // For now, we'll just show a message
-    alert('Please sign in to support this project. Close this dialog and click the Login button.');
+toast.error('Please sign in to support this project. Close this dialog and click the Login button.');
   };
 
   if (!isOpen) return null;

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Trash2, Edit, Eye, Download, ExternalLink, AlertCircle, CheckCircle, Clock, X, MessageCircle, Star } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useProjects } from '@/hooks/useProjects'
 import ProjectMedia from '@/components/common/ProjectMedia'
@@ -22,7 +23,7 @@ const MyProjectsPanel = ({ projects, loading, onProjectUpdate }) => {
         method: 'DELETE'
       })
       
-      alert('Project and associated media deleted successfully')
+      toast.success('Project and associated media deleted successfully')
       
       if (onProjectUpdate) {
         onProjectUpdate()
@@ -30,7 +31,7 @@ const MyProjectsPanel = ({ projects, loading, onProjectUpdate }) => {
       
     } catch (error) {
       console.error('Error deleting project:', error)
-      alert(`Failed to delete project: ${error.message}`)
+      toast.error(`Failed to delete project: ${error.message}`)
     } finally {
       setDeleting(false)
       setDeleteModal({ isOpen: false, project: null })

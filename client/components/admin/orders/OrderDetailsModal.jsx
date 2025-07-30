@@ -80,7 +80,7 @@ const OrderDetailsModal = ({
             <div>
               <span className="text-sm font-medium text-gray-700">Email:</span>
               <span className="ml-2 text-sm text-gray-600">
-                {sale.email || 'N/A'}
+                {sale.user?.email || sale.email || 'N/A'}
               </span>
             </div>
             {sale.user && (

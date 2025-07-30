@@ -32,7 +32,7 @@ const ClientDashboard = () => {
     switch (activeSection) {
       case 'dashboard':
         return (
-          <div className="space-y-6 p-6">
+          <div className="space-y-6">
             <DashboardOverview 
               dashboardData={dashboardData} 
               loading={loading}
@@ -65,11 +65,13 @@ const ClientDashboard = () => {
   return (
     <div className="h-screen w-full flex flex-col m-0 p-0">
       <NavBar />
-      <div className="flex flex-1">
+      <div className="flex flex-1 overflow-hidden">
         <ClientSidebar onSelect={handleSidebarSelect} />
-        <div className="flex flex-col flex-1">
-          <div className="flex-1 overflow-y-auto bg-gray-50">
-            {renderActiveSection()}
+        <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+          <div className="flex-1 overflow-y-auto px-2 py-2 sm:px-4 sm:py-4 md:p-6 bg-gray-50 w-full">
+            <div className="max-w-full mx-auto">
+              {renderActiveSection()}
+            </div>
           </div>
         </div>
       </div>

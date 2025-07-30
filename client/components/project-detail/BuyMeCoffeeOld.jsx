@@ -11,6 +11,7 @@ import {
   UserIcon,
 } from '@heroicons/react/24/outline';
 import { useAuthContext } from '@/contexts/AuthContext';
+import apiClient from '@/lib/apiClient';
 
 const BuyMeCoffee = ({ project, isOpen, onClose }) => {
   const { user, authFetch } = useAuthContext();
@@ -68,20 +69,14 @@ const BuyMeCoffee = ({ project, isOpen, onClose }) => {
       const formattedPhone = formatPhoneNumber(phoneNumber);
       const amount = parseInt(donationAmount);
       
-      const response = await fetch('/api/mpesa/stk-push', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          phone_number: formattedPhone,
-          amount: amount,
-          account_reference: `COFFEE-${project.id}-${Date.now()}`,
-          transaction_desc: `Buy coffee for ${project.title} - KES ${amount}`,
-        }),
+      const response = await apiClient.post('/mpesa/stk-push', {
+        phone_number: formattedPhone,
+        amount: amount,
+        account_reference: `COFFEE-${project.id}-${Date.now()}`,
+        transaction_desc: `Buy coffee for ${project.title} - KES ${amount}`,
       });
 
-      const result = await response.json();
+      const result = response.data;
 
       if (result.success) {
         setStatusMessage('STK push sent! Please check your phone and enter your M-Pesa PIN.');
@@ -105,17 +100,11 @@ const BuyMeCoffee = ({ project, isOpen, onClose }) => {
     
     const checkStatus = async () => {
       try {
-        const response = await fetch('/api/mpesa/payment-status', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            checkout_request_id: requestId,
-          }),
+        const response = await apiClient.post('/mpesa/payment-status', {
+          checkout_request_id: requestId,
         });
 
-        const result = await response.json();
+        const result = response.data;
         
         if (result.success && result.data) {
           const { ResultCode, ResultDesc } = result.data;

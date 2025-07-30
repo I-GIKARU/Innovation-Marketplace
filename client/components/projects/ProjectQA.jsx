@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { XMarkIcon, ChatBubbleLeftRightIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import apiClient from '@/lib/apiClient';
 
 const ProjectQA = ({ isOpen, onClose, project }) => {
     const [question, setQuestion] = useState('');
@@ -10,8 +11,6 @@ const ProjectQA = ({ isOpen, onClose, project }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [history, setHistory] = useState([]);
-
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
 
     const handleAskQuestion = async () => {
         if (!question.trim()) {
@@ -24,20 +23,11 @@ const ProjectQA = ({ isOpen, onClose, project }) => {
         setAnswer('');
 
         try {
-            const response = await fetch(`${API_BASE}/ai/project/${project.id}/question`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ question: question.trim() }),
+            const response = await apiClient.post(`/ai/project/${project.id}/question`, {
+                question: question.trim()
             });
 
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to get answer');
-            }
-
+            const data = response.data;
             setAnswer(data.answer);
             
             // Add to history

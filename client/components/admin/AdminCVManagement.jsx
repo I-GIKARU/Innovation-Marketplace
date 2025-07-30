@@ -173,9 +173,9 @@ const AdminCVManagement = ({ cvs: initialCvs = [], loading: initialLoading = fal
                             key={cv.user_id}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+                            className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow flex flex-col h-full"
                         >
-                            <div className="p-6">
+                            <div className="p-6 flex-1 flex flex-col">
                                 {/* Student Info */}
                                 <div className="flex items-center mb-4">
                                     <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
@@ -210,8 +210,11 @@ const AdminCVManagement = ({ cvs: initialCvs = [], loading: initialLoading = fal
                                     </div>
                                 )}
 
+                                {/* Spacer to push buttons to bottom */}
+                                <div className="flex-1"></div>
+
                                 {/* Actions */}
-                                <div className="flex space-x-2">
+                                <div className="flex space-x-2 mt-4">
                                     <button
                                         onClick={() => handleViewCV(cv.cv_url)}
                                         className="flex-1 flex items-center justify-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"

@@ -1,14 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  // Suppress hydration warnings for browser extension attributes
-  experimental: {
-    suppressHydrationWarning: true,
-  },
-  // Additional hydration configuration
-  compiler: {
-    suppressHydrationWarning: true,
-  },
   images: {
     remotePatterns: [
       {

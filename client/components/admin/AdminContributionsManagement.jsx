@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Search, Eye, Calendar, DollarSign, User, Heart, TrendingUp } from 'lucide-react'
+import apiClient from '@/lib/apiClient'
 
 const AdminContributionsManagement = ({ contributions: initialContributions = [], loading: initialLoading = false, error: initialError = null, onRefresh }) => {
   const [contributions, setContributions] = useState(initialContributions)
@@ -51,18 +52,11 @@ const AdminContributionsManagement = ({ contributions: initialContributions = []
     try {
       setLoading(true)
       const token = localStorage.getItem('token')
-      const response = await fetch('/api/contributions', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
+      // Set the token for this request
+      apiClient.defaults.headers.Authorization = `Bearer ${token}`;
+      const response = await apiClient.get('/contributions')
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch contributions')
-      }
-
-      const data = await response.json()
+      const data = response.data
       setContributions(data.contributions || [])
       
       // Calculate stats

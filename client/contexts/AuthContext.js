@@ -9,8 +9,7 @@ import {
     signInWithPopup
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api';
+import apiClient from '@/lib/apiClient';
 
 const AuthContext = createContext({});
 
@@ -30,14 +29,11 @@ const AuthProviderComponent = ({ children }) => {
         isAuthFetching = true;
         setLoading(true);
         try {
-            const res = await fetch(`${API_BASE}/auth/me`, {
-                credentials: 'include',
+            const response = await apiClient.get('/auth/me', {
+                withCredentials: true,
             });
             
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || 'Failed to fetch user');
-
-            setUser(data.user || null);
+            setUser(response.data.user || null);
         } catch (error) {
             console.log('Auth check failed:', error.message);
             setUser(null);
@@ -82,15 +78,12 @@ const AuthProviderComponent = ({ children }) => {
             const idToken = await result.user.getIdToken();
             
             // 3. Send token to Flask backend for automatic account creation
-            const res = await fetch(`${API_BASE}/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ idToken }),
-            });
+            const response = await apiClient.post('/auth/login', 
+                { idToken },
+                { withCredentials: true }
+            );
 
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || 'Google sign-in failed');
+            const data = response.data;
 
             // Store JWT token if provided
             if (data.token) {
@@ -123,15 +116,12 @@ const AuthProviderComponent = ({ children }) => {
             const idToken = await userCredential.user.getIdToken();
             
             // 3. Send token to Flask backend
-            const res = await fetch(`${API_BASE}/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({ idToken }),
-            });
+            const response = await apiClient.post('/auth/login',
+                { idToken },
+                { withCredentials: true }
+            );
 
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || 'Admin login failed');
+            const data = response.data;
 
             // Store JWT token if provided
             if (data.token) {
@@ -151,9 +141,8 @@ const AuthProviderComponent = ({ children }) => {
     const logout = async () => {
         try {
             // 1. Logout from Flask backend
-            await fetch(`${API_BASE}/auth/logout`, {
-                method: 'POST',
-                credentials: 'include',
+            await apiClient.post('/auth/logout', {}, {
+                withCredentials: true,
             });
             
             // 2. Sign out from Firebase
@@ -167,35 +156,40 @@ const AuthProviderComponent = ({ children }) => {
     };
 
     const authFetch = useCallback(async (url, options = {}) => {
-        const isFormData = options.body instanceof FormData;
-        const headers = { ...(options.headers || {}) };
+        try {
+            const axiosConfig = {
+                url: url.startsWith('http') ? url : url,
+                method: options.method || 'GET',
+                withCredentials: true,
+                ...options
+            };
 
-        if (!isFormData && !headers['Content-Type']) {
-            headers['Content-Type'] = 'application/json';
+            // Handle different data types
+            if (options.body) {
+                if (options.body instanceof FormData) {
+                    axiosConfig.data = options.body;
+                } else if (typeof options.body === 'string') {
+                    axiosConfig.data = JSON.parse(options.body);
+                } else {
+                    axiosConfig.data = options.body;
+                }
+            }
+
+            const response = await apiClient(axiosConfig);
+            return response.data;
+        } catch (error) {
+            // Handle token expiration
+            if (error.response?.status === 401) {
+                console.log('Token expired, logging out...');
+                await logout();
+                throw new Error('Session expired. Please log in again.');
+            }
+            // Return more detailed error information
+            if (error.response?.data?.error) {
+                throw new Error(error.response.data.error);
+            }
+            throw new Error(error.response?.data?.message || error.message || 'Request failed');
         }
-
-        // Add bearer token from local storage if available
-        const token = localStorage.getItem('token');
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        }
-
-        const res = await fetch(url.startsWith('http') ? url : `${API_BASE}${url}`, {
-            ...options,
-            headers,
-            credentials: 'include',
-        });
-
-        // Handle token expiration
-        if (res.status === 401) {
-            console.log('Token expired, logging out...');
-            await logout();
-            throw new Error('Session expired. Please log in again.');
-        }
-
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || 'Request failed');
-        return data;
     }, []);
 
     // Get token from localStorage

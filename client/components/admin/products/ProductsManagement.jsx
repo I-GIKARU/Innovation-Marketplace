@@ -1,6 +1,7 @@
 "use client"
 import React, { useState } from 'react'
 import { ShoppingBag, Plus } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 import ProductTableRow from './ProductTableRow'
 import ProductFormModal from './ProductFormModal'
 import { apiCall } from '../shared/utils'
@@ -26,7 +27,7 @@ const ProductsManagement = ({ products: initialProducts = [], loading: initialLo
 
   const fetchProducts = async () => {
     try {
-      const data = await apiCall('/api/merchandise')
+      const data = await apiCall('/merchandise')
       setProducts(data.merchandise || data)
       setLoading(false)
       if (onRefresh) onRefresh()
@@ -52,15 +53,15 @@ const ProductsManagement = ({ products: initialProducts = [], loading: initialLo
 
     setDeletingProduct(productId)
     try {
-      await apiCall(`/api/merchandise/${productId}`, {
+      await apiCall(`/merchandise/${productId}`, {
         method: 'DELETE',
       })
 
-      alert(`Product "${productName}" has been deleted successfully!`)
+      toast.success(`Product "${productName}" has been deleted successfully!`)
       fetchProducts()
     } catch (err) {
       console.error('Error deleting product:', err)
-      alert(`Failed to delete product: ${err.message}`)
+      toast.error(`Failed to delete product: ${err.message}`)
     } finally {
       setDeletingProduct(null)
     }
@@ -71,7 +72,7 @@ const ProductsManagement = ({ products: initialProducts = [], loading: initialLo
     const actionText = isEditing ? 'updated' : 'created'
     const productName = result.product?.name || result.name || 'Product'
     
-    alert(`Product "${productName}" has been ${actionText} successfully!`)
+    toast.success(`Product "${productName}" has been ${actionText} successfully!`)
     fetchProducts()
   }
 

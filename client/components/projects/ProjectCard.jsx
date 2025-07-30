@@ -48,7 +48,7 @@ const ProjectCard = ({ project, title, description, image, onProjectClick }) => 
 
     return (
         <Link href={`/projects/${project.id}`}>
-            <div className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 hover:border-orange-200 overflow-hidden flex flex-col">
+            <div className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 hover:border-orange-200 overflow-hidden flex flex-col h-full">
 
                 {/* Project Image */}
                 <div className="relative h-64 overflow-hidden">
@@ -94,9 +94,9 @@ const ProjectCard = ({ project, title, description, image, onProjectClick }) => 
                 </div>
 
                 {/* Card Content */}
-                <div className="p-6 flex flex-col h-full">
-                    {/* Main Content - Stays at top */}
-                    <div className="flex flex-col sm:flex-1">
+                <div className="p-6 flex flex-col flex-1">
+                    {/* Main Content - Grows to fill available space */}
+                    <div className="flex flex-col flex-1">
                         {/* Category Label */}
                         <div className="mb-2">
                             <span className="text-xs text-[#0a1128] font-semibold uppercase tracking-wider">
@@ -166,7 +166,7 @@ const ProjectCard = ({ project, title, description, image, onProjectClick }) => 
                     </div>
 
                     {/* Mobile-only bottom section for Tech Stack, Mentor, and Stats */}
-                    <div className="sm:hidden mb-4 space-y-3">
+                    <div className="sm:hidden space-y-3">
                         {/* Tech Stack */}
                         {project.tech_stack && (
                             <div className="flex flex-wrap gap-1">
@@ -207,8 +207,8 @@ const ProjectCard = ({ project, title, description, image, onProjectClick }) => 
                         </div>
                     </div>
 
-                    {/* Author and CTA Button */}
-                    <div className="mt-auto">
+                    {/* Author and CTA Button - Always at bottom */}
+                    <div className="mt-auto pt-4">
                         {/* Author Info */}
                         {project.user_projects && project.user_projects[0]?.user && (
                             <div className="flex items-center gap-2 mb-4">

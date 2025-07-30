@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import toast from 'react-hot-toast';
 
 const HireForm = ({ project, user, teamMember, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -25,7 +26,7 @@ const HireForm = ({ project, user, teamMember, onSubmit, onCancel }) => {
     e.preventDefault();
     
     if (!formData.message || !formData.projectType) {
-      alert("Please fill in the required fields (message and project type).");
+      toast.error("Please fill in the required fields (message and project type).");
       return;
     }
 

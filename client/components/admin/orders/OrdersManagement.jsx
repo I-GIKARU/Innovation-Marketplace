@@ -1,6 +1,7 @@
 "use client"
 import React, { useState } from 'react'
 import { ShoppingCart } from 'lucide-react'
+import { toast } from 'react-hot-toast'
 import OrderTableRow from './OrderTableRow'
 import OrderDetailsModal from './OrderDetailsModal'
 import { apiCall } from '../shared/utils'
@@ -32,7 +33,7 @@ const OrdersManagement = ({ orders: initialOrders = [], loading: initialLoading 
 
   const fetchOrders = async () => {
     try {
-      const data = await apiCall('/api/admin/sales')
+      const data = await apiCall('/admin/sales')
       setOrders(data.sales || data)
       setLoading(false)
       if (onRefresh) onRefresh()
@@ -46,12 +47,12 @@ const OrdersManagement = ({ orders: initialOrders = [], loading: initialLoading 
   const handleStatusUpdate = async (orderId, newStatus) => {
     setUpdatingOrder(orderId)
     try {
-      const result = await apiCall(`/api/admin/sales/${orderId}`, {
+      const result = await apiCall(`/admin/sales/${orderId}`, {
         method: 'PUT',
         body: JSON.stringify({ status: newStatus }),
       })
       
-      alert(`Sale #${orderId} has been updated to ${newStatus} successfully!`)
+      toast.success(`Sale #${orderId} has been updated to ${newStatus} successfully!`)
       
       // Update local state
       setOrders(prevOrders => 
@@ -63,7 +64,7 @@ const OrdersManagement = ({ orders: initialOrders = [], loading: initialLoading 
       )
     } catch (err) {
       console.error('Error updating sale status:', err)
-      alert(`Failed to update sale status: ${err.message}`)
+      toast.error(`Failed to update sale status: ${err.message}`)
     } finally {
       setUpdatingOrder(null)
     }
@@ -73,7 +74,7 @@ const OrdersManagement = ({ orders: initialOrders = [], loading: initialLoading 
     setDetailsModal({ show: true, order: null, loading: true, error: null })
     
     try {
-      const data = await apiCall(`/api/admin/sales/${order.id}`)
+      const data = await apiCall(`/admin/sales/${order.id}`)
       const orderData = data.sale || data
       
       setDetailsModal({ show: true, order: orderData, loading: false, error: null })
