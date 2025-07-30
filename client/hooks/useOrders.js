@@ -1,8 +1,8 @@
 import { useState, useCallback } from "react";
-import { useAuth } from "@/hooks/useAuth"; // Update path if needed
+import { useAuthContext } from "@/contexts/AuthContext";
 
 export function useOrders() {
-    const { authFetch } = useAuth();
+    const { authFetch } = useAuthContext();
 
     const [orders, setOrders] = useState([]);
     const [order, setOrder] = useState(null);

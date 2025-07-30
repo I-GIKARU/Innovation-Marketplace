@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useProjects } from "./useProjects";
-import { useAuth } from "./useAuth";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 export function useProjectDetail() {
   const { id } = useParams();
   const router = useRouter();
-  const { user, loading: authLoading, token } = useAuth();
+  const { user, loading: authLoading, authFetch } = useAuthContext();
   const {
     singleProject,
     loading,
@@ -67,21 +67,25 @@ export function useProjectDetail() {
   };
 
   const handleSaveEdit = async () => {
-    if (!token) {
+    if (!user) {
       alert("You must be logged in to edit projects.");
       return;
     }
-    const updatedData = {
-      description: editedDescription,
-      tech_stack: editedTechStack,
-    };
-    const result = await updateProject(singleProject.id, updatedData, token);
-    if (result.success) {
+    
+    try {
+      const updatedData = {
+        description: editedDescription,
+        tech_stack: editedTechStack,
+      };
+      await authFetch(`/projects/${singleProject.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(updatedData)
+      });
       alert("Project updated successfully!");
       setIsEditing(false);
       fetchProjectById(id);
-    } else {
-      alert(`Failed to update project: ${result.error}`);
+    } catch (error) {
+      alert(`Failed to update project: ${error.message}`);
     }
   };
 
@@ -90,88 +94,149 @@ export function useProjectDetail() {
   };
 
   const handleConfirmDelete = async () => {
-    if (!token) {
+    if (!user) {
       alert("You must be logged in to delete projects.");
       return;
     }
-    const result = await deleteProject(singleProject.id, token);
-    if (result.success) {
+    
+    try {
+      await authFetch(`/projects/${singleProject.id}`, {
+        method: 'DELETE'
+      });
       alert("Project deleted successfully!");
       router.push("/projects");
-    } else {
-      alert(`Failed to delete project: ${result.error}`);
+    } catch (error) {
+      alert(`Failed to delete project: ${error.message}`);
     }
     setShowDeleteConfirm(false);
   };
 
   const handleExpressInterest = async (interestedIn, message) => {
-    if (!token) {
+    if (!user) {
       alert("You must be logged in to express interest.");
       return;
     }
 
-    const result = await createProjectInteraction(
-      singleProject.id,
-      interestedIn,
-      message,
-      token
-    );
-    if (result.success) {
+    try {
+      await authFetch('/user-projects', {
+        method: 'POST',
+        body: JSON.stringify({
+          project_id: singleProject.id,
+          interested_in: interestedIn,
+          message
+        })
+      });
       alert("Your interest has been recorded!");
       setShowInteractionForm(false);
       fetchProjectById(id);
-    } else {
-      alert(`Failed to express interest: ${result.error}`);
+    } catch (error) {
+      alert(`Failed to express interest: ${error.message}`);
     }
   };
 
-  const handleSubmitReview = async (rating, comment, email) => {
-    const result = await submitReview(
-      singleProject.id,
-      rating,
-      comment,
-      email,
-      token
-    );
-    if (result.success) {
+  const handleSubmitReview = async (rating, comment) => {
+    if (!user) {
+      alert("Please log in to write a review.");
+      return;
+    }
+    
+    try {
+      await authFetch(`/projects/${singleProject.id}/reviews`, {
+        method: 'POST',
+        body: JSON.stringify({ rating, comment })
+      });
       alert("Review submitted successfully!");
       setShowReviewForm(false);
       fetchProjectReviews(id);
-    } else {
-      alert(`Failed to submit review: ${result.error}`);
+    } catch (error) {
+      alert(`Failed to submit review: ${error.message}`);
     }
   };
 
   const handleHireTeam = async (hireData) => {
-    const result = await hireTeam(
-      singleProject.id,
-      hireData
-    );
-    if (result.success) {
+    if (!user) {
+      alert("You must be logged in to send a hire request.");
+      return;
+    }
+    
+    try {
+      await authFetch(`/projects/${singleProject.id}/hire`, {
+        method: 'POST',
+        body: JSON.stringify(hireData)
+      });
       alert("Hire request sent successfully! The team will be notified.");
       setShowHireForm(false);
-    } else {
-      alert(`Failed to send hire request: ${result.error}`);
+    } catch (error) {
+      alert(`Failed to send hire request: ${error.message}`);
     }
   };
+
+  const handleReviewClick = () => {
+    if (!user) {
+      alert("Please log in to write a review.");
+      return;
+    }
+    setShowReviewForm(true);
+  };
+
+  // Helper function to determine user role (handle both string and object formats)
+  const getUserRole = () => {
+    if (!user) return null;
+    
+    // Handle case where role is a string (from API response)
+    if (typeof user.role === 'string') {
+      return user.role;
+    }
+    
+    // Handle case where role is an object with name property
+    if (user.role?.name) {
+      return user.role.name;
+    }
+    
+    // Fallback: determine role based on email domain
+    if (user.email?.includes('@student.moringaschool.com')) {
+      return 'student';
+    }
+    
+    // Default to client for other email domains
+    return 'client';
+  };
+
+  const userRole = getUserRole();
 
   // Permission checks
   const canEditOrDelete =
     user &&
     singleProject &&
-    (user.role?.name === "admin" ||
-      (user.role?.name === "student" &&
+    (userRole === "admin" ||
+      (userRole === "student" &&
         singleProject.user_projects?.some(
           (up) => up.user?.id === user.id && up.interested_in === "contributor"
         )));
 
+  // Always show interaction buttons for logged-in users with valid roles
   const canExpressInterest =
     user &&
-    user.role?.name === "student" &&
-    !currentUserProjectInteraction &&
-    !canEditOrDelete;
+    singleProject &&
+    (userRole === "student" || userRole === "client");
 
-  const canWriteReview = true; // Allow anyone to write reviews (anonymous)
+  const canWriteReview = true; // Show review button to everyone
+
+  // Debug logging (remove in production)
+  console.log('Permission Debug:', {
+    user: user?.email,
+    userRole: user?.role?.name,
+    userRoleId: user?.role?.id,
+    hasProject: !!singleProject,
+    projectId: singleProject?.id,
+    projectTitle: singleProject?.title,
+    authLoading,
+    loading,
+    canEditOrDelete,
+    canExpressInterest,
+    currentUserProjectInteraction,
+    userProjects: singleProject?.user_projects?.length || 0
+  });
 
   return {
     // State
@@ -180,7 +245,6 @@ export function useProjectDetail() {
     loading: authLoading || loading,
     error,
     user,
-    token,
     isEditing,
     editedDescription,
     editedTechStack,
@@ -204,6 +268,7 @@ export function useProjectDetail() {
     handleExpressInterest,
     handleSubmitReview,
     handleHireTeam,
+    handleReviewClick,
     
     // State setters
     setEditedDescription,

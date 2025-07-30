@@ -4,27 +4,28 @@ import ClientSidebar from './ClientSidebar'
 import DashboardOverview from './DashboardOverview'
 import MyOrders from './MyOrders'
 import ClientProfile from './ClientProfile'
+import ClientContributions from './ClientContributions'
 import { useClientDashboard } from '@/hooks/useClientDashboard'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuthContext } from "@/contexts/AuthContext";
 
 const ClientDashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard')
-  const { dashboardData, loading: dashboardLoading, error, fetchDashboardData } = useClientDashboard()
-  const { user } = useAuth()
+  const { dashboardData, allData, loading, error, fetchAllClientData, refreshData } = useClientDashboard()
+  const { user } = useAuthContext()
 
   // Fetch dashboard data when component mounts
   useEffect(() => {
     if (user && user.role === 'client') {
-      fetchDashboardData()
+      fetchAllClientData()
     }
-  }, [user, fetchDashboardData])
+  }, [user, fetchAllClientData])
 
   const handleSidebarSelect = (section) => {
     setActiveSection(section)
   }
 
   const handleOrderUpdate = () => {
-    fetchDashboardData() // Refresh dashboard data when orders are updated
+    refreshData('orders') // Refresh orders data
   }
 
   const renderActiveSection = () => {
@@ -34,20 +35,22 @@ const ClientDashboard = () => {
           <div className="space-y-6 p-6">
             <DashboardOverview 
               dashboardData={dashboardData} 
-              loading={dashboardLoading}
+              loading={loading}
               error={error}
-              onRetry={fetchDashboardData}
+              onRetry={fetchAllClientData}
             />
           </div>
         )
       case 'orders':
         return (
           <MyOrders 
-            orders={dashboardData?.orders || []} 
-            loading={dashboardLoading} 
+            orders={allData.orders} 
+            loading={loading && !allData.orders.length} 
             onOrderUpdate={handleOrderUpdate}
           />
         )
+      case 'contributions':
+        return <ClientContributions contributions={allData.contributions} loading={loading && !allData.contributions.length} onRefresh={() => refreshData('contributions')} />
       case 'profile':
         return <ClientProfile dashboardData={dashboardData} />
       default:

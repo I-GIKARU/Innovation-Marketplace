@@ -1,12 +1,12 @@
 "use client";
 
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthContext } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import ClientDashboard from "@/components/client/ClientDashboard";
 import { useEffect } from "react";
 
 export default function ClientDashboardPage() {
-  const { user, loading } = useAuth();
+  const { user, loading } = useAuthContext();
   const router = useRouter();
 
   useEffect(() => {

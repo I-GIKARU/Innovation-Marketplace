@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuthContext } from "@/contexts/AuthContext";
 import { Star, MessageSquare, Calendar, User, ExternalLink } from 'lucide-react'
 
 const StudentReviews = ({ dashboardData }) => {
@@ -82,7 +82,6 @@ const StudentReviews = ({ dashboardData }) => {
 
       {/* Reviews Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        {/* Overall Rating */}
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <div className="text-center">
             <div className="text-4xl font-bold text-gray-900 mb-2">

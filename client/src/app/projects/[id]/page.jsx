@@ -5,6 +5,7 @@ import { getProjectImages, getProjectVideos, getProjectPDFs, getProjectZIPs, get
 import ProjectDetailLayout from "@/components/project-detail/ProjectDetailLayout";
 import ReviewForm from "@/components/project-detail/ReviewForm";
 import DeleteConfirmModal from "@/components/project-detail/DeleteConfirmModal";
+import InteractionForm from "@/components/project-detail/InteractionForm";
 import ProjectQA from "@/components/projects/ProjectQA";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { useState } from "react";
@@ -37,9 +38,12 @@ export default function ProjectDetail() {
     handleDeleteClick,
     handleConfirmDelete,
     handleSubmitReview,
+    handleExpressInterest,
+    handleHireTeam,
     setEditedDescription,
     setEditedTechStack,
     setShowDeleteConfirm,
+    setShowInteractionForm,
     setShowReviewForm,
   } = useProjectDetail();
 
@@ -56,7 +60,8 @@ if (loading) {
   }
 
   if (error) {
-    return <div className="p-4 text-center text-red-500">Error: {error}</div>;
+    // Show generic "Project not found" message instead of API error details
+    return <div className="p-4 text-center text-red-500">Project not found.</div>;
   }
 
 if (!singleProject && !loading) {
@@ -104,7 +109,20 @@ if (!singleProject && !loading) {
         />
       )}
 
-
+      {showInteractionForm && (
+        <InteractionForm
+          project={singleProject}
+          user={user}
+          onSubmit={(action, interestedIn, message) => {
+            if (action === 'hire_team') {
+              handleHireTeam({ message, interested_in: interestedIn });
+            } else {
+              handleExpressInterest(interestedIn, message);
+            }
+          }}
+          onCancel={() => setShowInteractionForm(false)}
+        />
+      )}
 
       {showReviewForm && (
         <ReviewForm

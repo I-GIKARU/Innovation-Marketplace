@@ -1,14 +1,14 @@
 "use client"
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { ShoppingBag, Plus } from 'lucide-react'
 import ProductTableRow from './ProductTableRow'
 import ProductFormModal from './ProductFormModal'
 import { apiCall } from '../shared/utils'
 
-const ProductsManagement = () => {
-  const [products, setProducts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+const ProductsManagement = ({ products: initialProducts = [], loading: initialLoading = false, error: initialError = null, onRefresh }) => {
+  const [products, setProducts] = useState(initialProducts)
+  const [loading, setLoading] = useState(initialLoading)
+  const [error, setError] = useState(initialError)
   const [deletingProduct, setDeletingProduct] = useState(null)
   
   // Form modal state
@@ -17,15 +17,19 @@ const ProductsManagement = () => {
     product: null
   })
 
-  useEffect(() => {
-    fetchProducts()
-  }, [])
+  // Update local state when props change
+  React.useEffect(() => {
+    setProducts(initialProducts)
+    setLoading(initialLoading)
+    setError(initialError)
+  }, [initialProducts, initialLoading, initialError])
 
   const fetchProducts = async () => {
     try {
       const data = await apiCall('/api/merchandise')
       setProducts(data.merchandise || data)
       setLoading(false)
+      if (onRefresh) onRefresh()
     } catch (err) {
       console.error('Error fetching products:', err)
       setError(err.message)
@@ -101,7 +105,7 @@ const ProductsManagement = () => {
         <div className="text-red-500 text-center py-8">
           <p>Error loading products: {error}</p>
           <button 
-            onClick={fetchProducts}
+            onClick={onRefresh || fetchProducts}
             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
             Retry

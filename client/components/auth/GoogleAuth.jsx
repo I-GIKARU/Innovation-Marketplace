@@ -6,11 +6,11 @@ import { XMarkIcon } from "@heroicons/react/20/solid";
 import { FcGoogle } from "react-icons/fc";
 import { RiGraduationCapLine } from "react-icons/ri";
 import { motion } from "framer-motion";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 const GoogleAuth = ({ onClose }) => {
     const router = useRouter();
-    const { googleSignIn, loading, error } = useAuth();
+    const { googleSignIn, loading, error } = useAuthContext();
 
     const redirectToDashboard = (role) => {
         router.push(`/dashboard/${role}`);

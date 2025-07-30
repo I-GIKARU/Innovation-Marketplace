@@ -11,11 +11,11 @@ import {
   CheckCircleIcon,
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import CVUpload from './CVUpload';
 
 const CVManager = ({ userData, onCVUpdate }) => {
-  const { authFetch } = useAuth();
+    const { authFetch } = useAuthContext();
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);

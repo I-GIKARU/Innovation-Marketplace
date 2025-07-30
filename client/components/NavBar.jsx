@@ -6,7 +6,7 @@ import { HiMenu, HiX } from "react-icons/hi";
 import { RiDashboardLine, RiLoginCircleLine } from "react-icons/ri";
 import { FiChevronDown, FiUpload, FiLogOut, FiSettings, FiUser, FiShoppingBag, FiFolder, FiHeart } from "react-icons/fi";
 import { usePathname } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthContext } from "@/contexts/AuthContext";
 import dynamic from "next/dynamic";
 
 
@@ -16,7 +16,7 @@ const NavBar = ({ onNavigate, onShowAuth }) => {
   const [showClientContent, setShowClientContent] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const pathname = usePathname();
-  const { isAuthenticated, user, logout, loading } = useAuth();
+  const { isAuthenticated, user, logout, loading } = useAuthContext();
   const dropdownRef = useRef(null);
 
   useEffect(() => {

@@ -303,13 +303,22 @@ export function useProjects() {
       const response = await fetch(`${API_BASE}/projects/${id}`);
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Try to get the error message from the response
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          // If we can't parse JSON, keep the generic error
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
       setSingleProject(data.project || null);
     } catch (err) {
       setError(err.message || "Failed to fetch project");
+      setSingleProject(null); // Make sure to clear any previous project data
       console.error("Error fetching project:", err);
     } finally {
       setLoading(false);
@@ -457,26 +466,28 @@ export function useProjects() {
   );
 
   const submitReview = useCallback(
-    async (projectId, rating, comment, email, token) => {
+    async (projectId, rating, comment, token) => {
+      // Ensure authentication is required
+      if (!token) {
+        const message = "Please log in to submit a review";
+        if (typeof window !== 'undefined') {
+          window.alert(message);
+        }
+        return { success: false, error: message };
+      }
+      
       setLoading(true);
       setError(null);
       try {
-        // Build headers object conditionally
-        const headers = {
-          "Content-Type": "application/json",
-        };
-        
-        // Only add Authorization header if token is provided
-        if (token) {
-          headers.Authorization = `Bearer ${token}`;
-        }
-        
         const response = await fetch(
           `${API_BASE}/projects/${projectId}/reviews`,
           {
             method: "POST",
-            headers,
-            body: JSON.stringify({ rating, comment, email }),
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ rating, comment }),
           }
         );
 

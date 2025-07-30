@@ -1,7 +1,35 @@
-import React from "react";
-import { FiMail, FiPhone, FiUser, FiGithub, FiGlobe } from "react-icons/fi";
+import React, { useState } from "react";
+import { FiMail, FiPhone, FiUser, FiGithub, FiGlobe, FiBriefcase } from "react-icons/fi";
+import HireForm from "./HireForm";
+import { useAuthContext } from "@/contexts/AuthContext";
 
-const TeamMemberDialog = ({ member, onClose }) => {
+const TeamMemberDialog = ({ member, onClose, project }) => {
+    const { user } = useAuthContext();
+  const [showHireForm, setShowHireForm] = useState(false);
+
+  const handleHire = async (hireData) => {
+    try {
+      const response = await fetch(`/api/projects/${project?.id}/hire`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(hireData),
+      });
+      
+      if (response.ok) {
+        alert('Hire request sent successfully!');
+        setShowHireForm(false);
+        onClose();
+      } else {
+        throw new Error('Failed to send hire request');
+      }
+    } catch (error) {
+      alert(`Error: ${error.message}`);
+    }
+  };
+
+  const canHire = user?.role?.name === 'client';
   if (!member) return null;
 
   // Extract user data from the member object
@@ -115,7 +143,16 @@ const TeamMemberDialog = ({ member, onClose }) => {
           )}
         </div>
 
-        <div className="flex justify-end mt-6">
+        <div className="flex justify-end gap-3 mt-6">
+          {canHire && (
+            <button 
+              onClick={() => setShowHireForm(true)}
+              className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-md hover:from-orange-600 hover:to-orange-700 transition-all duration-300 flex items-center gap-2"
+            >
+              <FiBriefcase className="w-4 h-4" />
+              Hire
+            </button>
+          )}
           <button 
             onClick={onClose} 
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
@@ -123,6 +160,17 @@ const TeamMemberDialog = ({ member, onClose }) => {
             Close
           </button>
         </div>
+        
+        {/* Hire Form Modal */}
+        {showHireForm && (
+          <HireForm
+            project={project}
+            user={user}
+            teamMember={member}
+            onSubmit={handleHire}
+            onCancel={() => setShowHireForm(false)}
+          />
+        )}
       </div>
     </div>
   );

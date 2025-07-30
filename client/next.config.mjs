@@ -5,6 +5,10 @@ const nextConfig = {
   experimental: {
     suppressHydrationWarning: true,
   },
+  // Additional hydration configuration
+  compiler: {
+    suppressHydrationWarning: true,
+  },
   images: {
     remotePatterns: [
       {

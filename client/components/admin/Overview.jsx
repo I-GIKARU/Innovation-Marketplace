@@ -1,41 +1,10 @@
 "use client"
 import StatCard from './StatCard';
 import { DollarSign, ShoppingBag, Backpack, SquareActivity, Users, CheckCircle, Clock } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from "framer-motion"
 
-const OverviewPage = () => {
-  const [dashboardData, setDashboardData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  useEffect(() => {
-    fetchDashboardData()
-  }, [])
-
-  const fetchDashboardData = async () => {
-    try {
-      const response = await fetch('/api/dashboard/admin', {
-        method: 'GET',
-        credentials: 'include', // Include cookies for authentication
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch dashboard data')
-      }
-
-      const data = await response.json()
-      setDashboardData(data)
-      setLoading(false)
-    } catch (err) {
-      console.error('Error fetching dashboard data:', err)
-      setError(err.message)
-      setLoading(false)
-    }
-  }
+const OverviewPage = ({ dashboardData, loading, error, onRetry }) => {
 
   if (loading) {
     return (
@@ -58,7 +27,7 @@ const OverviewPage = () => {
           <div className="text-red-500 text-center py-8">
             <p>Error loading dashboard data: {error}</p>
             <button 
-              onClick={fetchDashboardData}
+              onClick={onRetry}
               className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
               Retry

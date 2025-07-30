@@ -1,11 +1,11 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuthContext } from "@/contexts/AuthContext";
 import { User, Mail, Phone, Save, Edit2, Camera } from 'lucide-react'
 
 const StudentProfile = ({ dashboardData }) => {
-  const { authFetch, user } = useAuth()
+  const { authFetch, user } = useAuthContext()
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)

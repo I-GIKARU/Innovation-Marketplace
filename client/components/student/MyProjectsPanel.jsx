@@ -2,21 +2,19 @@
 
 import { useState, useEffect } from 'react'
 import { Trash2, Edit, Eye, Download, ExternalLink, AlertCircle, CheckCircle, Clock, X, MessageCircle, Star } from 'lucide-react'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuthContext } from "@/contexts/AuthContext";
 import { useProjects } from '@/hooks/useProjects'
 import ProjectMedia from '@/components/common/ProjectMedia'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api'
 
 const MyProjectsPanel = ({ projects, loading, onProjectUpdate }) => {
-  const { user, authFetch } = useAuth()
+  const { user, authFetch } = useAuthContext()
   const [deleting, setDeleting] = useState(false)
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, project: null })
 
-  // Use projects from props (dashboard data) or fallback to empty array
   const myProjects = projects || []
 
-  // Handle project deletion using cookie-based auth
   const handleDeleteProject = async (projectId) => {
     setDeleting(true)
     try {
@@ -26,7 +24,6 @@ const MyProjectsPanel = ({ projects, loading, onProjectUpdate }) => {
       
       alert('Project and associated media deleted successfully')
       
-      // Trigger dashboard data refresh if callback provided
       if (onProjectUpdate) {
         onProjectUpdate()
       }
@@ -40,7 +37,6 @@ const MyProjectsPanel = ({ projects, loading, onProjectUpdate }) => {
     }
   }
 
-  // Handle project interactions (views, clicks, downloads)
   const handleProjectInteraction = async (projectId, type) => {
     try {
       if (type === 'click') {

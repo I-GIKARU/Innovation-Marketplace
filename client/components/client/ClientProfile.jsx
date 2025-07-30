@@ -2,14 +2,14 @@
 
 import React, { useState, useEffect } from 'react'
 import { User, Mail, Phone, MapPin, Save, Edit2, Camera, Shield, Bell, CreditCard } from 'lucide-react'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuthContext } from "@/contexts/AuthContext";
 
 const ClientProfile = ({ dashboardData }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [activeTab, setActiveTab] = useState('profile')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const { authFetch, user } = useAuth()
+  const { authFetch, user } = useAuthContext()
   
   // Initialize user data from auth context or dashboard data
   const [userData, setUserData] = useState({

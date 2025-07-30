@@ -1,17 +1,19 @@
 "use client"
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { ChartColumnStacked, Plus, Edit, Trash2 } from 'lucide-react'
 
-const CategoriesManagement = () => {
-  const [categories, setCategories] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+const CategoriesManagement = ({ categories: initialCategories = [], loading: initialLoading = false, error: initialError = null, onRefresh }) => {
+  const [categories, setCategories] = useState(initialCategories)
+  const [loading, setLoading] = useState(initialLoading)
+  const [error, setError] = useState(initialError)
   const [showAddForm, setShowAddForm] = useState(false)
   const [newCategory, setNewCategory] = useState({ name: '', description: '' })
 
-  useEffect(() => {
-    fetchCategories()
-  }, [])
+  React.useEffect(() => {
+    setCategories(initialCategories)
+    setLoading(initialLoading)
+    setError(initialError)
+  }, [initialCategories, initialLoading, initialError])
 
   const fetchCategories = async () => {
     try {
@@ -30,6 +32,7 @@ const CategoriesManagement = () => {
       const data = await response.json()
       setCategories(data.categories || []) // Handle the API response format
       setLoading(false)
+      if (onRefresh) onRefresh()
     } catch (err) {
       console.error('Error fetching categories:', err)
       setError(err.message)
@@ -113,7 +116,7 @@ const CategoriesManagement = () => {
         <div className="text-red-500 text-center py-8">
           <p>Error loading categories: {error}</p>
           <button 
-            onClick={fetchCategories}
+            onClick={onRefresh || fetchCategories}
             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
             Retry

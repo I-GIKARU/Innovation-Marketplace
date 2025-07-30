@@ -1,8 +1,8 @@
 import { useState, useCallback } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 export function useStudentDashboard() {
-    const { authFetch } = useAuth();
+    const { authFetch } = useAuthContext();
     const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);

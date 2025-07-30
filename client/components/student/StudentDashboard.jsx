@@ -8,14 +8,14 @@ import StudentReviews from './StudentReviews'
 import StudentProfile from './StudentProfile'
 import CVUpload from './CVUpload'
 import { useStudentDashboard } from '@/hooks/useStudentDashboard'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuthContext } from "@/contexts/AuthContext";
 
 const StudentDashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard')
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [showCVUploadModal, setShowCVUploadModal] = useState(false)
   const { dashboardData, loading: dashboardLoading, error, fetchDashboardData } = useStudentDashboard()
-  const { user } = useAuth()
+  const { user } = useAuthContext()
 
   // Fetch dashboard data when component mounts
   useEffect(() => {
@@ -26,7 +26,6 @@ const StudentDashboard = () => {
 
   const handleSidebarSelect = (section) => {
     setActiveSection(section)
-    // Handle upload section by showing modal instead
     if (section === 'upload') {
       setShowUploadModal(true)
       setActiveSection('dashboard') // Keep dashboard active

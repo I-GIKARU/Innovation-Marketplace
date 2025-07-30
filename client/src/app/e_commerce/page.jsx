@@ -1,23 +1,14 @@
 'use client';
-import React, { Suspense, lazy, useState } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import FloatingCart from "@/components/e_commerce/FloatingCart";
 import AddToCartModal from "@/components/e_commerce/AddToCartModal";
 import CombinedAuth from "@/components/auth/CombinedAuth";
-
-// Lazy load components for better performance
-const Hero = lazy(() => import("@/components/e_commerce/Hero"));
-const ProductList = lazy(() => import("@/components/e_commerce/ProductList"));
-const OrderManagement = lazy(() => import("@/components/e_commerce/OrderManagement"));
-
-// Loading placeholder component
-const LoadingPlaceholder = ({ height = "h-64" }) => (
-    <div className={`${height} bg-gray-100 animate-pulse rounded-lg flex items-center justify-center`}>
-        <div className="text-gray-500">Loading...</div>
-    </div>
-);
+import Hero from "@/components/e_commerce/Hero";
+import ProductList from "@/components/e_commerce/ProductList";
+import OrderManagement from "@/components/e_commerce/OrderManagement";
 
 const MerchandisePage = () => {
     const [currentView, setCurrentView] = useState('home'); // 'home', 'orders'
@@ -41,22 +32,16 @@ const MerchandisePage = () => {
         switch (currentView) {
             case 'orders':
                 return (
-                    <Suspense fallback={<LoadingPlaceholder height="h-screen" />}>
-                        <OrderManagement onNavigate={{ showHome }} />
-                    </Suspense>
+                    <OrderManagement onNavigate={{ showHome }} />
                 );
             default:
                 return (
                     <>
                         {/* Hero Section */}
-                        <Suspense fallback={<LoadingPlaceholder height="h-96" />}>
-                            <Hero onProductClick={openAddToCartModal} />
-                        </Suspense>
+                        <Hero onProductClick={openAddToCartModal} />
                         
                         {/* Product List */}
-                        <Suspense fallback={<LoadingPlaceholder height="h-screen" />}>
-                            <ProductList onProductClick={openAddToCartModal} />
-                        </Suspense>
+                        <ProductList onProductClick={openAddToCartModal} />
                     </>
                 );
         }

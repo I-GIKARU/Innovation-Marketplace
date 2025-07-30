@@ -10,11 +10,13 @@ import {
     ChevronRight,
     ShoppingBag,
     Package,
+    Heart,
 } from "lucide-react";
 
 const menu = [
     { name: "Dashboard", key: "dashboard", icon: BarChart3, description: "Overview & Analytics" },
     { name: "My Orders", key: "orders", icon: Package, description: "Track your purchases" },
+    { name: "Contributions", key: "contributions", icon: Heart, description: "Support projects" },
     { name: "Profile", key: "profile", icon: User, description: "Account settings" },
 ];
 

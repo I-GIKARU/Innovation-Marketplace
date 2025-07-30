@@ -13,14 +13,10 @@ const ProjectDetailLayout = ({
   projectZIPs,
   teamMembers,
   projectReviews,
-  isEditing,
-  editedDescription,
-  editedTechStack,
+  canExpressInterest,
   canWriteReview,
-  onDescriptionChange,
-  onTechStackChange,
+  onExpressInterest,
   onWriteReview,
-  onHireTeam,
   onAskAI,
 }) => {
   return (
@@ -38,23 +34,43 @@ const ProjectDetailLayout = ({
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Compact Project Title */}
           <div className="mb-12">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-4">
-              {project.title}
-            </h1>
-            <div className="flex items-center gap-3 flex-wrap">
-              {project.category?.name && (
-                <span className="bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-xl shadow-lg">
-                  {project.category.name}
-                </span>
-              )}
-              {project.featured && (
-                <span className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-yellow-900 text-sm font-semibold px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg">
-                  <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                  Featured
-                </span>
-              )}
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6 mb-6">
+              <div>
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-4">
+                  {project.title}
+                </h1>
+                <div className="flex items-center gap-3 flex-wrap">
+                  {project.category?.name && (
+                    <span className="bg-gradient-to-r from-orange-500 to-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-xl shadow-lg">
+                      {project.category.name}
+                    </span>
+                  )}
+                  {project.featured && (
+                    <span className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-yellow-900 text-sm font-semibold px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg">
+                      <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      Featured
+                    </span>
+                  )}
+                </div>
+              </div>
+              
+              {/* Action buttons in header */}
+              <div className="flex flex-wrap gap-3 sm:flex-shrink-0">
+                
+                {canExpressInterest && (
+                  <button
+                    onClick={onExpressInterest}
+                    className="flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all duration-300 shadow-lg font-medium text-sm"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+                    </svg>
+                    Get In Touch
+                  </button>
+                )}
+              </div>
             </div>
           </div>
           <div className="flex flex-col xl:grid xl:grid-cols-4 gap-12">
@@ -88,12 +104,10 @@ const ProjectDetailLayout = ({
                 <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
                   <ProjectDescription 
                     project={project}
-                    isEditing={isEditing}
-                    editedDescription={editedDescription}
-                    onDescriptionChange={onDescriptionChange}
                   />
                 </div>
               </section>
+
 
               {/* Team and Reviews Section */}
               <section className="relative">
@@ -104,7 +118,6 @@ const ProjectDetailLayout = ({
                     projectReviews={projectReviews}
                     canWriteReview={canWriteReview}
                     onWriteReview={onWriteReview}
-                    onHireTeam={onHireTeam}
                   />
                 </div>
               </section>
@@ -115,9 +128,6 @@ const ProjectDetailLayout = ({
               <div className="xl:sticky xl:top-8">
                 <ProjectSidebar
                   project={project}
-                  isEditing={isEditing}
-                  editedTechStack={editedTechStack}
-                  onTechStackChange={onTechStackChange}
                   onAskAI={onAskAI}
                 />
               </div>

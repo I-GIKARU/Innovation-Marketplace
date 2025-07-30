@@ -1,14 +1,16 @@
 "use client"
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { ShoppingCart } from 'lucide-react'
 import OrderTableRow from './OrderTableRow'
 import OrderDetailsModal from './OrderDetailsModal'
 import { apiCall } from '../shared/utils'
 
-const OrdersManagement = () => {
-  const [orders, setOrders] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+const OrdersManagement = ({ orders: initialOrders = [], loading: initialLoading = false, error: initialError = null, onRefresh }) => {
+  // Ensure initialOrders is always an array
+  const safeInitialOrders = Array.isArray(initialOrders) ? initialOrders : [];
+  const [orders, setOrders] = useState(safeInitialOrders)
+  const [loading, setLoading] = useState(initialLoading)
+  const [error, setError] = useState(initialError)
   const [filter, setFilter] = useState('all')
   const [updatingOrder, setUpdatingOrder] = useState(null)
   
@@ -20,15 +22,20 @@ const OrdersManagement = () => {
     error: null 
   })
 
-  useEffect(() => {
-    fetchOrders()
-  }, [])
+  React.useEffect(() => {
+    // Ensure orders is always an array
+    const ordersArray = Array.isArray(initialOrders) ? initialOrders : [];
+    setOrders(ordersArray)
+    setLoading(initialLoading)
+    setError(initialError)
+  }, [initialOrders, initialLoading, initialError])
 
   const fetchOrders = async () => {
     try {
       const data = await apiCall('/api/admin/sales')
       setOrders(data.sales || data)
       setLoading(false)
+      if (onRefresh) onRefresh()
     } catch (err) {
       console.error('Error fetching sales:', err)
       setError(err.message)
@@ -111,7 +118,7 @@ const OrdersManagement = () => {
         <div className="text-red-500 text-center py-8">
           <p>Error loading sales: {error}</p>
           <button 
-            onClick={fetchOrders}
+            onClick={onRefresh || fetchOrders}
             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
             Retry

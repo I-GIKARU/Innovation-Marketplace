@@ -66,13 +66,8 @@ const ProjectTeamAndReviews = ({ project, teamMembers, projectReviews, canWriteR
                           {up.user.github}
                         </a>
                       )}
-                      {up.user.email && (
-                        <p className="text-sm text-gray-300">{up.user.email}</p>
-                      )}
                     </div>
-                  ) : (
-                    <p className="text-sm text-gray-300">{up.user.email}</p>
-                  )}
+                  ) : null}
                   
                   {up.user.role && (
                     <span className={`inline-block mt-1 px-2 py-1 text-xs rounded-full ${
@@ -91,16 +86,6 @@ const ProjectTeamAndReviews = ({ project, teamMembers, projectReviews, canWriteR
                   )}
                   
                   <div className="flex items-center gap-2 mt-3">
-                    {up.user.email && (
-                      <a
-                        href={`mailto:${up.user.email}`}
-                        className="inline-flex items-center text-orange-400 hover:text-orange-300 text-sm"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <FiMail className="w-4 h-4 mr-1" />
-                        Contact
-                      </a>
-                    )}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -109,7 +94,7 @@ const ProjectTeamAndReviews = ({ project, teamMembers, projectReviews, canWriteR
                       className="inline-flex items-center px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition-colors"
                     >
                       <FiUser className="w-3 h-3 mr-1" />
-                      Hire This Team
+                      View Profile
                     </button>
                   </div>
                 </div>
@@ -187,6 +172,7 @@ const ProjectTeamAndReviews = ({ project, teamMembers, projectReviews, canWriteR
       {selectedMember && (
         <TeamMemberDialog 
           member={selectedMember} 
+          project={project}
           onClose={() => setSelectedMember(null)} 
         />
       )}

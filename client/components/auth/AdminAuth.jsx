@@ -4,11 +4,11 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { motion } from "framer-motion";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 const AdminAuth = ({ onClose }) => {
     const router = useRouter();
-    const { adminLogin, loading, error } = useAuth();
+    const { adminLogin, loading, error } = useAuthContext();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 

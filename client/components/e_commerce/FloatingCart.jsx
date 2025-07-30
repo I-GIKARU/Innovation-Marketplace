@@ -14,12 +14,12 @@ import {
   EnvelopeIcon,
 } from '@heroicons/react/24/outline';
 import { useCart } from '@/contexts/CartContext';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 import MpesaPayment from './MpesaPayment';
 
 const FloatingCart = ({  }) => {
   const { cart, updateQuantity, removeFromCartById, getCartTotal, getCartCount, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user, authFetch } = useAuthContext();
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -96,33 +96,11 @@ const FloatingCart = ({  }) => {
 
       console.log('Order data being sent:', orderData);
 
-      // Get auth token
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setErrors({ general: 'Authentication required. Please sign in.' });
-        return;
-      }
-
-      // Make authenticated API request
-      const response = await fetch('/api/buy', {
+      // Use authFetch for authenticated API request
+      const result = await authFetch('/buy', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
         body: JSON.stringify(orderData)
       });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        if (result.error) {
-          setErrors({ general: result.error });
-        } else {
-          setErrors({ general: 'Failed to place order. Please try again.' });
-        }
-        return;
-      }
 
       // Success
       setOrderSuccess(true);
@@ -142,7 +120,11 @@ const FloatingCart = ({  }) => {
 
     } catch (error) {
       console.error('Order submission error:', error);
-      setErrors({ general: 'Network error. Please check your connection and try again.' });
+      if (error.message.includes('Session expired')) {
+        setErrors({ general: 'Your session has expired. Please sign in again.' });
+      } else {
+        setErrors({ general: error.message || 'Failed to place order. Please try again.' });
+      }
     } finally {
       setIsLoading(false);
     }

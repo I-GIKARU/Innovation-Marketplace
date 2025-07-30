@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { Backpack, Search, Filter, BarChart3, TrendingUp, Users, Eye, Star } from 'lucide-react'
 import ProjectTableRow from './ProjectTableRow'
 import ProjectRejectionModal from './ProjectRejectionModal'
@@ -7,11 +7,11 @@ import ProjectDetailsModal from './ProjectDetailsModal'
 import ProjectQA from '@/components/projects/ProjectQA'
 import { apiCall } from '../shared/utils'
 
-const ProjectsManagement = () => {
-  const [projects, setProjects] = useState([])
+const ProjectsManagement = ({ projects: initialProjects = [], loading: initialLoading = false, error: initialError = null, onRefresh }) => {
+  const [projects, setProjects] = useState(initialProjects)
   const [statusCounts, setStatusCounts] = useState({})
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(initialLoading)
+  const [error, setError] = useState(initialError)
   const [filter, setFilter] = useState('all')
   const [updatingProject, setUpdatingProject] = useState(null)
   const [deletingProject, setDeletingProject] = useState(null)
@@ -35,9 +35,19 @@ const ProjectsManagement = () => {
     project: null 
   })
 
-  useEffect(() => {
-    fetchProjects()
-  }, [])
+  // Update local state when props change
+  React.useEffect(() => {
+    setProjects(initialProjects)
+    setLoading(initialLoading)
+    setError(initialError)
+    
+    // Calculate status counts from projects
+    const counts = initialProjects.reduce((acc, project) => {
+      acc[project.status] = (acc[project.status] || 0) + 1
+      return acc
+    }, {})
+    setStatusCounts(counts)
+  }, [initialProjects, initialLoading, initialError])
 
   const fetchProjects = async () => {
     try {
@@ -45,6 +55,7 @@ const ProjectsManagement = () => {
       setProjects(data.projects || [])
       setStatusCounts(data.status_counts || {})
       setLoading(false)
+      if (onRefresh) onRefresh()
     } catch (err) {
       console.error('Error fetching projects:', err)
       setError(err.message)
@@ -224,7 +235,7 @@ const ProjectsManagement = () => {
         <div className="text-red-500 text-center py-8">
           <p>Error loading projects: {error}</p>
           <button 
-            onClick={fetchProjects}
+            onClick={onRefresh || fetchProjects}
             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
             Retry

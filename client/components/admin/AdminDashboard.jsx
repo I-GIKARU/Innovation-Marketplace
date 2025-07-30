@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import NavBar from '@/components/NavBar'
 import Sidebar from './AdminSidebar'
 import OverviewPage from './Overview'
@@ -7,9 +7,23 @@ import ProjectsManagement from './ProjectsManagement'
 import AdminCVManagement from './AdminCVManagement'
 import OrdersManagement from './orders/OrdersManagement'
 import CategoriesManagement from './CategoriesManagement'
+import AdminContributionsManagement from './AdminContributionsManagement'
+import { useAdminDashboard } from '@/hooks/useAdminDashboard'
 
 const AdminDashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard')
+  const {
+    dashboardData,
+    allData,
+    loading,
+    error,
+    fetchAllAdminData,
+    refreshData,
+  } = useAdminDashboard()
+
+  useEffect(() => {
+    fetchAllAdminData()
+  }, [fetchAllAdminData])
 
   const handleSidebarSelect = (section) => {
     setActiveSection(section)
@@ -20,23 +34,77 @@ const AdminDashboard = () => {
       case 'dashboard':
         return (
           <div className="space-y-6">
-            <OverviewPage />
+            <OverviewPage
+              dashboardData={dashboardData}
+              loading={loading}
+              error={error}
+              onRetry={fetchAllAdminData}
+            />
           </div>
         )
       case 'products':
-        return <ProductsManagement />
+        return (
+          <ProductsManagement
+            products={allData.products}
+            loading={loading && !allData.products.length}
+            error={error}
+            onRefresh={() => refreshData('products')}
+          />
+        )
       case 'projects':
-        return <ProjectsManagement />
+        return (
+          <ProjectsManagement
+            projects={allData.projects}
+            loading={loading && !allData.projects.length}
+            error={error}
+            onRefresh={() => refreshData('projects')}
+          />
+        )
       case 'cvs':
-        return <AdminCVManagement />
+        return (
+          <AdminCVManagement
+            cvs={allData.cvs}
+            loading={loading && !allData.cvs.length}
+            error={error}
+            onRefresh={() => refreshData('cvs')}
+          />
+        )
       case 'orders':
-        return <OrdersManagement />
+        return (
+          <OrdersManagement
+            orders={allData.orders}
+            loading={loading && !allData.orders.length}
+            error={error}
+            onRefresh={() => refreshData('orders')}
+          />
+        )
       case 'categories':
-        return <CategoriesManagement />
+        return (
+          <CategoriesManagement
+            categories={allData.categories}
+            loading={loading && !allData.categories.length}
+            error={error}
+            onRefresh={() => refreshData('categories')}
+          />
+        )
+      case 'contributions':
+        return (
+          <AdminContributionsManagement
+            contributions={allData.contributions}
+            loading={loading && !allData.contributions.length}
+            error={error}
+            onRefresh={() => refreshData('contributions')}
+          />
+        )
       default:
         return (
           <div className="space-y-6">
-            <OverviewPage />
+            <OverviewPage
+              dashboardData={dashboardData}
+              loading={loading}
+              error={error}
+              onRetry={fetchAllAdminData}
+            />
           </div>
         )
     }

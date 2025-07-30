@@ -2,12 +2,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from 'framer-motion';
 import CombinedAuth from './CombinedAuth';
 
 const AuthGuard = ({ children, requiredRole }) => {
-    const { user, loading, isAuthenticated } = useAuth();
+  const { user, loading } = useAuthContext();
     const router = useRouter();
     const [showAuth, setShowAuth] = useState(false);
     const [authChecked, setAuthChecked] = useState(false);
@@ -16,7 +16,7 @@ const AuthGuard = ({ children, requiredRole }) => {
         if (!loading) {
             setAuthChecked(true);
             
-            if (!isAuthenticated) {
+            if (!user) {
                 setShowAuth(true);
                 return;
             }
@@ -29,7 +29,7 @@ const AuthGuard = ({ children, requiredRole }) => {
                 return;
             }
         }
-    }, [loading, isAuthenticated, user, requiredRole, router]);
+    }, [loading, user, requiredRole, router]);
 
     // Show loading state
     if (loading || !authChecked) {
@@ -44,7 +44,7 @@ const AuthGuard = ({ children, requiredRole }) => {
     }
 
     // Show auth modal if not authenticated
-    if (!isAuthenticated) {
+    if (!user) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900">
                 <AnimatePresence>

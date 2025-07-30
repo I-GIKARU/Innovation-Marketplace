@@ -3,14 +3,14 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { XMarkIcon, DocumentTextIcon, CloudArrowUpIcon } from '@heroicons/react/24/outline';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 
 const CVUpload = ({ isOpen, onClose, onUploadSuccess }) => {
     const [file, setFile] = useState(null);
     const [uploading, setUploading] = useState(false);
     const [summary, setSummary] = useState('');
     const [error, setError] = useState('');
-    const { authFetch } = useAuth();
+    const { authFetch } = useAuthContext();
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];

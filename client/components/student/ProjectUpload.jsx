@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { X, Upload } from 'lucide-react'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuthContext } from '@/contexts/AuthContext'
 
 // Import our smaller components
 import ProjectInfoForm from './project-upload/ProjectInfoForm'
@@ -11,7 +11,7 @@ import MediaUpload from './project-upload/MediaUpload'
 import UploadProgress from './project-upload/UploadProgress'
 
 const ProjectUpload = ({ isOpen, onClose, onUploadComplete }) => {
-  const { authFetch } = useAuth()
+    const { authFetch } = useAuthContext();
   const [projectData, setProjectData] = useState({
     title: '',
     description: '',
@@ -25,7 +25,6 @@ const ProjectUpload = ({ isOpen, onClose, onUploadComplete }) => {
   
   const [collaborators, setCollaborators] = useState([{ name: '', github: '' }])
   
-  // Remove images from media state - only keep videos, pdfs, zips, and thumbnail
   const [media, setMedia] = useState({
     videos: [],
     pdfs: [],
@@ -53,7 +52,6 @@ const ProjectUpload = ({ isOpen, onClose, onUploadComplete }) => {
         const data = await authFetch('/categories')
         console.log('Categories data:', data)
         setCategories(data.categories || [])
-        // Set default category to first available category if current category_id is 1 (default)
         if ((data.categories || []).length > 0 && projectData.category_id === 1) {
           setProjectData(prev => ({ ...prev, category_id: data.categories[0].id }))
         }
@@ -76,7 +74,6 @@ const ProjectUpload = ({ isOpen, onClose, onUploadComplete }) => {
     setUploadProgress({ stage: 'Creating project...', progress: 20 })
 
     try {
-      // Step 1: Create project
       const projectPayload = {
         ...projectData,
         collaborators: collaborators.filter(collab => collab.name.trim() !== '' || collab.github.trim() !== '')

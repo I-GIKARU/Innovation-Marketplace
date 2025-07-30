@@ -14,64 +14,51 @@ export function useAuth() {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [token, setToken] = useState(null);
+    const [isFetching, setIsFetching] = useState(false);
+    const [initialized, setInitialized] = useState(false);
 
-    const fetchUser = useCallback(async (preserveUser = false) => {
+    const fetchUser = useCallback(async () => {
+        // Prevent multiple fetches
+        if (isFetching) return;
+
+        setIsFetching(true);
+        setLoading(true);
         try {
-            // Only set loading if we don't want to preserve the current user state
-            if (!preserveUser) {
-                setLoading(true);
-            }
-            
-            // Add timeout to prevent getting stuck
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-            
             const res = await fetch(`${API_BASE}/auth/me`, {
                 credentials: 'include',
-                signal: controller.signal
             });
-            
-            clearTimeout(timeoutId);
             
             const data = await res.json();
             if (!res.ok) throw new Error(data.message || 'Failed to fetch user');
 
-            setUser(typeof data.user === 'string' ? { id: data.user } : data.user);
+            setUser(data.user || null);
         } catch (error) {
             console.log('Auth check failed:', error.message);
-            // Only clear user if this is not a background refresh
-            if (!preserveUser) {
-                setUser(null);
-            }
+            setUser(null);
         } finally {
             setLoading(false);
+            setIsFetching(false);
         }
-    }, []);
+    }, [isFetching]);
 
-    useEffect(() => {
-        fetchUser();
-    }, [fetchUser]);
-    
-    // Monitor Firebase auth state changes
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
             if (firebaseUser) {
-                // User is signed in to Firebase, check backend sync
-                // If we already have a user, do a background refresh to avoid flickering
-                const shouldPreserveUser = !!user;
-                if (!shouldPreserveUser) {
-                    setLoading(true);
+                // User is signed in to Firebase, now check our backend
+                if (!isFetching) {
+                    await fetchUser();
                 }
-                await fetchUser(shouldPreserveUser);
             } else {
-                // User is signed out from Firebase
+                // User is signed out
                 setUser(null);
                 setLoading(false);
+                setIsFetching(false);
             }
         });
-        
-        return unsubscribe;
-    }, [fetchUser]);
+
+        return () => unsubscribe();
+    }, [fetchUser, isFetching]);
     
 
     const googleSignIn = async () => {
@@ -207,14 +194,24 @@ export function useAuth() {
         return data;
     }, []);
 
+    // Get token from localStorage
+    const getToken = useCallback(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('token');
+        }
+        return null;
+    }, []);
+
     return {
         user,
         loading,
         error,
         isAuthenticated: !!user,
+        token: getToken(),
         googleSignIn,
         adminLogin,
         logout,
         authFetch,
+        getToken,
     };
 }

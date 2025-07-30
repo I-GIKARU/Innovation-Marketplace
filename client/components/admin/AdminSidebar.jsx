@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthContext } from "@/contexts/AuthContext";
 import {
     Menu,
     House,
@@ -15,6 +15,7 @@ import {
     ChevronLeft,
     ChevronRight,
     FileText,
+    Heart,
 } from "lucide-react";
 
 const menu = [
@@ -24,10 +25,11 @@ const menu = [
     { name: "Student CVs", key: "cvs", icon: FileText, description: "Review student CVs" },
     { name: "Sales", key: "orders", icon: ShoppingCart, description: "Sales tracking" },
     { name: "Categories", key: "categories", icon: ChartColumnStacked, description: "Category management" },
+    { name: "Contributions", key: "contributions", icon: Heart, description: "View all donations" },
 ];
 
 function Sidebar({ onSelect }) {
-    const { logout, user } = useAuth();
+    const { logout } = useAuthContext();
     const [isSideBarOpen, setSideBarIsOpen] = useState(true);
     const [activeItem, setActiveItem] = useState("dashboard");
 

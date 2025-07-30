@@ -6,7 +6,6 @@ import { FiStar } from "react-icons/fi";
 const ReviewForm = ({ project, user, onSubmit, onCancel }) => {
   const [reviewRating, setReviewRating] = useState(1);
   const [reviewComment, setReviewComment] = useState("");
-  const [reviewEmail, setReviewEmail] = useState(user?.email || "");
 
   const handleSubmit = () => {
     if (!reviewRating || reviewRating < 1 || reviewRating > 5) {
@@ -14,7 +13,7 @@ const ReviewForm = ({ project, user, onSubmit, onCancel }) => {
       return;
     }
 
-    onSubmit(reviewRating, reviewComment, reviewEmail);
+    onSubmit(reviewRating, reviewComment);
   };
 
   const renderStarRating = () => {
@@ -59,26 +58,6 @@ const ReviewForm = ({ project, user, onSubmit, onCancel }) => {
           </div>
         </div>
         
-        <div className="mb-4">
-          <label
-            htmlFor="reviewEmail"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Email (Optional):
-          </label>
-          <input
-            id="reviewEmail"
-            type="email"
-            className="w-full p-2 border rounded-md"
-            value={reviewEmail}
-            onChange={(e) => setReviewEmail(e.target.value)}
-            placeholder={user ? user.email : "your.email@example.com (optional)"}
-            disabled={!!user} // Disable if user is logged in
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            {user ? "Using your account email" : "Leave blank to review anonymously"}
-          </p>
-        </div>
         
         <div className="mb-4">
           <label

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     FileText, 
@@ -13,13 +13,13 @@ import {
     AlertCircle,
     X
 } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthContext } from '@/contexts/AuthContext';
 
-const AdminCVManagement = () => {
-    const { authFetch } = useAuth();
-    const [cvs, setCvs] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+const AdminCVManagement = ({ cvs: initialCvs = [], loading: initialLoading = false, error: initialError = null, onRefresh }) => {
+    const { authFetch } = useAuthContext();
+    const [cvs, setCvs] = useState(initialCvs);
+    const [loading, setLoading] = useState(initialLoading);
+    const [error, setError] = useState(initialError);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCV, setSelectedCV] = useState(null);
     const [showQAModal, setShowQAModal] = useState(false);
@@ -27,9 +27,12 @@ const AdminCVManagement = () => {
     const [answer, setAnswer] = useState('');
     const [askingQuestion, setAskingQuestion] = useState(false);
 
-    useEffect(() => {
-        fetchCVs();
-    }, []);
+    React.useEffect(() => {
+        setCvs(initialCvs);
+        setLoading(initialLoading);
+        setError(initialError);
+    }, [initialCvs, initialLoading, initialError]);
+
 
     const fetchCVs = async () => {
         setLoading(true);
@@ -37,6 +40,7 @@ const AdminCVManagement = () => {
         try {
             const response = await authFetch('/ai/admin/cvs');
             setCvs(response.cvs || []);
+            if (onRefresh) onRefresh();
         } catch (err) {
             setError(err.message || 'Failed to fetch CVs');
         } finally {
@@ -113,7 +117,7 @@ const AdminCVManagement = () => {
                         <span className="text-red-800">Error: {error}</span>
                     </div>
                     <button 
-                        onClick={fetchCVs}
+                        onClick={onRefresh || fetchCVs}
                         className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                     >
                         Retry

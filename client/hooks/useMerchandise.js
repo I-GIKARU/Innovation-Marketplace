@@ -1,8 +1,8 @@
 import { useState, useCallback, useRef } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 export function useMerchandise() {
-    const { authFetch } = useAuth();
+    const { authFetch } = useAuthContext();
     const [merchandise, setMerchandise] = useState([]);
     const [singleItem, setSingleItem] = useState(null);
     const [pagination, setPagination] = useState({
