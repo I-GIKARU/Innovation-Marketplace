@@ -12,12 +12,22 @@
 
 ## 🚀 Overview
 
-Innovation Marketplace is a comprehensive web application designed to bridge the gap between student innovators and industry clients. The platform enables:
+The **Innovation Marketplace** connects innovative student projects with potential clients and collaborators, powered by a modern full-stack architecture. Here's a summary of the structure:
 
-- **Students** to showcase their innovative projects and connect with potential collaborators
-- **Clients** to discover cutting-edge projects and express interest in partnerships
-- **Administrators** to manage the ecosystem and maintain quality standards
-- **E-commerce functionality** for project-related merchandise and services
+#### Architecture
+
+- **Frontend:** Built with Next.js, Tailwind CSS, and Framer Motion for dynamic user interfaces.
+- **Backend:** Built with Flask, utilizing SQLAlchemy and Cloud services for authentication, storage, and data handling.
+- **Storage & Authentication:** Utilizes Firebase for authentication and Cloudinary for media storage.
+- **Database:** PostgreSQL used with both SQLite and Cloud options.
+- **Deployment:** Docker-based deployment utilizing Google Cloud Platform.
+
+The platform enables:
+
+- **Students** to showcase their innovative projects and connect with potential collaborators.
+- **Clients** to discover cutting-edge projects and express interest in partnerships.
+- **Administrators** to manage the ecosystem and maintain quality standards.
+- **E-commerce functionality** for project-related merchandise and services.
 
 ## 🏗️ Architecture
 
@@ -66,7 +76,6 @@ Innovation Marketplace is a comprehensive web application designed to bridge the
 - **Multi-cloud storage** (Firebase + Cloudinary)
 - **Database migrations** with Alembic
 - **Container deployment** with Google Cloud Run
-- **Middleware protection** for routes
 
 ## 🛠️ Tech Stack
 
@@ -76,7 +85,6 @@ Innovation Marketplace is a comprehensive web application designed to bridge the
 - **Styling**: Tailwind CSS 4.1.11
 - **Animations**: Framer Motion 12.23.6
 - **Icons**: Heroicons & React Icons
-- **Charts**: Recharts 2.15.4
 - **Authentication**: Firebase 12.0.0
 
 ### Backend (Server)
@@ -90,59 +98,42 @@ Innovation Marketplace is a comprehensive web application designed to bridge the
 
 ### DevOps & Deployment
 - **Containerization**: Docker
-- **Environment**: Python 3.11+ & Node.js 18+
+- **Environment**: Python 3.11 & Vercel
 - **Package Management**: npm & pip
 - **Version Control**: Git
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- **Node.js** 18+ and npm
-- **Python** 3.11+ and pip
-- **Firebase** project with Authentication enabled
-- **Cloudinary** account for media storage
+#### Prerequisites
+- Install Node.js (18+) and Python (3.11+).
+- Set up Firebase and Cloudinary accounts.
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/innovation-marketplace.git
-cd innovation-marketplace
+   git clone https://github.com/I-GIKARU/Innovation-Marketplace
+   cd innovation-marketplace
 ```
 
-### 2. Backend Setup
+2. **Backend Setup**
 ```bash
-cd server
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your configuration
-
-# Initialize database
-flask db upgrade
-
-# Start the server
-python app.py
+   cd server
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   flask db upgrade
+   python app.py
 ```
 
-### 3. Frontend Setup
+3. **Frontend Setup**
 ```bash
-cd ../client
-npm install
-
-# Set up environment variables
-cp .env.local.example .env.local
-# Edit .env.local with your configuration
-
-# Start the development server
-npm run dev
+   cd ../client
+   npm install
+   npm run dev
 ```
 
-### 4. Access the Application
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:5000
-- **API Documentation**: http://localhost:5000/api/docs
+4. **Access the Application**
+- **Frontend:** `http://localhost:3000`
+- **Backend API:** `http://localhost:5000`
 
 ## 📁 Project Structure
 
@@ -215,7 +206,6 @@ server/
 
 ## 📊 API Documentation
 
-The API follows RESTful conventions with comprehensive endpoint documentation available at `/api/docs` when running the server.
 
 ### Key Endpoints
 - `POST /api/auth/login` - User authentication
@@ -224,38 +214,6 @@ The API follows RESTful conventions with comprehensive endpoint documentation av
 - `GET /api/merchandise` - List products
 - `POST /api/orders` - Place order
 
-For complete API documentation, see [API_DOCUMENTATION.md](./server/API_DOCUMENTATION.md)
-
-## 📚 Comprehensive Documentation
-
-### 🖥️ Backend Documentation
-- **[Server Overview](./server/docs/README.md)** - Complete backend architecture
-- **[Database Models](./server/docs/models/README.md)** - Data structure and relationships
-- **[API Resources](./server/docs/resources/)** - Endpoint documentation
-  - [Authentication Resources](./server/docs/resources/auth.md)
-  - [Project Resources](./server/docs/resources/projects.md)
-  - [Admin Resources](./server/docs/resources/admin.md)
-  - [AI Resources](./server/docs/resources/ai.md)
-- **[Configuration Guide](./server/docs/config.md)** - Environment setup and configuration
-- **[App Analysis](./server/docs/app-analysis.md)** - Detailed app.py breakdown
-- **[Deployment Guide](./server/docs/deployment/README.md)** - Production deployment
-
-### 🌐 Frontend Documentation
-- **[Client Overview](./client/docs/README.md)** - Complete frontend architecture
-- **[Components Guide](./client/docs/components/README.md)** - UI components documentation
-- **[Hooks Documentation](./client/docs/hooks/README.md)** - Custom React hooks
-- **[Context Providers](./client/docs/contexts/)** - Global state management
-- **[Pages Structure](./client/docs/pages/)** - Next.js App Router pages
-- **[Styling Guide](./client/docs/styles/)** - Tailwind CSS patterns
-- **[Development Guides](./client/docs/guides/)** - Best practices and conventions
-
-### 🔧 Development Resources
-- **[Google Cloud SQL Setup](./server/docs/deployment/database.md)** - Cloud SQL configuration
-- **[Firebase Configuration](./server/docs/deployment/environment.md)** - Firebase setup guide
-- **[AI Integration](./server/docs/utils/ai.md)** - Google Generative AI setup
-- **[Troubleshooting](./server/docs/guides/troubleshooting.md)** - Common issues and solutions
-
-## 🐳 Docker Deployment
 
 ### Build and Run with Docker
 ```bash
@@ -264,29 +222,11 @@ cd server
 docker build -t innovation-marketplace-server .
 docker run -p 5000:8080 innovation-marketplace-server
 
-# Build and run frontend
-cd ../client
-docker build -t innovation-marketplace-client .
-docker run -p 3000:3000 innovation-marketplace-client
 ```
 
-### Docker Compose (Recommended)
+### Docker Compose 
 ```bash
 docker-compose up --build
-```
-
-## 🧪 Testing
-
-### Run Backend Tests
-```bash
-cd server
-python -m pytest tests/
-```
-
-### Run Frontend Tests
-```bash
-cd client
-npm test
 ```
 
 ## 📝 Environment Variables
@@ -319,9 +259,6 @@ NEXT_PUBLIC_API_URL=http://localhost:5000/api
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
@@ -330,66 +267,50 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Tailwind CSS** for styling framework
 - **Next.js** and **Flask** communities for excellent documentation
 
+## 🔧 Troubleshooting
+
+### Common Issues
+
+#### Frontend Issues
+- **Build failures:** Ensure all environment variables are set in `.env.local`
+- **API connection errors:** Verify the backend server is running on port 5000
+- **Firebase authentication issues:** Check Firebase configuration in `lib/firebase.js`
+
+#### Backend Issues
+- **Database connection errors:** 
+  - For SQLite: Ensure the database file has proper permissions
+  - For PostgreSQL: Verify connection string and database exists
+- **Firebase Admin SDK errors:** Check service account key path and permissions
+- **Cloudinary upload failures:** Verify API credentials and folder permissions
+
+#### Development Environment
+- **Port conflicts:** Use `lsof -i :3000` or `lsof -i :5000` to check for conflicts
+- **Package installation issues:** Clear `node_modules` and `package-lock.json`, then reinstall
+- **Python virtual environment:** Ensure you're in the activated virtual environment
+
+### Performance Optimization
+
+- **Frontend:** Implement image optimization and lazy loading
+
+
+## 📈 Analytics & Monitoring
+
+- **User Analytics:** Track user engagement and project views
+- **Performance Monitoring:** Monitor API response times and error rates
+
+## 🚀 Future Enhancements
+
+- **Real-time Chat:** Enable direct communication between students and clients
+- **Video Calls:** Integrate video conferencing for project discussions
+- **Advanced Search:** Implement Elasticsearch for better project discovery
+- **Mobile App:** Native mobile applications for iOS and Android
+- **Notifications:** Push notifications for project updates and messages
+
 ## 📞 Support
 
-For support, email support@innovationmarketplace.com or join our [Discord community](https://discord.gg/innovation-marketplace).
+For support, email support@innovationmarketplace.com
 
----
-
-**Built with ❤️ by the Innovation Marketplace Team**
-
-# 🧠 Moringa Innovation Marketplace
-
-A web-based platform that empowers Moringa School students to showcase, monetize, and scale their final capstone projects. It also allows external users to discover talent, purchase innovative solutions, and buy Moringa-branded merchandise.
-
----
-
-## 🚀 Features
-
-### 👩‍💻 Student Functionality
-- Upload projects with title, description, tech stack, GitHub, live demo, and media
-- Tag projects with categories (e.g., HealthTech, FinTech)
-- Student profile page with skills and social links
-- Mark projects as "for sale" and set a price
-
-### 🌍 Public Visitors
-- Explore and filter projects by category or tech
-- View full project detail and team members
-- Contact or hire student teams
-- Leave project reviews and endorsements
-
-### 🛒 E-Commerce
-- View merchandise catalog (hoodies, mugs, stickers)
-- Add products to cart and checkout
-- Pay via M-Pesa or Stripe
-
-### 🛠️ Admin Panel
-- Approve/reject student project submissions
-- Manage product inventory
-- View engagement stats for each project
-- Log admin actions
-
----
-
-## 🧱 Tech Stack
-
-| Layer       | Tech Used                                |
-|-------------|-------------------------------------------|
-| Frontend    | React.js / Next.js                        |
-| Backend     | Flask REST API       |
-| Database    | PostgreSQL                                |
-| Auth        | JWT (API) + NextAuth
-| Media       | Cloudinary for uploads                    |
-| Payments    | M-Pesa Daraja API / Stripe                |
-| Deployment  | Google Cloud Platform    |
-
----
-
-## 🗂️ Project Structure
-
----
-
-## Team Members  
+## 👥 Team Members  
 
 | Name                | Role                    | Contact / Profile                                        |  
 |---------------------|-------------------------|---------------------------------------------------------|  
@@ -400,6 +321,7 @@ A web-based platform that empowers Moringa School students to showcase, monetize
 | **Elizabeth Njuguna**| Backend Developer     | [GitHub](https://github.com/Elizabeth-NN)                |  
 | **Isaac Gikaru**     | DevOps / Deployment     | [GitHub](https://github.com/I-GIKARU)                  |  
 
----  
+---
 
+**Built with ❤️ by the Innovation Marketplace Team**
 
