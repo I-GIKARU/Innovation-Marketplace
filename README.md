@@ -302,7 +302,9 @@ NEXT_PUBLIC_API_URL=http://localhost:5000/api
 
 - **Real-time Chat:** Enable direct communication between students and clients
 - **Video Calls:** Integrate video conferencing for project discussions
-- **Advanced Search:** Implement Elasticsearch for better project discovery
+- **AI-powered Recommendations:** Implement recommendations of similar projects
+- **Payment Integration:** Add Stripe and M-Pesa for diverse payment options
+- **Multilingual Support:** Enable interface in multiple languages
 - **Mobile App:** Native mobile applications for iOS and Android
 - **Notifications:** Push notifications for project updates and messages
 
