@@ -86,8 +86,8 @@ class FirebaseLogin(Resource):
             
             response = make_response(jsonify({
                 'user': user_identity,
-                'message': 'Google sign-in successful',
-                'token': access_token  # Include token in response for localStorage
+                'message': 'Google sign-in successful'
+                # Token is set as HTTP-only cookie, not in response body
             }), 200)
             
             # Set JWT cookie for session management
